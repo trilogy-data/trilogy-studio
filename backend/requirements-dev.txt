@@ -1,0 +1,4 @@
+pyinstaller
+ruff
+mypy
+black
