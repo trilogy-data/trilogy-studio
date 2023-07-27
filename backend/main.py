@@ -16,7 +16,7 @@ import sys
 import traceback
 from copy import deepcopy
 from datetime import datetime
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Dict
 
 import uvicorn
 from fastapi import APIRouter, FastAPI, HTTPException, Request, Response
@@ -25,6 +25,7 @@ from fastapi.responses import PlainTextResponse
 from google.auth import default
 from google.cloud import bigquery
 from google.oauth2 import service_account
+from preql import Dialects
 from preql.constants import DEFAULT_NAMESPACE
 from preql.core.enums import DataType, Purpose
 from preql.executor import Dialects, Executor
@@ -62,15 +63,23 @@ app.add_middleware(
 
 ## BEGIN REQUESTS
 
+CONNECTIONS = {
+    'sqlite': 
+}
 
 class InputRequest(BaseModel):
     text: str
+    connection: str
     # conversation:str
 
 
 ## Begin Endpoints
 router = APIRouter()
 
+class ConnectionInSchema(BaseModel):
+    name:str
+    type:Dialects
+    extra: Dict
 
 class QueryInSchema(BaseModel):
     model: str
@@ -133,9 +142,8 @@ async def get_models() -> ListModelResponse:
         models.append(Model(name=key, concepts=final_concepts))
     return ListModelResponse(models=models)
 
-
-@router.post("/query")
-async def run_query(query: QueryInSchema):
+@router.post("/connection")
+async def create_connection(connection:ConnectionInSchema):
     start = datetime.now()
     if os.path.isfile("/run/secrets/bigquery_auth"):
         credentials = service_account.Credentials.from_service_account_file(
@@ -150,6 +158,10 @@ async def run_query(query: QueryInSchema):
         f"bigquery://{GCP_PROJECT}/test_tables?user_supplied_client=True",
         connect_args={"client": client},
     )
+
+
+@router.post("/query")
+async def run_query(query: QueryInSchema):
 
     # we need to use a deepcopy here to avoid mutation the model default
     try:

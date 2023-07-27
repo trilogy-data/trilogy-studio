@@ -25,5 +25,6 @@ release
 *.sln
 *.sw?
 
-#
+# python
 .venv
+__pycache__

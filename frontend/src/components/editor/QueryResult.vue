@@ -1,14 +1,14 @@
 
 
 <template>
-      <DataTable class="fill-width ma-0 ma-sm-2 px-0 px-sm-2" :headers="headers" :results="results" />
-    <v-chip-group v-if="validChartTypes.length > 1" column v-model="mode" selected-class="text-deep-purple-accent-4"
+      <DataTableV2 :headers="headers" :results="results" />
+    <!-- <v-chip-group v-if="validChartTypes.length > 1" column v-model="mode" selected-class="text-deep-purple-accent-4"
         mandatory align-self="end" class="text-right">
 
         <v-chip v-for="option in validChartTypes" :key="option" :value="option" density="compact">{{ option }}</v-chip>
     </v-chip-group>
     <div v-if="mode === Display.TABLE">
-        <DataTable class="fill-width ma-0 ma-sm-2 px-0 px-sm-2" :headers="headers" :results="results" />
+        <DataTableV2  :headers="headers" :results="results" />
     </div>
     <div v-else-if="mode === Display.BAR_CHART">
         <apexchart class="fill-width ma-0 ma-sm-2 px-0 px-sm-2" type="bar" :options="chartOptions" :series="series">
@@ -17,10 +17,11 @@
     <div v-else-if="mode === Display.LINE_CHART">
         <apexchart class="fill-width ma-0 ma-sm-2 px-0 px-sm-2" type="line" :options="chartOptions" :series="series">
         </apexchart>
-    </div>
+    </div> -->
 </template>
 <script>
-import DataTable from '/src/components/query/DataTable.vue'
+// import DataTable from '/src/components/query/DataTable.vue'
+import DataTableV2 from '/src/components/editor/DataTableV2.vue'
 import charts from '/src/helpers/charts'
 let Display = charts.Display()
 const DisplayMap = new Map();
@@ -51,7 +52,8 @@ export default {
 
     }, //['headers', 'results', 'columns', 'defaultMode'],
     components: {
-        DataTable,
+        // DataTable,
+        DataTableV2,
     },
     data() {
 

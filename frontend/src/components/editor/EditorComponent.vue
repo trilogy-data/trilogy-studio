@@ -1,37 +1,58 @@
 <template>
-    <splitpanes class="default-theme" horizontal @resize="logThis('resize', $event)" @resized="resize('resized', $event)"
-            @ready="startEditor()">
-        <pane min-size="30" size="70" >
-            <div :height="editorY + 'px'" class="full-view">
-            <div  id="editor" class="fill-parent"></div>
-            </div>
-        </pane>
-        <pane min-size="20" size="25">
-            <div v-if="!result">Run query to see results A  {{ editorY }}</div>
-            <QueryResultsV2 v-else :headers="result.headers" :results="result.results" :columns="result.columns">
+    <div class="split editor">
+        <div ref="editor" id="editor" class="revert">
+            <!-- <div id="editor" > </div> -->
+        </div>
+        <div ref="results">
+            <v-progress-linear v-if="loading" height="10" indeterminate color="primary"></v-progress-linear>
+            <HintsComponent v-else-if="!result"></HintsComponent>
+            <QueryResultsV2 v-else 
+            :headers="result.headers" 
+            :results="result.results" 
+            :columns="result.columns">
             </QueryResultsV2>
-        </pane>
-    </splitpanes>
+        </div>
+    </div>
 </template>
 
 <style>
-.full-view {
-    display: flex;
+
+.editor {
+    background-color: var(--main-bg-color);
+    filter: brightness(85%);
 }
 
-.fill-parent {
-    flex: 1;
+.revert {
+    text-align: left;
+    border: none;
 }
+
+.split {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    flex: 1 1 100%;
+    height: 100%;
+}
+
+.page-content {
+    flex: 1 1 auto;
+    min-width: 350px;
+    z-index: 1;
+}
+
 </style>
 <script>
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
 // import ModelConceptList from '@/components/model/ModelConceptList.vue';
-import QueryResultsV2 from '/src/components/query/QueryResult.vue';
+import QueryResultsV2 from './QueryResult.vue';
+import HintsComponent from './HintsComponent.vue'
 import axiosHelpers from '/src/api/helpers';
 import colorHelpers from '/src/helpers/color';
 import instance from '/src/api/instance';
 import * as monaco from 'monaco-editor';
+import Split from 'split.js'
 
 
 export default defineComponent({
@@ -57,17 +78,42 @@ export default defineComponent({
     },
     components: {
         // ModelConceptList, 
-
+        HintsComponent,
         QueryResultsV2,
     },
     created: function () {
         this.$store.dispatch('getModels');
 
     },
+    mounted() {
+        this.split = Split(this.splitElements, {
+            // elementStyle: (_dimension, size) => ({
+            //     "flex-basis": `calc(${size}%)`,
+            // }),
+            direction: 'vertical',
+            // sizes: [75, 25],
+            // minSize: 100,
+            // expandToMin: true,
+            // gutterSize: 25,
+        });
+        this.createEditor()
+    },
     computed: {
         ...mapGetters({
             models: 'stateModels',
         }),
+        splitElements() {
+            return [
+                this.$refs.editor,
+                this.$refs.results
+            ];
+        },
+        computedHeight() {
+            return `${this.editorY}px`
+        },
+        computedWidth() {
+            return `${this.editorX}px`
+        },
         modelNames() {
             return [...this.models.map(item => item.name)]
         },
@@ -92,27 +138,6 @@ export default defineComponent({
 
     },
     methods: {
-        // handleKeyDown(event) {
-        //     if (event.ctrlKey && event.key === 'Enter') {
-        //         // Trigger your action here
-
-        //     }
-        // },
-        async logThis(type, pane) {
-            console.log(type, pane)
-        },
-        async resize(type, pane) {
-            let editorPane = pane[0];
-            if (this.editor) {
-                console.log(editorPane)
-                console.log('resizing')
-                // this.editorY = editorPane.clientHeight;
-                console.log(this.editorY)
-                this.editor.layout({  height: this.editorY, width:400 });
-            }
-      
-            console.log(type, pane);
-        },
         async runQuery(rquery) {
             let local = this;
             console.log('testing')
@@ -173,70 +198,69 @@ export default defineComponent({
         clearPrompt() {
             this.prompt = '';
         },
-        startEditor() {
+        createEditor() {
             const editor = monaco.editor.create(document.getElementById('editor'), {
-            value: this.query.query,
-            language: 'sql',
-            // automaticLayout: true,
+                value: this.query.query,
+                language: 'sql',
+                automaticLayout: true,
+            })
+            this.editor = editor;
+            // editor.layout({ height: 400, width:400 });
+            monaco.editor.defineTheme('myCustomTheme', {
+                base: 'vs-dark', // can also be vs-dark or hc-black
+                inherit: true, // can also be false to completely replace the builtin rules
+                rules: [
+                    { token: 'comment', foreground: 'ffa500', fontStyle: 'italic underline' },
+                    { token: 'comment.js', foreground: '008800', fontStyle: 'bold' },
+                    { token: 'comment.css', foreground: '0000ff' } // will inherit fontStyle from `comment` above
+                ],
+                colors: {
+                    // 'editor.foreground': '#F8F8F8',
+                    // 'editor.background': '#000000',
+                    // 'editorCursor.foreground': '#8B0000',
+                    // 'editor.lineHighlightBackground': '#0000FF20',
+                    // 'editorLineNumber.foreground': '#008800',
+                    // 'editor.selectionBackground': '#88000030',
+                    // 'editor.inactiveSelectionBackground': '#88000015'
+                }
+            });
+            monaco.editor.setTheme('myCustomTheme');
+            editor.onDidChangeModelContent(() => {
+                this.query.query = editor.getValue();
+            });
 
-        })
-        this.editor = editor;
-        // editor.layout({ height: 400, width:400 });
-        monaco.editor.defineTheme('myCustomTheme', {
-            base: 'vs-dark', // can also be vs-dark or hc-black
-            inherit: true, // can also be false to completely replace the builtin rules
-            rules: [
-                { token: 'comment', foreground: 'ffa500', fontStyle: 'italic underline' },
-                { token: 'comment.js', foreground: '008800', fontStyle: 'bold' },
-                { token: 'comment.css', foreground: '0000ff' } // will inherit fontStyle from `comment` above
-            ],
-            colors: {
-                // 'editor.foreground': '#F8F8F8',
-                // 'editor.background': '#000000',
-                // 'editorCursor.foreground': '#8B0000',
-                // 'editor.lineHighlightBackground': '#0000FF20',
-                // 'editorLineNumber.foreground': '#008800',
-                // 'editor.selectionBackground': '#88000030',
-                // 'editor.inactiveSelectionBackground': '#88000015'
-            }
-        });
-        monaco.editor.setTheme('myCustomTheme');
-        editor.onDidChangeModelContent(() => {
-            this.query.query = editor.getValue();
-        });
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+                if (!this.loading) {
+                    this.submit();
+                }
+            });
 
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-            if (!this.loading) {
-                this.submit();
-            }
-        });
+            // loader.init().then((monaco) => {
+            //     const editorOptions = {
+            //         language: "python",
+            //         minimap: { enabled: false },
+            //     };
 
-        // loader.init().then((monaco) => {
-        //     const editorOptions = {
-        //         language: "python",
-        //         minimap: { enabled: false },
-        //     };
+            //     monaco.editor.create(document.getElementById("editor"), editorOptions);
 
-        //     monaco.editor.create(document.getElementById("editor"), editorOptions);
+            // });
 
-        // });
+            //   monaco.editor.create(document.getElementById("editor"),   editorOptions);
+            //     loader.init().then(monaco => {
 
-        //   monaco.editor.create(document.getElementById("editor"),   editorOptions);
-        //     loader.init().then(monaco => {
-
-        //         var editor = monaco.editor.create(document.getElementById('editor'), {
-        //             value: this.query.query,
-        //             language: 'sql',
-        //             theme: 'myCustomTheme',
-        //             automaticLayout: true,
-        //             minimap: {
-        //                 enabled: false
-        //             }
-        //         });
-        //         editor.onDidChangeModelContent(() => {
-        //             this.query.query = editor.getValue();
-        //         });
-        //     });
+            //         var editor = monaco.editor.create(document.getElementById('editor'), {
+            //             value: this.query.query,
+            //             language: 'sql',
+            //             theme: 'myCustomTheme',
+            //             automaticLayout: true,
+            //             minimap: {
+            //                 enabled: false
+            //             }
+            //         });
+            //         editor.onDidChangeModelContent(() => {
+            //             this.query.query = editor.getValue();
+            //         });
+            //     });
 
         }
     }
