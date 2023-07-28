@@ -24,4 +24,4 @@ npm run dev
 
 ## WSL
 
-start 
+start xlaunch or equivalent

@@ -89,8 +89,8 @@ export default {
         }
     },
     props: {
-        'type': {
-            sysType: String,
+        'sysType': {
+            type: String,
             required: false,
         },
     },

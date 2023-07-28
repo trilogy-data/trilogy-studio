@@ -9,10 +9,10 @@
       >
         <div
           ref="sidebar"
-          :class="{hide: !sidebarShown, sidebar: true}"
+         class = "sidebar"
           
         >
-          <SidebarComponent/>
+          <SidebarComponent class="sidebar-content"/>
         </div>
         <div
           ref="content"
@@ -51,13 +51,19 @@ flex: 1 1 auto;
 min-width: 350px;
 z-index: 1;
 }
+.sidebar-content {
+  height: 100%;
+}
 
 </style>
 <script>
+//      :class="{hide: !sidebarShown, sidebar: true}"
+// add this back to sidebar to control toggling
 import instance from '../api/instance';
-import EditorComponent from './editor/EditorComponent.vue'
-import SidebarComponent from './connections/SidebarComponent.vue'
-import Split from 'split.js'
+import EditorComponent from '/src/components/editor/EditorComponent.vue';
+import SidebarComponent from '/src/components/sidebar/SidebarComponent.vue';
+import Split from 'split.js';
+import {mapGetters} from 'vuex';
 export default {
     name: "StudioView",
     data() {
@@ -70,10 +76,12 @@ export default {
             results: [],
             models: [],
             tab: "models",
+            sidebarShown: true
         };
     },
     components: { EditorComponent, SidebarComponent },
     computed: {
+      ...mapGetters(['activeConnection']),
         splitElements() {
             return [
                 this.$refs.sidebar,
@@ -84,18 +92,9 @@ export default {
     methods: {
         getModels() {
             return instance.get("models", {}).then((results) => {
-                console.log(results);
                 this.models = results.data.models;
             });
-        },
-        runQuery() {
-            return instance.post("http://localhost:5678/query", {
-                query: this.queryText,
-                model: "stack_overflow"
-            }).then((results) => {
-                this.results = results.data;
-            });
-        },
+        }
     },
     beforeDestroy() {
         if (this.split) {
@@ -113,7 +112,6 @@ export default {
             expandToMin: true,
             gutterSize: 5,
         });
-    },
-    components: { EditorComponent }
+    }
 };
 </script>

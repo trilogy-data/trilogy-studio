@@ -5,18 +5,15 @@
         </div>
         <div ref="results">
             <v-progress-linear v-if="loading" height="10" indeterminate color="primary"></v-progress-linear>
+            <ErrorComponent v-else-if="error"></ErrorComponent>
             <HintsComponent v-else-if="!result"></HintsComponent>
-            <QueryResultsV2 v-else 
-            :headers="result.headers" 
-            :results="result.results" 
-            :columns="result.columns">
+            <QueryResultsV2 v-else :headers="result.headers" :results="result.results" :columns="result.columns">
             </QueryResultsV2>
         </div>
     </div>
 </template>
 
 <style>
-
 .editor {
     background-color: var(--main-bg-color);
     filter: brightness(85%);
@@ -40,20 +37,20 @@
     min-width: 350px;
     z-index: 1;
 }
-
 </style>
 <script>
 import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
+
 // import ModelConceptList from '@/components/model/ModelConceptList.vue';
 import QueryResultsV2 from './QueryResult.vue';
 import HintsComponent from './HintsComponent.vue'
+import ErrorComponent from './ErrorComponent.vue'
 import axiosHelpers from '/src/api/helpers';
 import colorHelpers from '/src/helpers/color';
 import instance from '/src/api/instance';
 import * as monaco from 'monaco-editor';
 import Split from 'split.js'
-
 
 export default defineComponent({
     name: 'EditorComponent',
@@ -80,6 +77,7 @@ export default defineComponent({
         // ModelConceptList, 
         HintsComponent,
         QueryResultsV2,
+        ErrorComponent
     },
     created: function () {
         this.$store.dispatch('getModels');
@@ -99,9 +97,7 @@ export default defineComponent({
         this.createEditor()
     },
     computed: {
-        ...mapGetters({
-            models: 'stateModels',
-        }),
+        ...mapGetters(['stateModels', 'activeConnection']),
         splitElements() {
             return [
                 this.$refs.editor,
@@ -140,7 +136,7 @@ export default defineComponent({
     methods: {
         async runQuery(rquery) {
             let local = this;
-            console.log('testing')
+
             await instance.post('query', rquery).then(function (response) {
                 local.result = response.data;
             })
@@ -150,7 +146,10 @@ export default defineComponent({
             this.info = 'Generating query from prompt...'
             this.error = null;
             var self = this;
-            await instance.post('parse_question', { model: this.query.model, text: this.prompt }).then(function (resp) {
+            await instance.post('parse_question', {
+                model: this.query.model,
+                text: this.prompt
+            }).then(function (resp) {
                 self.query.query = '# generated from prompt: ' + self.prompt + '\n' + resp.data.query_text;
                 self.prompt = '';
                 self.submit();
@@ -167,7 +166,7 @@ export default defineComponent({
             let current_query = this.query.query;
             let local = this;
             try {
-                let info = { model: this.query.model, query: this.query.query, id: this.query.id };
+                let info = { connection: this.activeConnection, query: this.query.query, id: this.query.id };
                 await this.runQuery(info);
                 this.last_passed_query_text = current_query;
                 this.loading = false;

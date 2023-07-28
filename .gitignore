@@ -28,3 +28,5 @@ release
 # python
 .venv
 __pycache__
+
+config.xlaunch
