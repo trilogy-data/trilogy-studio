@@ -3,8 +3,10 @@
 
 // import instance from '/src/api/instance'
 
+import {Connection} from '/src/models/Connection'
+
 const state = {
-  activeConnection: 'duckdb_demo',
+  activeConnection: new Connection('duckdb_demo', 'duckdb'),
 };
 
 const getters = {

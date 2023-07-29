@@ -1,19 +1,29 @@
 <template>
-    <div class="split editor">
+    <div class="split editor pa-0 ba-0">
         <div ref="editor" id="editor" class="revert">
             <!-- <div id="editor" > </div> -->
         </div>
-        <div ref="results">
+        <div class="results" ref="results">
             <v-progress-linear v-if="loading" height="10" indeterminate color="primary"></v-progress-linear>
-            <ErrorComponent v-else-if="error"></ErrorComponent>
-            <HintsComponent v-else-if="!result"></HintsComponent>
-            <QueryResultsV2 v-else :headers="result.headers" :results="result.results" :columns="result.columns">
+            <ErrorComponent v-else-if="error" :error="error"></ErrorComponent>
+            <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
+            <QueryResultsV2 v-else :headers="result.headers" :results="result.data">
             </QueryResultsV2>
+            <EditorFooter :length="result.data.length" />
         </div>
     </div>
 </template>
 
 <style>
+.results {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 1;
+    /* flex-wrap: wrap; */
+    height: 100%;
+}
+
 .editor {
     background-color: var(--main-bg-color);
     filter: brightness(85%);
@@ -31,12 +41,6 @@
     flex: 1 1 100%;
     height: 100%;
 }
-
-.page-content {
-    flex: 1 1 auto;
-    min-width: 350px;
-    z-index: 1;
-}
 </style>
 <script>
 import { defineComponent } from 'vue';
@@ -44,25 +48,29 @@ import { mapGetters } from 'vuex';
 
 // import ModelConceptList from '@/components/model/ModelConceptList.vue';
 import QueryResultsV2 from './QueryResult.vue';
-import HintsComponent from './HintsComponent.vue'
-import ErrorComponent from './ErrorComponent.vue'
+import HintsComponent from './HintsComponent.vue';
+import ErrorComponent from './ErrorComponent.vue';
 import axiosHelpers from '/src/api/helpers';
 import colorHelpers from '/src/helpers/color';
 import instance from '/src/api/instance';
 import * as monaco from 'monaco-editor';
 import Split from 'split.js'
+import EditorFooter from './EditorFooter.vue';
+import { Editor } from '/src/models/Editor'
 
 export default defineComponent({
     name: 'EditorComponent',
+    props: {
+        editorData: {
+            type: Object,
+            default: () => new Editor()
+        }
+    },
     data() {
         return {
-            query: {
-                query: 'SELECT 1 -> echo;',
-                model: 'bigquery.thelook_ecommerce',
-            },
-            result: null,
-            error: null,
-            loading: false,
+            // result: null,
+            // error: null,
+            // loading: false,
             last_passed_query_text: null,
             form: null,
             prompt: '',
@@ -77,7 +85,8 @@ export default defineComponent({
         // ModelConceptList, 
         HintsComponent,
         QueryResultsV2,
-        ErrorComponent
+        ErrorComponent,
+        EditorFooter
     },
     created: function () {
         this.$store.dispatch('getModels');
@@ -92,12 +101,21 @@ export default defineComponent({
             // sizes: [75, 25],
             // minSize: 100,
             // expandToMin: true,
-            // gutterSize: 25,
+            gutterSize: 30,
         });
         this.createEditor()
     },
     computed: {
         ...mapGetters(['stateModels', 'activeConnection']),
+        error() {
+            return this.editorData.error
+        },
+        loading() {
+            return this.editorData.loading
+        },
+        result() {
+            return this.editorData.results
+        },
         splitElements() {
             return [
                 this.$refs.editor,
@@ -114,7 +132,7 @@ export default defineComponent({
             return [...this.models.map(item => item.name)]
         },
         passedQuery() {
-            return this.query.query === this.last_passed_query_text
+            return this.editorData.contents === this.last_passed_query_text
         },
         modelColor() {
             return colorHelpers.stringToColor(this.query.model)
@@ -138,6 +156,7 @@ export default defineComponent({
             let local = this;
 
             await instance.post('query', rquery).then(function (response) {
+
                 local.result = response.data;
             })
         },
@@ -160,27 +179,21 @@ export default defineComponent({
             })
         },
         async submit() {
-            this.loading = true;
+            // this.loading = true;
             this.info = 'Executing query...'
-            this.error = null;
-            let current_query = this.query.query;
+            // this.error = null;
+            let current_query = this.editorData.contents;
             let local = this;
-            try {
-                let info = { connection: this.activeConnection, query: this.query.query, id: this.query.id };
-                await this.runQuery(info);
-                this.last_passed_query_text = current_query;
-                this.loading = false;
-            } catch (error) {
-                local.error = axiosHelpers.getErrorMessage(error);
-                local.loading = false;
-            }
+            // let info = { connection: this.editorData.connection.name, query: this.editorData.contents, id: this.query.id };
+            await this.editorData.runQuery();
+            this.last_passed_query_text = current_query;
         },
         async format() {
             this.loading = true;
             this.info = 'Formatting query...'
             this.error = null;
             var self = this;
-            await instance.post('format_query', { model: this.query.model, query: this.query.query, id: this.query.id }).then(function (resp) {
+            await instance.post('format_query', { model: this.query.model, query: this.editorData.contents, id: this.query.id }).then(function (resp) {
                 self.query.query = resp.data.new_text;
                 self.loading = false;
             }).catch((error) => {
@@ -189,7 +202,7 @@ export default defineComponent({
             })
         },
         appendModelToQuery(obj) {
-            this.query.query = this.query.query + "\n\t" + (obj || '') + ",";
+            this.editorData.contents = this.editorData.contents + "\n\t" + (obj || '') + ",";
         },
         querySaveComplete() {
             this.$emit('querySaveComplete')
@@ -199,7 +212,7 @@ export default defineComponent({
         },
         createEditor() {
             const editor = monaco.editor.create(document.getElementById('editor'), {
-                value: this.query.query,
+                value: this.editorData.contents,
                 language: 'sql',
                 automaticLayout: true,
             })
@@ -225,7 +238,7 @@ export default defineComponent({
             });
             monaco.editor.setTheme('myCustomTheme');
             editor.onDidChangeModelContent(() => {
-                this.query.query = editor.getValue();
+                this.editorData.contents = editor.getValue();
             });
 
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
@@ -248,7 +261,7 @@ export default defineComponent({
             //     loader.init().then(monaco => {
 
             //         var editor = monaco.editor.create(document.getElementById('editor'), {
-            //             value: this.query.query,
+            //             value: this.editorData.contents,
             //             language: 'sql',
             //             theme: 'myCustomTheme',
             //             automaticLayout: true,
@@ -257,7 +270,7 @@ export default defineComponent({
             //             }
             //         });
             //         editor.onDidChangeModelContent(() => {
-            //             this.query.query = editor.getValue();
+            //             this.editorData.contents = editor.getValue();
             //         });
             //     });
 

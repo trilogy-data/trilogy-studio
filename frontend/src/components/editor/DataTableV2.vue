@@ -1,23 +1,55 @@
 <template>
-    <div class="result-table">
+    <div class="result-table row pa-0 ba-0">
         <div ref="tabulator"></div>
     </div>
 </template>
 
 <style>
+
 .result-table {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-basis: 100%;
     flex-grow: 1;
-    overflow: hidden;
+    flex-shrink: 1;
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    width:100%;
 
-    .tabulator-cell {
-        cursor: default;
+}
 
-        &:hover {
-            background: transparent;
-        }
-    }
+.tabulator .tabulator-tableholder .tabulator-table {
+    background-color: transparent;
+    color: var(--text);
+}
+
+.tabulator .tabulator-tableholder .tabulator-table .tabulator-cell {
+    cursor: default;
+
+}
+
+.tabulator .tabulator-tableholder .tabulator-table .tabulator-cell &:hover {
+    cursor: default;
+
+}
+
+.tabulator-row {
+    background: transparent;
+    width: min-content;
+    min-width: 100%;
+}
+
+.tabulator {
+    position: relative;
+    font-size: 12px;
+    border: 0;
+    width: 100%;
+    background: transparent;
+}
+
+.tabulator-cell {
+    border: 0;
+
 }
 </style>
 
@@ -33,7 +65,7 @@ export default {
     },
     props: {
         'headers': {
-            type: Array,
+            type: Map,
             required: true,
         },
         'results': {
@@ -64,6 +96,7 @@ export default {
             }
         },
         tableHeight() {
+
             this.tabulator.setHeight(this.actualTableHeight)
         }
     },
@@ -183,7 +216,9 @@ export default {
         },
         tableColumns() {
             // const columnWidth = this.result.fields.length > 30 ? globals.bigTableColumnWidth : undefined
-            return this.headers.map((column) => {
+            console.log(this.headers)
+            const calculated = []
+            this.headers.forEach((details, column) => {
                 const result = {
                     title: column,
                     titleFormatter: 'plaintext',
@@ -194,8 +229,10 @@ export default {
                     headerContextMenu: this.headerContextMenu,
                     cellClick: this.cellClick.bind(this)
                 }
-                return result;
+                calculated.push(result)
             })
+            console.log(calculated)
+            return calculated;
         }
     },
     beforeDestroy() {
@@ -211,10 +248,11 @@ export default {
             reactiveData: true,
             renderHorizontal: 'virtual',
             // columns: this.tableColumns, //define table columns
-
+            maxHeight: "100%",
+            minHeight: "100%",
             data: this.tableData, //assign data to table
             columns: this.tableColumns,
-            height: this.actualTableHeight,
+            // height: this.actualTableHeight,
             nestedFieldSeparator: false,
             clipboard: true,
             keybindings: {

@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 // import auth from './modules/auth';
 import models from './modules/models';
 import dev from './modules/dev';
+import editors from './modules/editors'
 
 export default createStore({
   // state: {
@@ -15,6 +16,7 @@ export default createStore({
   modules: {
     // auth,
     models,
-    dev
+    dev,
+    editors
   }
 })

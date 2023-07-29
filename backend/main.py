@@ -16,7 +16,7 @@ import sys
 import traceback
 from copy import deepcopy
 from datetime import datetime
-from typing import Mapping, Optional, Dict, List
+from typing import Mapping, Optional, Dict, List, Tuple
 
 import uvicorn
 from fastapi import APIRouter, FastAPI, HTTPException, Request, Response
@@ -76,7 +76,7 @@ def generate_default_duckdb():
 
     lineitem = Datasource(
         identifier="lineitem",
-        address=r"'C:\Users\ethan\coding_projects\pypreql\examples\lineitem.parquet'",
+        address=r"'/home/edickinson/preql-studio/backend/demo_data/lineitem.parquet'",
         columns=[],
     )
 
@@ -176,7 +176,7 @@ class QueryOut(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     refreshed_at: datetime = Field(default_factory=datetime.now)
     duration: Optional[int]
-    columns: Mapping[str, QueryOutColumn] | None
+    columns: List[Tuple[str,QueryOutColumn]] | None
 
 
 STATEMENT_LIMIT = 100
@@ -293,16 +293,16 @@ async def run_query(query: QueryInSchema):
             )
             compiled_sql = executor.generator.compile_statement(statement)
             rs = executor.engine.execute(compiled_sql)
-            outputs = {
-                col.name: QueryOutColumn(
+            outputs = [(
+                col.name, QueryOutColumn(
                     name=col.name
                     if col.namespace == DEFAULT_NAMESPACE
                     else col.address.replace(".", "_"),
                     purpose=col.purpose,
                     datatype=col.datatype,
-                )
+                ))
                 for col in statement.output_columns
-            }
+            ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     if not rs:

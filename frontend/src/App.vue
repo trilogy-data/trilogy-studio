@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class = "app-wrapper">
     <router-view />
   </v-app>
 </template>
@@ -11,6 +11,17 @@
   --text: #d3d3d3;
   --text-lighter: #d3d3d3;
   --gutter-h: 5;
+}
+
+.app-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Layout helpers */
