@@ -1,5 +1,5 @@
 <template>
-    <div class="expand layout-center">
+    <div class="expand layout-center hints">
         <div class="shortcuts">
             <div class="shortcut-item">
                 <div>Run</div>
@@ -35,6 +35,9 @@
     </div>
 </template>
 <style>
+.hints {
+    height: 100%;
+}
 .shortcuts {
     display: table;
     border-spacing: 5px;
