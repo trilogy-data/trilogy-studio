@@ -1,34 +1,10 @@
 <template>
     <div class="expand layout-center hints">
         <div class="shortcuts">
-            <div class="shortcut-item">
-                <div>Run</div>
+            <div v-for="shortcut in shortcuts" class="shortcut-item">
+                <div>{{ shortcut.name }}</div>
                 <div class="shortcut">
-                    <span>{{ icon }}</span><span>Enter</span>
-                </div>
-            </div>
-            <div class="shortcut-item">
-                <div>New Tab</div>
-                <div class="shortcut">
-                    <span>{{ icon }}</span><span>T</span>
-                </div>
-            </div>
-            <div class="shortcut-item">
-                <div>Close Tab</div>
-                <div class="shortcut">
-                    <span>{{ icon }}</span><span>W</span>
-                </div>
-            </div>
-            <div class="shortcut-item">
-                <div>Find</div>
-                <div class="shortcut">
-                    <span>{{ icon }}</span><span>F</span>
-                </div>
-            </div>
-            <div class="shortcut-item">
-                <div>Find and Replace</div>
-                <div class="shortcut">
-                    <span>Ctrl</span><span>H</span>
+                    <span>{{ icon }}</span><span v-for="key in shortcut.keys">{{ key }}</span>
                 </div>
             </div>
         </div>
@@ -38,6 +14,7 @@
 .hints {
     height: 100%;
 }
+
 .shortcuts {
     display: table;
     border-spacing: 5px;
@@ -49,21 +26,25 @@
     color: var(--text-lighter);
     text-align: right;
     font-size: 95%;
-    > div {
-    display: table-cell;
-  }
-  /* .new {
+
+    >div {
+        display: table-cell;
+    }
+
+    /* .new {
     margin-right: $gutter-h;
   } */
 }
 
 .shortcut {
     text-align: left;
-    margin-right:5px;
+    margin-right: 5px;
+
     &>span {
         display: inline-block;
         padding: 0 0.35rem;
         border-radius: 4px;
+        margin-right: .35rem;
         font-size: 90%;
         font-weight: normal;
         line-height: 1.6;
@@ -76,7 +57,6 @@
         /* background: rgba(var(--main-bg-color), 0.15); */
         background: var(--light-bg-color);
         color: var(--text);
-        margin: 0 (var(--gutter-h) * 0.35);
         transition: color 0.15s ease-in-out,
             background-color 0.15s ease-in-out,
             border-color 0.15s ease-in-out,
@@ -88,6 +68,28 @@
 export default {
     data() {
         return {
+            shortcuts: [
+                {
+                    name: 'Run',
+                    keys: ['Enter']
+                },
+                {
+                    name: 'New Tab',
+                    keys: ['T']
+                },
+                {
+                    name: 'Close Tab',
+                    keys: ['W']
+                },
+                {
+                    name: 'Find',
+                    keys: ['F']
+                },
+                {
+                    name: 'Find and Replace',
+                    keys: ['H']
+                }
+            ]
 
         }
     },

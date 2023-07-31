@@ -127,7 +127,6 @@ CONNECTIONS: Dict[str, Executor] = {"duckdb_demo": generate_default_duckdb()}
 
 ## BEGIN REQUESTS
 
-
 class InputRequest(BaseModel):
     text: str
     connection: str
