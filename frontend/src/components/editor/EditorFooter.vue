@@ -1,7 +1,12 @@
 <template>
     <FooterComponent>
-    <span class="flex-item">Rows {{ length }}</span>
-    <span class="flex-item">Duration {{length}} </span>
+    <template v-if='executed'>
+    <span class="flex-item">Rows: {{ length }}</span>
+    <span class="flex-item">Duration: {{duration}} </span>
+</template>
+    <template v-else>
+        <span class="flex-item">No Data</span> 
+    </template>
         <!-- <div class="result-display px-2 py-0 bg-black text-center w-100">
         <span>
            Rows {{length}} 
@@ -33,7 +38,15 @@ export default {
     name: "EditorFooter",
     components: {FooterComponent},
     props: {
+        executed: {
+            type: Boolean,
+            required: true
+        },
         length: {
+            type: Number,
+            required: false
+        },
+        duration: {
             type: Number,
             required: false
         },

@@ -5,7 +5,7 @@
             <v-tabs class="editor-tabs pa-0 ba-0" v-model="selectedEditor"
                 @update:modelValue="setActiveEditor(selectedEditor)">
                 <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
-                    {{ n.name }}
+                    {{ n.name }} <span class="text-light"> ({{n.connection}})</span>
                 </v-tab>
                 <v-tab class="editor-tab editor-tab-add">
                     <v-btn class="tab-btn pa-0 ba-0" 
@@ -125,9 +125,6 @@ export default {
         };
         onMounted(() => {
         const self = getCurrentInstance().proxy;
-        console.log(self)
-        console.log("refEditor")
-        console.log(self.$refs)
         self.split = Split([self.$refs.editor, self.$refs.results], {
             // elementStyle: (_dimension, size) => ({
             //     "flex-basis": `calc(${size}%)`,

@@ -35,6 +35,7 @@ export class Editor implements EditorInterface {
     loading: boolean;
     error: string | null;
     executed: boolean;
+    duration: number | null;
 
 
     constructor(name: string, type: string, connection: string) {

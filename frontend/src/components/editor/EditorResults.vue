@@ -1,39 +1,16 @@
 <template>
-    <v-progress-linear v-if="loading" height="10" indeterminate color="primary"></v-progress-linear>
+    <div v-if="loading"><v-progress-linear height="10" indeterminate color="primary"></v-progress-linear>
+    </div>
     <ErrorComponent v-else-if="error" :error="error"></ErrorComponent>
     <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
     <QueryResultsV2 v-else :headers="result.headers" :results="result.data">
     </QueryResultsV2>
-    <EditorFooter :length="result.data.length" />
+    <EditorFooter :executed="editorData.executed" :length="result.data.length" :duration="editorData.duration" />
 </template>
 
 <style>
-.results {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 0;
-    flex-shrink: 1;
-    /* flex-wrap: wrap; */
-    height: 100%;
-}
 
-.editor {
-    background-color: var(--main-bg-color);
-    filter: brightness(85%);
-}
 
-.revert {
-    text-align: left;
-    border: none;
-}
-
-.split {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    flex: 1 1 100%;
-    height: 100%;
-}
 </style>
 <script>
 import { defineComponent } from 'vue';
@@ -61,17 +38,11 @@ export default defineComponent({
     },
     data() {
         return {
-            // result: null,
-            // error: null,
-            // loading: false,
             last_passed_query_text: null,
             form: null,
             prompt: '',
             generatingPrompt: false,
             info: 'Query processing...',
-            editor: null,
-            editorX: 400,
-            editorY: 400
         }
     },
     components: {
