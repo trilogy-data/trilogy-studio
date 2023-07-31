@@ -3,7 +3,7 @@ import { createStore } from 'vuex'
 import models from './modules/models';
 import dev from './modules/dev';
 import editors from './modules/editors'
-
+import connections from './modules/connections'
 export default createStore({
   // state: {
   // },
@@ -17,6 +17,7 @@ export default createStore({
     // auth,
     models,
     dev,
-    editors
+    editors, 
+    connections
   }
 })

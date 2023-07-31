@@ -16,8 +16,8 @@ function findMatchingValue(arr, condition) {
 
 
 const state = {
-    editors: [new Editor('editor1', 'duckdb', new Connection('duckdb_demo', 'duckdb')),
-    new Editor('editor2', 'duckdb', new Connection('duckdb_demo', 'duckdb'))],
+    editors: [new Editor('editor1', 'duckdb', 'duckdb_demo'),
+    new Editor('editor2', 'duckdb', 'duckdb_demo')],
     activeEditor: 'editor1'
 };
 
@@ -28,8 +28,6 @@ const getters = {
 
 const actions = {
     async setActiveEditor({ commit }, data) {
-        console.log('setting active editor')
-        console.log(data)
         if (data){
             commit('setActiveEditor', data);
         }

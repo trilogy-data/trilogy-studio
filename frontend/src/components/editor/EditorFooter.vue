@@ -1,9 +1,7 @@
 <template>
     <FooterComponent>
-        <div class="flex-container pa-0 ba-0 result-display">
-  <span class="flex-item">Rows {{ length }}</span>
-  <span class="flex-item">Duration {{length}} </span>
-</div>
+    <span class="flex-item">Rows {{ length }}</span>
+    <span class="flex-item">Duration {{length}} </span>
         <!-- <div class="result-display px-2 py-0 bg-black text-center w-100">
         <span>
            Rows {{length}} 
@@ -16,19 +14,6 @@
     </FooterComponent>
 </template>
 <style>
-.result-display {
-    font-size: 0.8rem;
-    background-color: black;
-    color: var(--text-lighter);
-    height:25px;
-    border: none;
-}
-
-  /* Flex container styles */
-  .flex-container {
-    display: flex;
-  }
-
   /* Flex item styles */
   .flex-item {
     flex: 1; /* Distribute available space evenly among the spans */
@@ -46,6 +31,7 @@ import { mapGetters } from 'vuex';
 import FooterComponent from '/src/components/generic/FooterComponent.vue';
 export default {
     name: "EditorFooter",
+    components: {FooterComponent},
     props: {
         length: {
             type: Number,

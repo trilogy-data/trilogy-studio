@@ -1,7 +1,7 @@
 <template>
     <FooterComponent>
-        <div v-if="activeEditor" class="connection-display px-2 py-0 bg-black text-center w-100">
-            {{activeEditor.connection.name}} — <strong>{{activeEditor.connection.type}}</strong>
+        <div v-if="connection" class="connection-display px-2 py-0 bg-black text-center w-100">
+            {{connection.name}} — <strong>{{connection.type}}</strong>
         </div>
     </FooterComponent>
 </template>
@@ -26,6 +26,7 @@ import { mapGetters } from 'vuex';
 import FooterComponent from '/src/components/generic/FooterComponent.vue';
 export default {
     name: "EditorFooter",
+    components: {FooterComponent},
     data: () => ({
         icons: [
             'mdi-facebook',
@@ -35,7 +36,10 @@ export default {
         ],
     }),
     computed: {
-        ...mapGetters(['activeEditor'])
+        ...mapGetters(['activeEditor', 'getConnectionByName']),
+        connection() {
+            return this.getConnectionByName(this.activeEditor.connection)
+        }
     },
 }
 </script>

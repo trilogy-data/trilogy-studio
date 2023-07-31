@@ -99,7 +99,7 @@ export default defineComponent({
             // }),
             direction: 'vertical',
             // sizes: [75, 25],
-            // minSize: 100,
+            minSize: 200,
             // expandToMin: true,
             gutterSize: 30,
         });

@@ -1,16 +1,15 @@
 <template>
-  <div id="interface" class="interface-2" v-hotkey="keymap">
+  <div id="interface" class="interface-2">
     <div class="interface-wrap row">
       <div ref="sidebar" class="sidebar">
         <SidebarComponent class="sidebar-content" />
       </div>
       <div ref="content" class="nested-page-content pa-0" id="page-content">
-        <EditorTabs/>
+        <EditorTabs />
         <!-- <EditorComponent /> -->
       </div>
     </div>
   </div>
-  <FooterComponent/>
 </template>
 <style>
 .interface-2 {
@@ -45,23 +44,12 @@
   max-height: 100%;
 }
 
-.sidebar {
-  width: 400px;
-  min-width: 200px;
-  max-width: 90%;
-}
-
-
-.sidebar-content {
-  height: 100%;
-}
 </style>
 <script>
 //      :class="{hide: !sidebarShown, sidebar: true}"
 // add this back to sidebar to control toggling
 import instance from '../api/instance';
 import EditorTabs from '/src/components/editor/EditorTabs.vue';
-import EditorComponent from '/src/components/editor/EditorComponent.vue';
 import SidebarComponent from '/src/components/sidebar/SidebarComponent.vue';
 import Split from 'split.js';
 import { mapGetters } from 'vuex';
@@ -80,8 +68,9 @@ export default {
       sidebarShown: true
     };
   },
-  components: { EditorComponent, 
-    SidebarComponent, EditorTabs },
+  components: {
+    SidebarComponent, EditorTabs
+  },
   computed: {
     ...mapGetters(['activeConnection']),
     splitElements() {

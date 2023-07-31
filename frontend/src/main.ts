@@ -12,5 +12,5 @@ import store from './store'
 // loadFonts()
 
 createApp(App).use(store).use(router)
-.use(vuetify)
-.use(apexCharts).mount('#app').$nextTick(() => postMessage({ payload: 'removeLoading' }, '*'))
+    .use(vuetify)
+    .use(apexCharts).mount('#app').$nextTick(() => postMessage({ payload: 'removeLoading' }, '*'))

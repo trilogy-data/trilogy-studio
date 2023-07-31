@@ -7,6 +7,17 @@ import instance from '/src/api/instance';
 export interface EditorInterface {
     name: string;
     type: string;
+    connection: string;
+    results: ResultsInterface;
+    contents: string;
+    loading: boolean;
+    error: string | null;
+    executed: boolean;
+}
+
+export interface EditorEnrichedInterface {
+    name: string;
+    type: string;
     connection: ConnectionInterface;
     results: ResultsInterface;
     contents: string;
@@ -16,17 +27,17 @@ export interface EditorInterface {
 }
 
 export class Editor implements EditorInterface {
-
     name: string;
     type: string;
-    connection: Connection;
+    connection: string;
     results: Results;
     contents: string;
     loading: boolean;
     error: string | null;
     executed: boolean;
 
-    constructor(name: string, type: string, connection: ConnectionInterface) {
+
+    constructor(name: string, type: string, connection: string) {
         this.name = name
         this.type = type
         this.connection = connection
@@ -36,7 +47,6 @@ export class Editor implements EditorInterface {
         this.error = null;
         this.executed = false;
     }
-
     async runQuery() {
         this.loading = true;
         // this.info = 'Executing query...'
@@ -45,7 +55,7 @@ export class Editor implements EditorInterface {
         this.executed = true;
         let local = this;
         try {
-            let info = { connection: local.connection.name, query: local.contents };
+            let info = { connection: local.connection, query: local.contents };
             await instance.post('query', info).then(function (response) {
                 const columnMap = new Map();
                 for (const [key, value] of response.data.columns) {
@@ -60,4 +70,5 @@ export class Editor implements EditorInterface {
             local.loading = false;
         }
     }
+
 }
