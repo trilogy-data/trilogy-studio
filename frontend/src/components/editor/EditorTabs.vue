@@ -6,7 +6,7 @@
             center-active
                 @update:modelValue="setActiveEditor(selectedEditor)">
                 <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
-                    {{ n.name }} <span class="text-light"> ({{n.connection}})</span>
+                    {{ n.name }} <span class="text-light"> ({{n.syntax}})</span>
                 </v-tab>
                 <v-tab class="editor-tab editor-tab-add">
                     <NewEditorPopup></NewEditorPopup>

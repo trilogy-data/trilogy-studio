@@ -83,6 +83,14 @@ export class Editor implements EditorInterface {
         }
     }
 
+    static fromJSON({name, type, connection, contents, results}): Editor {
+        let output = new Editor(name, type, connection);
+        output.contents = contents
+        output.results = results
+        return output
+    }
+
+
 }
 
 
@@ -140,6 +148,14 @@ export class RawEditor implements EditorInterface {
         } finally {
             local.loading = false;
         }
+    }
+
+    
+    static fromJSON({name, type, connection, contents, results}): RawEditor {
+        let output = new RawEditor(name, type, connection);
+        output.contents = contents
+        output.results = results
+        return output
     }
 
 }

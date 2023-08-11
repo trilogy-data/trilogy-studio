@@ -74,6 +74,10 @@ export default {
                     keys: ['Enter']
                 },
                 {
+                    name: 'Save Open Editor',
+                    keys: ['S']
+                },
+                {
                     name: 'New Tab',
                     keys: ['T']
                 },

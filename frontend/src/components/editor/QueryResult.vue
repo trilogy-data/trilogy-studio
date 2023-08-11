@@ -20,7 +20,6 @@
     </div> -->
 </template>
 <script>
-// import DataTable from '/src/components/query/DataTable.vue'
 import DataTableV2 from '/src/components/editor/DataTableV2.vue'
 import charts from '/src/helpers/charts'
 let Display = charts.Display()

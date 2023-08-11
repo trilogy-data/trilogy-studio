@@ -1,32 +1,73 @@
 <template>
     <div class="connection-manager py-0">
-        <v-select class="connection-selector"  density="compact" v-model="selectedConnection"
+        <!-- <v-select class="connection-selector"  density="compact" v-model="selectedConnection"
             :items="connections" item-value="name" item-title="name">
-        </v-select>
-        <!-- <v-list class="connection-list">
-            <template v-for="connection in connections" :key="connection.name">
-                <div class="connection-list-item ma-0 pl-10 py-2" @click="setConnection(connection)">
-                    <v-icon color="green">mdi-check</v-icon>
-                    {{ connection.name }}
-                    <template v-slot:append>
+        </v-select> -->
+        <div class="header">
+            Connections
+        </div>
+        <div class="connection-list">
+
+            <v-expansion-panels theme="dark" variant="accordion">
+                <v-expansion-panel v-for="connection in connections" :key="connection.name" >
+                    <v-expansion-panel-title>
+                        <GlowingDot v-if="connection.active" />    {{ connection.name }}
+                    </v-expansion-panel-title>
+                 <div v-for="editor in editors[connection.name]" 
+                 class="editor-list">
+                    {{ editor.name }}
+                 </div>
+                </v-expansion-panel>
+            </v-expansion-panels>
+            <v-list theme="dark">
+                <template v-for="connection in connections" :key="connection.name">
+                    <div class="connection-list-item ma-0 pl-10 py-2" @click="setConnection(connection)">
+                        <!-- <v-icon  color="green">mdi-check</v-icon> -->
+                        <GlowingDot v-if="connection.active" />
+                        {{ connection.name }}
+                        <!-- <template v-slot:append>
                         <v-btn 
                         size="small"
                         density="compact"
                         class="connection-button ma-0 pa-0" 
                         icon="mdi-information" 
                         variant="plain"></v-btn>
-                    </template>
-                </div>
-            </template>
-        </v-list> -->
-        <!-- <v-btn>Add Connection</v-btn> -->
+                    </template> -->
+                    </div>
+                </template>
+            </v-list>
+        </div>
+        <div class="footer">
+            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn>
+        </div>
     </div>
 </template>
 <style local>
+.header {
+    color: var(--text-lighter);
+    font-size: 1.0rem;
+    height: 30px;
+    min-height: 30px;
+    line-height: 30px;
+}
+
+.footer {
+    --height: 20px;
+    font-size: 0.8rem;
+    background-color: black;
+    height: var(--height);
+    min-height: var(--height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    color: var(--text-lighter);
+
+}
+
 .connection-button .v-field {
     color: var(--text-lighter);
     font-size: 16px;
-
     height: 10px;
 }
 
@@ -63,25 +104,36 @@
     font-size: 80%;
     align-items: left;
     text-align: left;
-    border-radius:0px;
+    border-radius: 0px;
 
 }
 
+.editor-list {
+    align-items: right;
+    text-align: right;
+}
+
 .connection-list {
-    font-size: 80%;
+    display: 'flex';
     align-items: left;
     text-align: left;
+    width: 100%;
+    height: 100%;
+    background-color: var(--light-bg-color-2);
 
 }
 
 .connection-list-item {
     height: 10px;
+    font-size: 80%;
+
 
 }
 
 .connection-manager {
+    height: 100%;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-basis: 100%;
     flex-grow: 1;
     flex-shrink: 1;
@@ -105,18 +157,31 @@
 }
 </style>
 <script>
+import GlowingDot from '/src/components/generic/GlowingDot.vue';
 
 import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ConnectionManager",
+    components: {
+        GlowingDot
+    },
     data() {
         return {
             selectedConnection: "duckdb_demo"
         };
     },
     computed: {
-        ...mapGetters(['activeEditor', 'connections'])
+        ...mapGetters(['activeEditor', 'connections']),
+        editors() {
+            let editors = {}
+            this.connections.forEach((conn) => {
+                editors[conn.name] = this.$store.getters.editors.filter((editor) => {
+                    return editor.connection == conn.name
+                })
+            })
+            return editors
+        }
     },
     methods: {
         ...mapActions(['setActiveConnection']),

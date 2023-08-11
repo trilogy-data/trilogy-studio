@@ -26,7 +26,12 @@ const storageAPI = {
 
     getEditors(): Array<Editor | RawEditor> {
         const data = store.get('editors', []) as Array<any>
-        const parsed = data.map(dict => new Editor(dict));
+        const parsed = data.map(dict => {
+            if (dict.syntax === 'preql') {return Editor.fromJSON(dict)}
+            else if (dict.syntax === 'sql') {
+               return  RawEditor.fromJSON(dict)
+            } 
+        });
         return parsed
     },
 };
@@ -34,8 +39,8 @@ const storageAPI = {
 
 function getInitialEditors() {
     let editors = storageAPI.getEditors();
-    editors = editors.filter(editor => (editor.name instanceof String) && editor.connection)
-    if (editors.length === 0) {
+    editors = editors.filter(editor => (typeof editor.name === 'string' && editor.connection))
+    if (editors.length === 0) { 
         editors = [new Editor('demo-editor', 'duckdb', 'duckdb_demo')]
     }
     return editors
@@ -54,6 +59,9 @@ const getters = {
 };
 
 const actions = {
+    async saveEditorText({commit}, data) {
+        commit('saveEditorText', data)
+    },
     async setActiveEditor({ commit }, data) {
         if (data) {
             commit('setActiveEditor', data);
@@ -71,6 +79,9 @@ const actions = {
     async setActiveConnection({ commit }, data) {
         commit('setActiveConnection', data);
     },
+    async saveEditors({ commit }, data) {
+        commit('saveEditors', data)
+    }
 };
 
 
@@ -85,7 +96,12 @@ const mutations = {
         state.editors = state.editors.filter(editor => editor.name !== data.name)
     },
     saveEditors(state, data) {
+        console.log(state.editors)
         storageAPI.setEditors(state.editors)
+    },
+    saveEditorText(state, data) {
+        const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
+        editor.contents = data.contents
     },
     loadEditors(state, data) {
         state.editors = storageAPI.getEditors()

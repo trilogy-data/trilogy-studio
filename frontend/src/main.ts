@@ -12,4 +12,5 @@ import store from './store'
 
 createApp(App).use(store).use(router)
     .use(vuetify)
+    .use(require('vue3-shortkey'))
     .use(apexCharts).mount('#app').$nextTick(() => postMessage({ payload: 'removeLoading' }, '*'))

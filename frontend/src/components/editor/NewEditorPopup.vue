@@ -3,7 +3,8 @@
 <template>
     <v-dialog v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block icon="mdi-plus">
+            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block icon="mdi-plus"
+            v-shortkey.once="['ctrl', 'n']" @shortkey="showPopup()">
                 +
             </v-btn>
         </template>
@@ -76,6 +77,10 @@ export default {
     },
     methods: {
         ...mapActions(['newEditor']),
+        showPopup() {
+            console.log('showing popup')
+            this.dialog = true;
+        },
         localAddEditor() {
             const fullConnection = this.getConnectionByName(this.connection)
             this.newEditor({

@@ -34,7 +34,7 @@
 </style>
 <script>
 import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 // import ModelConceptList from '@/components/model/ModelConceptList.vue';
 import QueryResultsV2 from './QueryResult.vue';
@@ -116,6 +116,7 @@ export default defineComponent({
 
     },
     methods: {
+        ...mapActions(['saveEditors', 'saveEditorText']),
         async runQuery(rquery) {
             let local = this;
 
@@ -181,7 +182,7 @@ export default defineComponent({
             })
             this.editor = editor;
             // editor.layout({ height: 400, width:400 });
-            monaco.editor.defineTheme('myCustomTheme', {
+            monaco.editor.defineTheme('preqlStudio', {
                 base: 'vs-dark', // can also be vs-dark or hc-black
                 inherit: true, // can also be false to completely replace the builtin rules
                 rules: [
@@ -199,7 +200,7 @@ export default defineComponent({
                     // 'editor.inactiveSelectionBackground': '#88000015'
                 }
             });
-            monaco.editor.setTheme('myCustomTheme');
+            monaco.editor.setTheme('preqlStudio');
             editor.onDidChangeModelContent(() => {
                 this.editorData.contents = editor.getValue();
             });
@@ -208,6 +209,11 @@ export default defineComponent({
                 if (!this.loading) {
                     this.submit();
                 }
+            });
+
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+                this.saveEditorText({contents: editor.getValue(), name: this.editorData.name})
+                this.saveEditors()
             });
 
             // loader.init().then((monaco) => {
