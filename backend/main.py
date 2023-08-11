@@ -34,15 +34,25 @@ from pydantic import BaseModel, Field
 from sqlalchemy.engine import create_engine
 from starlette.background import BackgroundTask
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from trilogy_public_models import models
 from trilogy_public_models import models as public_models
 from uvicorn.config import LOGGING_CONFIG
-
+from preql import Environment, Executor, Dialects
+from preql.core.models import (
+    Concept,
+    Datasource,
+    DataType,
+    Purpose,
+    Function,
+    FunctionType,
+)
+from sqlalchemy import create_engine
 from backend.io_models import ListModelResponse, Model, UIConcept
 from backend.models.helpers import flatten_lineage
 
 PORT = 5678
 
+STATEMENT_LIMIT = 100
+GCP_PROJECT = "ttl-test-355422"
 app = FastAPI()
 
 
@@ -61,16 +71,7 @@ app.add_middleware(
 )
 
 def generate_default_duckdb():
-    from preql import Environment, Executor, Dialects
-    from preql.core.models import (
-        Concept,
-        Datasource,
-        DataType,
-        Purpose,
-        Function,
-        FunctionType,
-    )
-    from sqlalchemy import create_engine
+
 
     duckdb = Environment()
 
@@ -122,8 +123,26 @@ def generate_default_duckdb():
     )
     return executor
 
-
-CONNECTIONS: Dict[str, Executor] = {"duckdb_demo": generate_default_duckdb()}
+def generate_default_bigquery() -> Executor:
+    if os.path.isfile("/run/secrets/bigquery_auth"):
+        credentials = service_account.Credentials.from_service_account_file(
+            "/run/secrets/bigquery_auth",
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
+        project = credentials.project_id
+    else:
+        credentials, project = default()
+    client = bigquery.Client(credentials=credentials, project=GCP_PROJECT)
+    engine = create_engine(
+        f"bigquery://{GCP_PROJECT}/test_tables?user_supplied_client=True",
+        connect_args={"client": client},
+    )
+    executor = Executor(
+        dialect=Dialects.BIGQUERY, engine=engine, environment=deepcopy(public_models["bigquery.stack_overflow"])
+    )
+    return executor
+CONNECTIONS: Dict[str, Executor] = {"duckdb_demo": generate_default_duckdb(),
+                                    "bigquery_demo": generate_default_bigquery()}
 
 ## BEGIN REQUESTS
 
@@ -178,8 +197,6 @@ class QueryOut(BaseModel):
     columns: List[Tuple[str,QueryOutColumn]] | None
 
 
-STATEMENT_LIMIT = 100
-GCP_PROJECT = "ttl-test-355422"
 
 
 def safe_format_query(input: str) -> str:
@@ -262,6 +279,47 @@ async def create_connection(connection: ConnectionInSchema):
         raise HTTPException(400, "this dialect type is not supported currently")
     CONNECTIONS[connection.name] = executor
 
+@router.post("/raw_query")
+async def run_raw_query(query: QueryInSchema):
+    start = datetime.now()
+    # we need to use a deepcopy here to avoid mutation the model default
+    executor = CONNECTIONS.get(query.connection)
+    if not executor:
+        raise HTTPException(401, "Not a valid connection")
+    outputs = {}
+    try:
+        rs = executor.engine.execute(query.query)
+        outputs = [(
+            col, QueryOutColumn(
+                name=col,
+                purpose=Purpose.KEY,
+                datatype=DataType.STRING,
+            ))
+            for col in rs.keys()
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    if not rs:
+        headers = []
+        query_output = []
+    else:
+        headers = list(rs.keys())
+        query_output = [
+            {"_index": idx, **dict(row.items())}
+            for idx, row in enumerate(rs.fetchall())
+        ]
+    # return execution time to frontend
+    delta = datetime.now() - start
+    output = QueryOut(
+        connection=query.connection,
+        query=query.query,
+        generated_sql=query.query,
+        headers=headers,
+        results=query_output,
+        duration=int(delta.total_seconds() * 1000),
+        columns=outputs,
+    )
+    return output
 
 @router.post("/query")
 async def run_query(query: QueryInSchema):
@@ -269,7 +327,7 @@ async def run_query(query: QueryInSchema):
     # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
     if not executor:
-        raise HTTPException(401, "Not a valid connection")
+        raise HTTPException(403, "Not a valid connection")
     outputs = {}
     # parsing errors or generation
     # should be 422
@@ -377,33 +435,43 @@ async def http_exception_handler(request, exc):
 
 app.include_router(router)
 
+PORT = 5678
 
 def run():
     LOGGING_CONFIG["disable_existing_loggers"] = True
     import sys
 
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        print("running in a PyInstaller bundle, setting sys.stdout to devnull")
+        print("running in a PyInstaller bundle")
 
         f = open(os.devnull, "w")
         sys.stdout = f
-        reload = False
-    else:
-        print("running in a normal Python process")
-        reload = True
-    try:
-        uvicorn.run(
-            "main:app",
-            host="localhost",
+        run = uvicorn.run(
+            app,
+            host="0.0.0.0",
             port=PORT,
             log_level="info",
             log_config=LOGGING_CONFIG,
-            reload=reload,
         )
-    except Exception:
-        print("GOT AN ERROR RUNNING")
-        print("Server is shutting down")
-        exit(0)
+    else:
+        print("Running in a normal Python process, assuming dev")
+
+        def run():
+            return uvicorn.run(
+                "main:app",
+                host="0.0.0.0",
+                port=PORT,
+                log_level="info",
+                log_config=LOGGING_CONFIG,
+                reload=True,
+            )
+
+    try:
+        run()
+    except Exception as e:
+        print(f"Server is shutting down due to {e}")
+        exit(1)
+
 
 
 if __name__ == "__main__":

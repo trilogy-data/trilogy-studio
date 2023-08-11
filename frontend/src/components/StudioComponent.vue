@@ -99,7 +99,7 @@ export default {
         "flex-basis": `calc(${size}%)`,
       }),
       sizes: [25, 75],
-      minSize: 200,
+      minSize: 300,
       expandToMin: true,
       gutterSize: 0,
     });

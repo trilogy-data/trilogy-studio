@@ -3,16 +3,13 @@
         <!-- <div ref="editor" class="debug"> EDITOR HERE</div> -->
         <div ref="editor">
             <v-tabs class="editor-tabs pa-0 ba-0" v-model="selectedEditor"
+            center-active
                 @update:modelValue="setActiveEditor(selectedEditor)">
                 <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
                     {{ n.name }} <span class="text-light"> ({{n.connection}})</span>
                 </v-tab>
                 <v-tab class="editor-tab editor-tab-add">
-                    <v-btn class="tab-btn pa-0 ba-0" 
-                    density="compact"
-                     block icon="mdi-plus" @click.stop="addNewTab">
-                        +
-                    </v-btn>
+                    <NewEditorPopup></NewEditorPopup>
                 </v-tab>
             </v-tabs>
             <template v-for="editor in editors">
@@ -81,13 +78,6 @@
     height: 20px;
 }
 
-.tab-btn {
-    height: 30px;
-    text-transform: none;
-    color: var(--text-lighter);
-    background-color: var(--main-bg-color);
-}
-
 .editor-tab.v-btn {
     height: 30px;
     text-transform: none;
@@ -104,12 +94,13 @@
 <script>
 import EditorEditor from './EditorEditor.vue'
 import EditorResults from './EditorResults.vue'
+import NewEditorPopup from './NewEditorPopup.vue'
 import { computed, ref, onMounted, getCurrentInstance} from 'vue'
 import { useStore } from 'vuex'
 import Split from 'split.js'
 // import { Component, Prop, Vue } from 'vue-property-decorator'
 export default {
-    components: {  EditorEditor, EditorResults },
+    components: {  EditorEditor, EditorResults, NewEditorPopup },
     setup() {
         const editor = ref(null);
         const results = ref(null);
@@ -119,10 +110,6 @@ export default {
         const activeEditor = computed(() => store.getters['activeEditor'])
         const setActiveEditor = (tab) => store.dispatch('setActiveEditor', tab)
 
-        const addNewTab = () => {
-            console.log('clicked new tab')
-
-        };
         onMounted(() => {
         const self = getCurrentInstance().proxy;
         self.split = Split([self.$refs.editor, self.$refs.results], {
@@ -144,7 +131,6 @@ export default {
             activeEditor,
             setActiveEditor,
             // functions
-            addNewTab,
             // refs
             editor,
             results

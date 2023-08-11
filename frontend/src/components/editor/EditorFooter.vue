@@ -2,7 +2,7 @@
     <FooterComponent>
     <template v-if='executed'>
     <span class="flex-item">Rows: {{ length }}</span>
-    <span class="flex-item">Duration: {{duration}} </span>
+    <span class="flex-item">Duration: {{duration}} ms </span>
 </template>
     <template v-else>
         <span class="flex-item">No Data</span> 

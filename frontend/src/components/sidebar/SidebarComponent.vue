@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar">
         <div class="upper-parent">
-            <div  class="selector-sidebar pa-0">
+            <div  class="selector-sidebar py-0 px-0">
                 <SidebarSelector />
             </div>
             <div  class="content-sidebar pa-0">

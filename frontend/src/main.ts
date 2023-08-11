@@ -8,7 +8,6 @@ import Tabulator from './plugins/tabulator';
 import apexCharts from './plugins/apexcharts'
 import router from './router'
 import store from './store'
-
 // loadFonts()
 
 createApp(App).use(store).use(router)

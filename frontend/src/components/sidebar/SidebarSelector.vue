@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar-selectors py-2 px-0">
         <template v-for="link in links">
-            <div class="sidebar-selector-nav-item py-2">
+            <div class="sidebar-selector-nav-item py-2 px-0">
                 <v-btn size="x-small" variant="outlined" @click.prevent="click(link.name)" :icon="link.icon">
                 </v-btn>
                 <!-- <v-icon @click.prevent="click(link.name)">{{link.icon}}</v-icon> -->
