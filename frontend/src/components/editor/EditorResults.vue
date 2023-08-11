@@ -1,5 +1,6 @@
 <template>
-    <div v-if="loading"><v-progress-linear height="10" indeterminate color="primary"></v-progress-linear>
+    <div v-if="loading" class="results-loading"><v-progress-linear height="10" indeterminate
+            color="primary"></v-progress-linear>
     </div>
     <ErrorComponent v-else-if="error" :error="error"></ErrorComponent>
     <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
@@ -9,8 +10,9 @@
 </template>
 
 <style>
-
-
+.results-loading {
+    height: 100%;
+}
 </style>
 <script>
 import { defineComponent } from 'vue';
