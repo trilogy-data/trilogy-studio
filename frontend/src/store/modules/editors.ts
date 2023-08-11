@@ -47,7 +47,7 @@ function getInitialEditors() {
 }
 const initialEditors: Array<Editor | RawEditor> = getInitialEditors();
 
-console.log(initialEditors)
+
 const state = {
     editors: initialEditors,
     activeEditor: initialEditors[0].name
@@ -63,6 +63,7 @@ const actions = {
         commit('saveEditorText', data)
     },
     async setActiveEditor({ commit }, data) {
+        console.log(`connection set to ${data}`)
         if (data) {
             commit('setActiveEditor', data);
         }

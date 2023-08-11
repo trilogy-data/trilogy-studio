@@ -13,29 +13,12 @@
                     <v-expansion-panel-title>
                         <GlowingDot v-if="connection.active" />    {{ connection.name }}
                     </v-expansion-panel-title>
-                 <div v-for="editor in editors[connection.name]" 
+                 <div @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]" 
                  class="editor-list">
                     {{ editor.name }}
                  </div>
                 </v-expansion-panel>
             </v-expansion-panels>
-            <v-list theme="dark">
-                <template v-for="connection in connections" :key="connection.name">
-                    <div class="connection-list-item ma-0 pl-10 py-2" @click="setConnection(connection)">
-                        <!-- <v-icon  color="green">mdi-check</v-icon> -->
-                        <GlowingDot v-if="connection.active" />
-                        {{ connection.name }}
-                        <!-- <template v-slot:append>
-                        <v-btn 
-                        size="small"
-                        density="compact"
-                        class="connection-button ma-0 pa-0" 
-                        icon="mdi-information" 
-                        variant="plain"></v-btn>
-                    </template> -->
-                    </div>
-                </template>
-            </v-list>
         </div>
         <div class="footer">
             <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn>
@@ -184,7 +167,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setActiveConnection']),
+        ...mapActions(['setActiveConnection', 'setActiveEditor']),
         setConnection(conn) {
             this.setActiveConnection(conn.name)
             console.log(`connection set to ${conn.name}`)
