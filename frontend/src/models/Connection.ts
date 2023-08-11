@@ -12,10 +12,14 @@ export class Connection implements ConnectionInterface {
     active: boolean;
     model: string | null;
 
-    constructor(name: string, type: string, active: boolean, model:string | null) {
+    constructor(name: string, type: string, active: boolean, model: string | null) {
         this.name = name
         this.type = type
         this.active = active || false
         this.model = model
+    }
+
+    static fromJSON({ name, type, active, model }) {
+        return new Connection(name, type, false, model)
     }
 }
