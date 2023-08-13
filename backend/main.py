@@ -55,6 +55,13 @@ STATEMENT_LIMIT = 100
 GCP_PROJECT = "ttl-test-355422"
 app = FastAPI()
 
+from dataclasses import dataclass
+
+@dataclass
+class InstanceSettings:
+    connections: Dict[str, Executor]
+    models: Dict[str, Environment]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -159,8 +166,8 @@ router = APIRouter()
 class ConnectionInSchema(BaseModel):
     name: str
     dialect: Dialects
-    model: str
-    extra: Dict
+    extra: Dict  | None
+    model: str | None
 
 
 class ConnectionListItem(BaseModel):
@@ -245,13 +252,15 @@ async def list_connections():
 
 @router.post("/connection")
 async def create_connection(connection: ConnectionInSchema):
-    try:
-        environment = deepcopy(models[connection.model])
-    except KeyError:
-        raise HTTPException(
-            status_code=404, detail=f"Model {connection.model} not found."
-        )
-    start = datetime.now()
+    if connection.model:
+        try:
+            environment = deepcopy(public_models[connection.model])
+        except KeyError:
+            raise HTTPException(
+                status_code=404, detail=f"Model {connection.model} not found."
+            )
+    else:
+        environment = Environment()
     if connection.dialect == Dialects.BIGQUERY:
         if os.path.isfile("/run/secrets/bigquery_auth"):
             credentials = service_account.Credentials.from_service_account_file(
@@ -271,7 +280,7 @@ async def create_connection(connection: ConnectionInSchema):
         )
     elif connection.dialect == Dialects.DUCK_DB:
         executor = Executor(
-            dialects=connection.dialect,
+            dialect=connection.dialect,
             engine=create_engine("duckdb:///:memory:"),
             environment=environment,
         )

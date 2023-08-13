@@ -50,13 +50,17 @@ const getters = {
 
 const actions = {
     async connectConnection({ commit }, data) {
-        instance.post('/connect', { connection: data.connection.name, model: data.connection.model }).then((response) => {
+        instance.post('/connection', { name: data.connection.name, dialect:data.connection.type, model: data.connection.model }).then((response) => {
             commit('setConnectionActive', data.connection)
         })
 
     },
-    async addConnection({ commit }, connection) {
-        commit('addConnection', connection)
+    async addConnection({ commit }, data) {
+        instance.post('/connection', { name: data.name, dialect: data.type, model: data.model }).then((response) => {
+            const connection = new Connection(data.name, data.type, true, data.model)
+            commit('addConnection', connection)
+        })
+
     },
     async removeConnection({ commit }, data) {
         commit('removeConnection', data.connection)

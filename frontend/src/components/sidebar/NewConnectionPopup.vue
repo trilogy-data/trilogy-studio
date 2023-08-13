@@ -3,9 +3,9 @@
 <template>
     <v-dialog v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block icon="mdi-plus"
-            v-shortkey.once="['ctrl', 'n']" @shortkey="showPopup()">
-                +
+            <v-btn class="tab-btn pa-0 ba-0 " v-bind="props" density="compact" block
+            >
+                Add Connection
             </v-btn>
         </template>
         <v-card theme="dark" class="mx-auto" min-width="344" title="New Editor">
@@ -15,21 +15,22 @@
                     <v-text-field variant="solo" density="compact" :readonly="loading" :rules="[required]" v-model="name"
                         label="Name">
                     </v-text-field>
-                    <v-divider></v-divider>
-                    <v-select variant="solo" density="compact" :readonly="loading" :rules="[required]" v-model="connection"
-                        label="Connection" :items="connections" item-title="name">
-                    </v-select>
-                    <v-divider></v-divider>
+                    <v-divider/>
                     <v-select variant="solo" density="compact" :readonly="loading" :rules="[required]"
-                        v-model="selectedType" label="Type" :items="editorTypes">
+                        v-model="selectedType" label="Type" :items="connectionTypes">
                     </v-select>
+                    <v-divider/>
+                    <v-select variant="solo" density="compact" :readonly="loading"  v-model="model"
+                        label="Model" :items="models" item-title="name">
+                    </v-select>
+                    
                 </v-form>
                 </v-container>
                 <v-divider></v-divider>
                 <v-alert class="mx-auto square-corners" color="warning" v-if="error">{{ error }}</v-alert>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn :disabled="!form" :loading="loading" color="success" @click="localAddEditor">
+                    <v-btn :disabled="!form" :loading="loading" color="success" @click="localAddConnection">
                         Add
                         <v-icon icon="mdi-chevron-right" end></v-icon>
                     </v-btn>
@@ -44,10 +45,11 @@
 }
 
 .tab-btn {
-    height: 30px;
+    height: 25px;
     text-transform: none;
     color: var(--text-lighter);
     background-color: var(--main-bg-color);
+    border-radius:0;
 }
 </style>
 <script>
@@ -55,43 +57,40 @@ import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "AddEditorTab",
     data() {
-
         return {
             form: false,
             loading: false,
             error: '',
             dialog: false,
-            connection: props.defaultConnection,
+            model: null,
             name: '',
-            selectedType: 'preql',
-            editorTypes: ['preql', 'sql'],
+            selectedType: 'duck_db',
+            connectionTypes: ['duck_db', 'bigquery', 'sql_server'],
 
         };
     },
     props: {
-        defaultConnection: {
-            type: String,
-            default: null,
-        }
     },
     computed: {
-        ...mapGetters(['connections', 'getConnectionByName']),
+        ...mapGetters(['models', 'getModelByName']),
     },
     mounted: () => {
         // console.log(this.connections)
     },
     methods: {
-        ...mapActions(['newEditor']),
+        ...mapActions(['addConnection']),
         showPopup() {
-            console.log('showing popup')
             this.dialog = true;
         },
-        localAddEditor() {
-            const fullConnection = this.getConnectionByName(this.connection)
-            this.newEditor({
+        localAddConnection() {
+            let fullModel = null;
+            if (this.model) {
+                fullModel = this.getModelByName(this.model)
+            }
+            this.addConnection({
                 name: this.name,
-                connection: fullConnection,
-                syntax: this.selectedType,
+                type: this.selectedType,
+                model: fullModel,
             }).then(() => {
                 this.dialog = false;
                 this.name = '';

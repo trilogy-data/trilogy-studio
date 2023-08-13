@@ -11,17 +11,22 @@
             <v-expansion-panels theme="dark" variant="accordion">
                 <v-expansion-panel v-for="connection in connections" :key="connection.name" >
                     <v-expansion-panel-title>
-                        <GlowingDot v-if="connection.active" />    {{ connection.name }}
+                        <GlowingDot class="" v-if="connection.active" />  <div class="pl-4">{{ connection.name }}</div>  
                     </v-expansion-panel-title>
                  <div @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]" 
                  class="editor-list">
                     {{ editor.name }}
                  </div>
+                 <div>
+                    Add new
+                    <NewEditorPopup :defaultConnection="connection.name" />
+                 </div>
                 </v-expansion-panel>
             </v-expansion-panels>
         </div>
         <div class="footer">
-            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn>
+            <NewConnectionPopup/>
+            <!-- <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn> -->
         </div>
     </div>
 </template>
@@ -141,13 +146,15 @@
 </style>
 <script>
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
-
+import NewConnectionPopup from '/src/components/sidebar/NewConnectionPopup.vue';
+import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
 import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ConnectionManager",
     components: {
-        GlowingDot
+        GlowingDot,
+        NewConnectionPopup
     },
     data() {
         return {

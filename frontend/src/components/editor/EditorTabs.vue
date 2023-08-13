@@ -115,10 +115,7 @@ export default {
         );
 
         store.watch((state, getters) => getters.activeEditor, () => {
-            console.log('active')
-            console.log(store.getters['activeEditor'])
             localEditor.value = store.getters['activeEditor'].name
-            console.log(`value changes detected via vuex watch`);
         })
         onMounted(() => {
             const self = getCurrentInstance().proxy;
