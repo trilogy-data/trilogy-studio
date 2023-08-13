@@ -1,31 +1,30 @@
 <template>
     <div class="connection-manager py-0">
-        <!-- <v-select class="connection-selector"  density="compact" v-model="selectedConnection"
-            :items="connections" item-value="name" item-title="name">
-        </v-select> -->
         <div class="header">
             Connections
         </div>
         <div class="connection-list">
 
             <v-expansion-panels theme="dark" variant="accordion">
-                <v-expansion-panel v-for="connection in connections" :key="connection.name" >
+                <v-expansion-panel v-for="connection in connections" :key="connection.name">
                     <v-expansion-panel-title>
-                        <GlowingDot class="" v-if="connection.active" />  <div class="pl-4">{{ connection.name }}</div>  
+                        <GlowingDot class="" v-if="connection.active" />
+                        <div class="pl-4">{{ connection.name }}</div>
                     </v-expansion-panel-title>
-                 <div @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]" 
-                 class="editor-list">
-                    {{ editor.name }}
-                 </div>
-                 <div>
-                    Add new
-                    <NewEditorPopup :defaultConnection="connection.name" />
-                 </div>
+                    <v-expansion-panel-text>
+                        <div @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]"
+                            class="editor-list">
+                            {{ editor.name }}
+                        </div>
+                        <div>
+                            <NewEditorPopup :defaultConnection="connection.name" />
+                        </div>
+                    </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
         </div>
         <div class="footer">
-            <NewConnectionPopup/>
+            <NewConnectionPopup />
             <!-- <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn> -->
         </div>
     </div>
@@ -53,52 +52,13 @@
 
 }
 
-.connection-button .v-field {
-    color: var(--text-lighter);
-    font-size: 16px;
-    height: 10px;
-}
 
-.v-field {
-    color: var(--text-lighter);
-    font-size: 14px;
-    background-color: var(--light-bg-color-2);
-    height: 44px;
-    border-radius: 0;
-}
-
-/* vuetify select customizations */
-.v-input {
-    color: var(--text-lighter);
-    font-size: 14px;
-    background-color: var(--light-bg-color-2);
-    /* height: 30px; */
-}
-
-.v-list-item__title {
-    color: blue;
-}
-
-.v-menu {
-    color: var(--text-lighter);
-    /* background-color: var(--light-bg-color-2);  */
-    font-size: 14px;
-}
-
-.connection-selector {
-    color: var(--text-lighter) !important;
-    background-color: var(--light-bg-color-2);
-    /* height:10px; */
-    font-size: 80%;
-    align-items: left;
-    text-align: left;
-    border-radius: 0px;
-
-}
 
 .editor-list {
     align-items: right;
-    text-align: right;
+    text-align: center;
+    height: 25px;
+
 }
 
 .connection-list {
@@ -114,8 +74,6 @@
 .connection-list-item {
     height: 10px;
     font-size: 80%;
-
-
 }
 
 .connection-manager {
@@ -129,15 +87,6 @@
     flex-wrap: nowrap;
     width: 100%;
     font-size: .8rem;
-
-}
-
-
-
-.title {
-    color: var(--text-lighter);
-    font-size: 95%;
-    margin-bottom: 5px;
 }
 
 .connection-list {
@@ -154,11 +103,11 @@ export default {
     name: "ConnectionManager",
     components: {
         GlowingDot,
-        NewConnectionPopup
+        NewConnectionPopup,
+        NewEditorPopup
     },
     data() {
         return {
-            selectedConnection: "duckdb_demo"
         };
     },
     computed: {
@@ -174,38 +123,13 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setActiveConnection', 'setActiveEditor']),
+        ...mapActions(['setActiveConnection', 'setActiveEditor', 'loadConnections']),
         setConnection(conn) {
             this.setActiveConnection(conn.name)
-            console.log(`connection set to ${conn.name}`)
-        },
-        addConnection() {
-            let local = this;
-            return instance.post('connection', {
-            }).then(() => {
-                console.log('add connection')
-
-            })
-        },
-        removeConnection() {
-            let local = this;
-            return instance.post('connection', {
-            }).then(() => {
-                console.log('add connection')
-
-            })
-        },
-        loadConnections() {
-            let local = this;
-            return instance.get('connections', {
-            }).then((response) => {
-                this.connections = response.connections
-
-            })
         },
     },
     mounted() {
-        //    this.loadConnections()
+        this.loadConnections()
     },
 };
 </script>

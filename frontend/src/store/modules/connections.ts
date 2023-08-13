@@ -65,6 +65,9 @@ const actions = {
     async removeConnection({ commit }, data) {
         commit('removeConnection', data.connection)
     },
+    async loadConnections({commit }, data) {
+        commit('setConnections', storageAPI.getConnections())
+    }
 
 };
 
@@ -81,6 +84,9 @@ const mutations = {
     async removeConnection(state, connection) {
         state.connections = state.connections.filter(c => c.name !== connection.name)
         storageAPI.setConnections(state.connections)
+    },
+    async setConnections(state, connections) {
+        state.connections = connections
     }
 };
 
