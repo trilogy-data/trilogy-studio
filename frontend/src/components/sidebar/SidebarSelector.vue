@@ -2,7 +2,7 @@
     <div class="sidebar-selectors py-2 px-0">
         <template v-for="link in links">
             <div class="sidebar-selector-nav-item py-2 px-0">
-                <v-btn size="x-small" variant="outlined" @click.prevent="click(link.name)" :icon="link.icon">
+                <v-btn size="x-small" variant="outlined" @click.prevent="click(link.address)" :icon="link.icon">
                 </v-btn>
                 <!-- <v-icon @click.prevent="click(link.name)">{{link.icon}}</v-icon> -->
                 <!-- <a href="" @click.prevent="click(link.name)" class="selectable"
@@ -29,26 +29,30 @@
 </style>
   
 <script>
+import { mapActions, mapGetters } from 'vuex';
+
 export default {
     props: ['activeItem'],
     data() {
         return {
-            links: [{ 'name': 'Databases', 'icon': 'mdi-database' },
-            { 'name': 'History', 'icon': 'mdi-history' },
-            { 'name': 'Other', 'icon': 'mdi-dots-horizontal' }
+            links: [{ 'name': 'Connections', 'address': 'connections', 'icon': 'mdi-database' },
+            { 'name': 'History', 'address': 'history', 'icon': 'mdi-history' },
+            { 'name': 'Other', 'address': 'other', 'icon': 'mdi-dots-horizontal' }
             ],
             selectedItem: 'connections'
         }
     },
     components: {},
     computed: {
+        ...mapGetters(['activeSidebar']),
     },
     methods: {
+        ...mapActions(['setSidebar']),
         click(item) {
-            if (this.activeItem === item) {
-                this.$emit('toggleSidebar')
+            if (this.activeSidebar === item) {
+                return
             } else {
-                this.$emit('selected', item)
+                this.setSidebar(item)
             }
         }
     }

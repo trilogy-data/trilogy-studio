@@ -3,7 +3,7 @@
 <template>
     <v-dialog v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block icon="mdi-plus"
+            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block 
             v-shortkey.once="['ctrl', 'n']" @shortkey="showPopup()">
                 +
             </v-btn>
@@ -61,7 +61,7 @@ export default {
             loading: false,
             error: '',
             dialog: false,
-            connection: props.defaultConnection,
+            connection: this.defaultConnection,
             name: '',
             selectedType: 'preql',
             editorTypes: ['preql', 'sql'],
@@ -76,6 +76,9 @@ export default {
     },
     computed: {
         ...mapGetters(['connections', 'getConnectionByName']),
+        label() {
+            return this.name ? this.name : 'New Editor'
+        },
     },
     mounted: () => {
         // console.log(this.connections)

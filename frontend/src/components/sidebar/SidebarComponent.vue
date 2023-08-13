@@ -1,11 +1,12 @@
 <template>
     <div class="sidebar">
         <div class="upper-parent">
-            <div  class="selector-sidebar py-0 px-0">
+            <div class="selector-sidebar py-0 px-0">
                 <SidebarSelector />
             </div>
-            <div  class="content-sidebar pa-0">
-                <ConnectionManager v-if="selectedItem == 'connections'" />
+            <div class="content-sidebar pa-0">
+                <ConnectionManager v-if="activeSidebar == 'connections'" />
+                <HistoryManager v-if="activeSidebar == 'history'" />
             </div>
         </div>
         <SidebarFooter />
@@ -17,13 +18,16 @@
     background-color: rgba(0, 0, 0, 0.695);
     width: 40px;
 }
+
 .content-sidebar {
     flex: 1;
 }
+
 .upper-parent {
-    display:flex;
+    display: flex;
     height: 100%;
 }
+
 .sidebar {
     background-color: var(--main-bg-color);
     display: flex;
@@ -38,17 +42,22 @@
 
 <script>
 import ConnectionManager from './ConnectionManager.vue'
+import HistoryManager from './HistoryManager.vue'
 import SidebarFooter from './SidebarFooter.vue'
 import SidebarSelector from './SidebarSelector.vue'
+import { mapGetters } from 'vuex';
+
+
 export default {
     name: "SidebarComponent",
     data() {
         return {
-            connections: [{ 'name': 'duckdb' },
-            { 'name': 'bigquery' }],
-            selectedItem: 'connections'
         };
     },
-    components: { ConnectionManager, SidebarFooter, SidebarSelector }
+    components: { ConnectionManager, HistoryManager, SidebarFooter, SidebarSelector },
+    computed: {
+        ...mapGetters(['activeSidebar'])
+
+    }
 };
 </script>
