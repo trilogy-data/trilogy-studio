@@ -10,7 +10,7 @@
         </div>
     </div>
 </template>
-<style>
+<style scoped>
 .hints {
     height: 100%;
 }

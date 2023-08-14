@@ -63,7 +63,6 @@ const actions = {
         commit('saveEditorText', data)
     },
     async setActiveEditor({ commit }, data) {
-        console.log(`connection set to ${data}`)
         if (data) {
             commit('setActiveEditor', data);
         }
@@ -74,6 +73,11 @@ const actions = {
         commit('saveEditors', data)
     },
     async removeEditor({ commit }, data) {
+        commit('removeEditor', data)
+        commit('saveEditors', data)
+    },
+    // unique from remove in case we want to prompt for save here 
+    async closeEditor({ commit }, data) {
         commit('removeEditor', data)
         commit('saveEditors', data)
     },
@@ -94,10 +98,13 @@ const mutations = {
         state.activeConnection = data;
     },
     removeEditor(state, data) {
-        state.editors = state.editors.filter(editor => editor.name !== data.name)
+        const newEditors = state.editors.filter(editor => editor.name !== data.name)
+        if (data.name === state.activeEditor) {
+            state.activeEditor = newEditors[0].name
+        }
+        state.editors = newEditors
     },
     saveEditors(state, data) {
-        console.log(state.editors)
         storageAPI.setEditors(state.editors)
     },
     saveEditorText(state, data) {

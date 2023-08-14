@@ -52,7 +52,7 @@ import instance from '../api/instance';
 import EditorTabs from '/src/components/editor/EditorTabs.vue';
 import SidebarComponent from '/src/components/sidebar/SidebarComponent.vue';
 import Split from 'split.js';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 export default {
   name: "StudioView",
   data() {
@@ -81,11 +81,7 @@ export default {
     }
   },
   methods: {
-    getModels() {
-      return instance.get("models", {}).then((results) => {
-        this.models = results.data.models;
-      });
-    }
+    ...mapActions(['getCommunityModels'])
   },
   beforeDestroy() {
     if (this.split) {
@@ -93,7 +89,8 @@ export default {
     }
   },
   mounted() {
-    this.getModels();
+    this.getCommunityModels();
+
     this.split = Split(this.splitElements, {
       elementStyle: (_dimension, size) => ({
         "flex-basis": `calc(${size}%)`,

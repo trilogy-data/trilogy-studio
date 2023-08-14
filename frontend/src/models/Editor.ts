@@ -1,6 +1,6 @@
 
-import { Connection, ConnectionInterface } from '/src/models/Connection'
-import { Results, ResultsInterface } from '/src/models/Results'
+import {  ConnectionInterface } from './Connection'
+import { Results, ResultsInterface } from './Results'
 import axiosHelpers from '/src/api/helpers';
 import instance from '/src/api/instance';
 

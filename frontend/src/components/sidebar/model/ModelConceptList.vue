@@ -1,6 +1,6 @@
 <template>
-    <v-card class="pa-2" style="display: flex;">
-      <v-card-text>
+    <v-card class="px-0" style="display: flex;">
+      <v-card-text class="px-0">
         <v-text-field label="Filter" v-model="search" variant="solo" ></v-text-field>
         <v-virtual-scroll :height="height" :items="filteredConcepts" @model-click="propogateModelClick">
           <template v-slot:default="{ item }">
@@ -14,7 +14,7 @@
   <script>
   import { defineComponent } from 'vue';
   import { mapGetters } from 'vuex';
-  import ModelConcept from '@/components/model/ModelConcept.vue';
+  import ModelConcept from './ModelConcept.vue';
   
   export default defineComponent({
     name: 'ModelConceptList',
@@ -25,11 +25,11 @@
       };
     },
     components: { ModelConcept },
-    created: function () {
-      if (this.models === undefined || this.models.length == 0) {
-        return this.$store.dispatch('getModels');
-      }
-    },
+    // created: function () {
+    //   if (this.models === undefined || this.models.length == 0) {
+    //     return this.$store.dispatch('getModels');
+    //   }
+    // },
     methods: {
       propogateModelClick(arg) {
         this.$emit('modelClick', arg)
@@ -37,7 +37,7 @@
     }
     ,
     computed: {
-      ...mapGetters({ models: 'stateModels' }),
+      ...mapGetters(['models']),
       filteredConcepts() {
         if (this.models === undefined || this.models.length == 0) {
           return []

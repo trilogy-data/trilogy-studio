@@ -18,7 +18,7 @@
     <!-- </div> -->
     </FooterComponent>
 </template>
-<style>
+<style scoped>
   /* Flex item styles */
   .flex-item {
     flex: 1; /* Distribute available space evenly among the spans */

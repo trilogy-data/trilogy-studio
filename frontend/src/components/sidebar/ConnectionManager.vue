@@ -5,31 +5,50 @@
         </div>
         <div class="connection-list">
 
-            <v-expansion-panels theme="dark" variant="accordion">
+            <v-expansion-panels theme="dark" >
                 <v-expansion-panel v-for="connection in connections" :key="connection.name">
                     <v-expansion-panel-title>
                         <GlowingDot class="" v-if="connection.active" />
-                        <div class="pl-4">{{ connection.name }}</div>
+                        <div v-if="connection.model" class="pl-4">{{ connection.name }} ({{connection.model}})</div>
+                        <div v-else class="pl-4">{{ connection.name }}</div>
+                    
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                         <div @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]"
                             class="editor-list">
                             {{ editor.name }}
                         </div>
-                        <div>
-                            <NewEditorPopup :defaultConnection="connection.name" />
+                        <div class="d-flex flex-column align-center  pa-0">
+                            <v-toolbar  density="compact" class="button-list">
+                                <!-- <v-btn icon="mdi-format-align-left"></v-btn> -->
+                                <!-- <v-btn  density="compact"   icon="mdi-format-align-center"></v-btn> -->
+                                <!-- <v-btn @click="removeConnection(connection)"  density="compact" icon="mdi-cancel"></v-btn> -->
+                                <EditConnectionPopup :connection="connection"/>
+                                <RemoveConnectionPopup/>
+                                <NewEditorPopup :defaultConnection="connection.name" />
+                            </v-toolbar>
+
                         </div>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
         </div>
+
         <div class="footer">
             <NewConnectionPopup />
             <!-- <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn> -->
         </div>
     </div>
 </template>
-<style local>
+<style scoped>
+.button-list {
+    display: 'flex';
+    width: '100%';
+    align-items: 'center';
+    text-align: 'center';
+
+}
+
 .header {
     color: var(--text-lighter);
     font-size: 1.0rem;
@@ -97,6 +116,8 @@
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
 import NewConnectionPopup from '/src/components/sidebar/NewConnectionPopup.vue';
 import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
+import RemoveConnectionPopup from '/src/components/sidebar/connections/RemoveConnectionPopup.vue'
+import EditConnectionPopup from '/src/components/sidebar/connections/EditConnectionPopup.vue'
 import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';
 export default {
@@ -104,7 +125,9 @@ export default {
     components: {
         GlowingDot,
         NewConnectionPopup,
-        NewEditorPopup
+        NewEditorPopup,
+        RemoveConnectionPopup,
+        EditConnectionPopup
     },
     data() {
         return {
@@ -123,10 +146,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setActiveConnection', 'setActiveEditor', 'loadConnections']),
-        setConnection(conn) {
-            this.setActiveConnection(conn.name)
-        },
+        ...mapActions(['setActiveEditor', 'loadConnections', 'removeConnection']),
     },
     mounted() {
         this.loadConnections()

@@ -14,7 +14,7 @@
 
     </div>
 </template>
-<style>
+<style scoped>
 .sidebar-selectors {
     display: flex;
     flex-direction: column;
@@ -37,7 +37,9 @@ export default {
         return {
             links: [{ 'name': 'Connections', 'address': 'connections', 'icon': 'mdi-database' },
             { 'name': 'History', 'address': 'history', 'icon': 'mdi-history' },
-            { 'name': 'Other', 'address': 'other', 'icon': 'mdi-dots-horizontal' }
+            {'name': "Models", 'address': 'models', 'icon': 'mdi-table'},
+            { 'name': 'Other', 'address': 'other', 'icon': 'mdi-dots-horizontal' },
+            
             ],
             selectedItem: 'connections'
         }

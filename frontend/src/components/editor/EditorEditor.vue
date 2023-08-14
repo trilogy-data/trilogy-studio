@@ -4,7 +4,7 @@
         </div>
 </template>
 
-<style>
+<style scoped>
 .results {
     display: flex;
     flex-direction: column;
@@ -84,7 +84,7 @@ export default defineComponent({
     computed: {
         ...mapGetters(['getConnectionByName']),
         connection() {
-            return getConnectionByName(this.editorData.connection)
+            return this.getConnectionByName(this.editorData.connection)
         },
         error() {
             return this.editorData.error
@@ -116,7 +116,7 @@ export default defineComponent({
 
     },
     methods: {
-        ...mapActions(['saveEditors', 'saveEditorText']),
+        ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection']),
         async runQuery(rquery) {
             let local = this;
 
@@ -149,6 +149,9 @@ export default defineComponent({
             // this.error = null;
             let current_query = this.editorData.contents;
             let local = this;
+            if (!this.connection.active) {
+                await this.connectConnection(this.connection)
+            }
             await this.editorData.runQuery();
             this.last_passed_query_text = current_query;
         },

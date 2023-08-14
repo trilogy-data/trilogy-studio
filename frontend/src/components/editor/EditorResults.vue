@@ -9,7 +9,7 @@
     <EditorFooter :executed="editorData.executed" :length="result.data.length" :duration="editorData.duration" />
 </template>
 
-<style>
+<style scoped>
 .results-loading {
     height: 100%;
 }
@@ -54,14 +54,10 @@ export default defineComponent({
         ErrorComponent,
         EditorFooter
     },
-    created: function () {
-        this.$store.dispatch('getModels');
-
-    },
     mounted() {
     },
     computed: {
-        ...mapGetters(['stateModels', 'activeConnection']),
+        ...mapGetters(['models', 'activeConnection']),
         error() {
             return this.editorData.error
         },

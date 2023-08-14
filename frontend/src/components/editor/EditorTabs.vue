@@ -6,6 +6,12 @@
                 @update:modelValue="setActiveEditor(selectedEditor)">
                 <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
                     {{ n.name }} <span class="text-light"> ({{ n.syntax }})</span>
+                    <div class="editor-tab close-button pl-4">
+                        <v-btn size="compact" @click="closeEditor(n)" 
+                        class="editor-tab close-button pa-0" height="20" width="10">
+                            <v-icon class="editor-tab close-button" height="10" width="5">mdi-close</v-icon>
+                        </v-btn>
+                    </div>
                 </v-tab>
                 <v-tab class="editor-tab editor-tab-add">
                     <NewEditorPopup></NewEditorPopup>
@@ -24,7 +30,15 @@
         </div>
     </div>
 </template>
-<style>
+<style scoped>
+.close-button {
+    width: 10px !important;
+    color: var(--text-lighter);
+    background-color: var(--main-bg-color);
+    display: flex;
+  align-items: center;
+}
+
 .debug {
     height: 500px;
     border: 1px solid red;
@@ -80,6 +94,8 @@
     height: 30px;
     text-transform: none;
     color: var(--text-lighter);
+    background-color: var(--main-bg-color);
+
 }
 
 .editor-tab {
@@ -106,6 +122,7 @@ export default {
         localEditor.value = store.getters['activeEditor'];
         const editors = computed(() => store.getters['editors'])
         const setActiveEditor = () => store.dispatch('setActiveEditor', localEditor.value)
+        const closeEditor = (editor) => store.dispatch('closeEditor', editor)
         store.watch(
             (state) => state.activeEditor,
             (newValue) => {
@@ -135,6 +152,7 @@ export default {
         return {
             editors,
             setActiveEditor,
+            closeEditor,
             localEditor,
             // functions
             // refs

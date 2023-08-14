@@ -3,7 +3,7 @@
         <slot/>
     </footer>
 </template>
-<style>
+<style scoped>
 .footer {
     --height: 20px;
     font-size: 0.8rem;

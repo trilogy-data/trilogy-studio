@@ -23,6 +23,7 @@ const storageAPI = {
 
     getConnections(): Array<Connection> {
         const data = store.get('connections', []) as Array<any>
+        console.log(data)
         const parsed = data.map(dict => {
             return Connection.fromJSON(dict)
         });
@@ -37,7 +38,7 @@ function findMatchingValue(arr, condition) {
 
 
 const state = {
-    connections: [new Connection('duckdb_demo', 'duckdb'),
+    connections: [new Connection('duckdb_demo', 'duck_db'),
     new Connection('bigquery_demo', 'bigquery')],
 };
 
@@ -49,9 +50,11 @@ const getters = {
 };
 
 const actions = {
-    async connectConnection({ commit }, data) {
-        instance.post('/connection', { name: data.connection.name, dialect:data.connection.type, model: data.connection.model }).then((response) => {
-            commit('setConnectionActive', data.connection)
+    async connectConnection({ commit }, connection) {
+        instance.post('/connection', { name: connection.name, 
+            dialect:connection.type, 
+            model: connection.model }).then((response) => {
+            commit('setConnectionActive', connection)
         })
 
     },
@@ -62,8 +65,15 @@ const actions = {
         })
 
     },
+    async editConnection({ commit }, data) {
+        console.log(data.model)
+        instance.put('/connection', { name: data.name, dialect: data.type, model: data.model }).then((response) => {
+            const connection = new Connection(data.name, data.type, true, data.model)
+            commit('editConnection', connection)
+        })
+    },
     async removeConnection({ commit }, data) {
-        commit('removeConnection', data.connection)
+        commit('removeConnection', data)
     },
     async loadConnections({commit }, data) {
         commit('setConnections', storageAPI.getConnections())
@@ -76,6 +86,12 @@ const mutations = {
     async setConnectionActive(state, connection) {
         const index = state.connections.findIndex(c => c.name === connection.name)
         state.connections[index].active = true
+    },
+    async editConnection(state, connection) {
+        const index = state.connections.findIndex(c => c.name === connection.name)
+        console.log(connection)
+        state.connections[index] = connection
+        storageAPI.setConnections(state.connections)
     },
     async addConnection(state, connection) {
         state.connections.push(connection)

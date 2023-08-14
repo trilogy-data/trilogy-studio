@@ -5,7 +5,7 @@
         </div>
     </FooterComponent>
 </template>
-<style>
+<style scoped>
 .footer {
     --height: 25px;
     height: var(--height);
@@ -28,12 +28,6 @@ export default {
     name: "EditorFooter",
     components: {FooterComponent},
     data: () => ({
-        icons: [
-            'mdi-facebook',
-            'mdi-twitter',
-            'mdi-linkedin',
-            'mdi-instagram',
-        ],
     }),
     computed: {
         ...mapGetters(['activeEditor', 'getConnectionByName']),

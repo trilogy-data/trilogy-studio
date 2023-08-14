@@ -19,7 +19,7 @@ from datetime import datetime
 from typing import Mapping, Optional, Dict, List, Tuple
 
 import uvicorn
-from fastapi import APIRouter, FastAPI, HTTPException, Request, Response
+from fastapi import APIRouter, FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from google.auth import default
@@ -249,6 +249,11 @@ async def list_connections():
         )
     return ConnectionListOutput(connections=output)
 
+@router.put("/connection")
+async def update_connection(connection:ConnectionInSchema):
+    # if connection.name not in CONNECTIONS:
+    #     raise HTTPException(status_code=404, detail=f"Connection {connection.name} not found.")
+    create_connection(connection)
 
 @router.post("/connection")
 async def create_connection(connection: ConnectionInSchema):
