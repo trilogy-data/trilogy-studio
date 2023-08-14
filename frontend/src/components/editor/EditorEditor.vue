@@ -1,7 +1,7 @@
 <template>
-        <div ref="editor" id="editor" class="editor-fix-styles">
-            <!-- <div id="editor" > </div> -->
-        </div>
+    <div ref="editor" id="editor" class="editor-fix-styles">
+        <!-- <div id="editor" > </div> -->
+    </div>
 </template>
 
 <style scoped>
@@ -116,7 +116,7 @@ export default defineComponent({
 
     },
     methods: {
-        ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection']),
+        ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor']),
         async runQuery(rquery) {
             let local = this;
 
@@ -184,6 +184,8 @@ export default defineComponent({
                 automaticLayout: true,
             })
             this.editor = editor;
+
+            this.addMonacoEditor({ editor: editor, name: this.editorData.name })
             // editor.layout({ height: 400, width:400 });
             monaco.editor.defineTheme('preqlStudio', {
                 base: 'vs-dark', // can also be vs-dark or hc-black
@@ -215,7 +217,7 @@ export default defineComponent({
             });
 
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-                this.saveEditorText({contents: editor.getValue(), name: this.editorData.name})
+                this.saveEditorText({ contents: editor.getValue(), name: this.editorData.name })
                 this.saveEditors()
             });
 
