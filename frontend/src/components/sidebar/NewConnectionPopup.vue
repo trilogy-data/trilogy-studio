@@ -12,7 +12,8 @@
             <v-form v-model="form">
                 <v-container>
                     <v-form v-model="form">
-                    <v-text-field variant="solo" density="compact" :readonly="loading" :rules="[required]" v-model="name"
+                    <v-text-field variant="solo" density="compact" :readonly="loading" 
+                    :rules="[required]" v-model="name"
                         label="Name">
                     </v-text-field>
                     <v-divider/>

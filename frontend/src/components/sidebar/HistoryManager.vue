@@ -101,7 +101,7 @@ import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
 import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';
 export default {
-    name: "ConnectionManager",
+    name: "HistoryManager",
     components: {
         GlowingDot,
         NewConnectionPopup,
@@ -124,13 +124,9 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setActiveConnection', 'setActiveEditor', 'loadConnections']),
-        setConnection(conn) {
-            this.setActiveConnection(conn.name)
-        },
+        ...mapActions([]),
     },
     mounted() {
-        this.loadConnections()
     },
 };
 </script>
