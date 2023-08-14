@@ -220,9 +220,9 @@ export default {
             const calculated = []
             this.headers.forEach((details, column) => {
                 const result = {
-                    title: column,
+                    title: details.name,
                     titleFormatter: 'plaintext',
-                    field: column,
+                    field: details.name,
                     formatter: this.cellFormatter,
                     tooltip: this.cellTooltip,
                     contextMenu: this.cellContextMenu,

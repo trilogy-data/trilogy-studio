@@ -58,6 +58,9 @@ const actions = {
         })
 
     },
+    async setConnectionInactive({ commit }, connection) {
+        commit('setConnectionInactive', connection)
+    },
     async addConnection({ commit }, data) {
         instance.post('/connection', { name: data.name, dialect: data.type, model: data.model }).then((response) => {
             const connection = new Connection(data.name, data.type, true, data.model)
@@ -86,6 +89,10 @@ const mutations = {
     async setConnectionActive(state, connection) {
         const index = state.connections.findIndex(c => c.name === connection.name)
         state.connections[index].active = true
+    },
+    async setConnectionInactive(state, connection) {
+        const index = state.connections.findIndex(c => c.name === connection.name)
+        state.connections[index].active = false
     },
     async editConnection(state, connection) {
         const index = state.connections.findIndex(c => c.name === connection.name)

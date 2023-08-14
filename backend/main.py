@@ -374,6 +374,7 @@ async def run_query(query: QueryInSchema):
                 ))
                 for col in statement.output_columns
             ]
+            
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     if not rs:

@@ -14,10 +14,9 @@
   
 <script>
 import { defineComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import ModelConcept from './ModelConcept.vue';
-import { mapActions } from 'vuex';
-
+import editorMap from '/src/store/modules/monaco'
 export default defineComponent({
   name: 'ModelConceptList',
   props: ['model', 'height', 'editor'],
@@ -36,8 +35,17 @@ export default defineComponent({
     ...mapActions(['insertTextInEditor'
     ]),
     propogateModelClick(arg) {
-
-      this.insertTextInEditor({ name: this.editor, text: arg })
+      let monaco = editorMap.get(this.editor)
+      // var line = monaco.getPosition();
+      // var range = new Range(line.lineNumber, 1, line.lineNumber, 1);
+      // var id = { major: 1, minor: 1 };
+      // var op = { identifier: id, range: range, text: arg };
+      // monaco.executeEdits("dynamic-insert", [op]);
+      var selection = monaco.getSelection();
+      var id = { major: 1, minor: 1 };             
+      var text = arg;
+      var op = {identifier: id, range: selection, text: text, forceMoveMarkers: true};
+      monaco.executeEdits("my-source", [op]);
     }
 
   }

@@ -37,6 +37,7 @@ import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 
 // import ModelConceptList from '@/components/model/ModelConceptList.vue';
+import editorMap from '/src/store/modules/monaco';
 import QueryResultsV2 from './QueryResult.vue';
 import HintsComponent from './HintsComponent.vue';
 import ErrorComponent from './ErrorComponent.vue';
@@ -116,15 +117,8 @@ export default defineComponent({
 
     },
     methods: {
-        ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor']),
-        async runQuery(rquery) {
-            let local = this;
-
-            await instance.post('query', rquery).then(function (response) {
-
-                local.result = response.data;
-            })
-        },
+        ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor',
+    'setConnectionInactive']),
         async generate() {
             this.loading = true;
             this.info = 'Generating query from prompt...'
@@ -149,10 +143,19 @@ export default defineComponent({
             // this.error = null;
             let current_query = this.editorData.contents;
             let local = this;
+            if (!this.connection) {
+                throw new Error('No connection selected for this editor')
+            }
             if (!this.connection.active) {
                 await this.connectConnection(this.connection)
             }
             await this.editorData.runQuery();
+
+            // result code handling
+        
+            if (this.editorData.status_code === 403) {
+                this.setConnectionInactive({name:this.connection})
+            }
             this.last_passed_query_text = current_query;
         },
         async format() {
@@ -184,8 +187,8 @@ export default defineComponent({
                 automaticLayout: true,
             })
             this.editor = editor;
-
-            this.addMonacoEditor({ editor: editor, name: this.editorData.name })
+            editorMap.set(this.editorData.name, editor)
+            // this.addMonacoEditor({ editor: editor, name: this.editorData.name })
             // editor.layout({ height: 400, width:400 });
             monaco.editor.defineTheme('preqlStudio', {
                 base: 'vs-dark', // can also be vs-dark or hc-black

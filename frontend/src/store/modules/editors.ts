@@ -5,7 +5,7 @@
 
 import { Editor, RawEditor } from '/src/models/Editor'
 import Store from 'electron-store'
-import { Range } from 'monaco-editor';
+import { Range,  } from 'monaco-editor';
 
 function findMatchingValue(arr, condition) {
     const foundElement = arr.find(element => condition(element));
@@ -21,7 +21,7 @@ const storageAPI = {
     setEditors(value: Array<Editor | RawEditor>) {
         // const buffer = safeStorage.encryptString(value);
         const parsed = value.map(editor => {
-            JSON.stringify(editor, (key, value) => {
+           return  JSON.stringify(editor, (key, value) => {
                 if (key === 'monaco') {
                   return undefined; // Exclude the property from the JSON output
                 }
@@ -34,11 +34,13 @@ const storageAPI = {
 
 
     getEditors(): Array<Editor | RawEditor> {
-        const data = store.get('editors', []) as Array<any>
+        let data = store.get('editors', []) as Array<any>
+        data = data.filter(editor => editor !== null)
         const parsed = data.map(dict => {
-            if (dict.syntax === 'preql') { return Editor.fromJSON(dict) }
-            else if (dict.syntax === 'sql') {
-                return RawEditor.fromJSON(dict)
+            let subParsed = JSON.parse(dict)
+            if (subParsed.syntax === 'preql') { return Editor.fromJSON(subParsed) }
+            else if (subParsed.syntax === 'sql') {
+                return RawEditor.fromJSON(subParsed)
             }
         });
         return parsed
@@ -80,10 +82,6 @@ const actions = {
     async addMonacoEditor({ commit }, data) {
         console.log('adding monaco editor')
         commit('addMonacoEditor', data)
-    },
-    async insertTextInEditor({ commit }, data) {
-        commit('insertTextInEditor', data);
-        commit('saveEditors', data)
     },
     async newEditor({ commit }, data) {
         commit('newEditor', data);
@@ -127,20 +125,6 @@ const mutations = {
         }
         state.editors = newEditors
     },
-    insertTextInEditor(state, data) {
-
-        const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
-        if (!editor.monaco) {
-            return
-        }
-        const monaco = editor.monaco;
-        var line = monaco.getPosition();
-        var range = new Range(line.lineNumber, 1, line.lineNumber, 1);
-        var id = { major: 1, minor: 1 };
-        var op = { identifier: id, range: range, text: data.text, forceMoveMarkers: true };
-        console.log(op)
-        monaco.executeEdits("my-source", [op]);
-    },
     saveEditors(state, data) {
         storageAPI.setEditors(state.editors)
     },
@@ -153,7 +137,6 @@ const mutations = {
     },
     newEditor(state, data) {
         let newEd = null;
-        console.log(data)
         if (data.syntax === 'preql') {
             newEd = new Editor(data.name, data.connection.type, data.connection.name,);
         }

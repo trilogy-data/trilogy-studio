@@ -14,8 +14,9 @@ export interface EditorInterface {
     contents: string;
     loading: boolean;
     error: string | null;
+    status_code:number;
     executed: boolean;
-    monaco: editor.IStandaloneCodeEditor | null;
+    // monaco: editor.IStandaloneCodeEditor | null;
 }
 
 export interface EditorEnrichedInterface {
@@ -27,7 +28,7 @@ export interface EditorEnrichedInterface {
     loading: boolean;
     error: string | null;
     executed: boolean;
-    monaco: editor.IStandaloneCodeEditor | null;
+    // monaco: editor.IStandaloneCodeEditor | null;
 }
 
 export class Editor implements EditorInterface {
@@ -39,9 +40,10 @@ export class Editor implements EditorInterface {
     contents: string;
     loading: boolean;
     error: string | null;
+    status_code:number;
     executed: boolean;
     duration: number | null;
-    monaco: editor.IStandaloneCodeEditor | null;
+    // monaco: editor.IStandaloneCodeEditor | null;
 
 
     constructor(name: string, type: string, connection: string) {
@@ -55,7 +57,8 @@ export class Editor implements EditorInterface {
         this.error = null;
         this.executed = false;
         this.duration = null;
-        this.monaco = null;
+        // this.monaco = null;
+        this.status_code = 200;
     }
 
     async runQuery() {
@@ -80,6 +83,8 @@ export class Editor implements EditorInterface {
             })
             // this.last_passed_query_text = current_query;
         } catch (error) {
+            const resultCode = axiosHelpers.getResultCode(error);
+            this.status_code = resultCode;
             local.error = axiosHelpers.getErrorMessage(error);
             local.duration = null;
             local.executed = false;
@@ -110,8 +115,8 @@ export class RawEditor implements EditorInterface {
     error: string | null;
     executed: boolean;
     duration: number | null;
-    monaco: editor.IStandaloneCodeEditor | null;
-
+    // monaco: editor.IStandaloneCodeEditor | null;
+    status_code: number;
 
     constructor(name: string, type: string, connection: string) {
         this.name = name
@@ -124,7 +129,8 @@ export class RawEditor implements EditorInterface {
         this.error = null;
         this.executed = false;
         this.duration = null;
-        this.monaco = null;
+        // this.monaco = null;
+        this.status_code = 200;
     }
     
     async runQuery() {
@@ -149,6 +155,8 @@ export class RawEditor implements EditorInterface {
             })
             // this.last_passed_query_text = current_query;
         } catch (error) {
+            const resultCode = axiosHelpers.getResultCode(error);
+            this.status_code = resultCode;
             local.error = axiosHelpers.getErrorMessage(error);
             local.duration = null;
             local.executed = false;

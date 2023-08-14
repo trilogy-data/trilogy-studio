@@ -8,7 +8,7 @@
                 Add Connection
             </v-btn>
         </template>
-        <v-card theme="dark" class="mx-auto" min-width="344" title="New Editor">
+        <v-card theme="dark" class="mx-auto" min-width="344" title="Add Connection">
             <v-form v-model="form">
                 <v-container>
                     <v-form v-model="form">
@@ -56,7 +56,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 export default {
-    name: "AddEditorTab",
+    name: "AddConnection",
     data() {
         return {
             form: false,
