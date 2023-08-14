@@ -3,6 +3,7 @@ import {  ConnectionInterface } from './Connection'
 import { Results, ResultsInterface } from './Results'
 import axiosHelpers from '/src/api/helpers';
 import instance from '/src/api/instance';
+import {editor} from 'monaco-editor';
 
 export interface EditorInterface {
     name: string;
@@ -14,6 +15,7 @@ export interface EditorInterface {
     loading: boolean;
     error: string | null;
     executed: boolean;
+    monaco: editor.IStandaloneCodeEditor | null;
 }
 
 export interface EditorEnrichedInterface {
@@ -25,6 +27,7 @@ export interface EditorEnrichedInterface {
     loading: boolean;
     error: string | null;
     executed: boolean;
+    monaco: editor.IStandaloneCodeEditor | null;
 }
 
 export class Editor implements EditorInterface {
@@ -38,6 +41,7 @@ export class Editor implements EditorInterface {
     error: string | null;
     executed: boolean;
     duration: number | null;
+    monaco: editor.IStandaloneCodeEditor | null;
 
 
     constructor(name: string, type: string, connection: string) {
@@ -51,6 +55,7 @@ export class Editor implements EditorInterface {
         this.error = null;
         this.executed = false;
         this.duration = null;
+        this.monaco = null;
     }
 
     async runQuery() {
@@ -105,6 +110,7 @@ export class RawEditor implements EditorInterface {
     error: string | null;
     executed: boolean;
     duration: number | null;
+    monaco: editor.IStandaloneCodeEditor | null;
 
 
     constructor(name: string, type: string, connection: string) {
@@ -118,6 +124,7 @@ export class RawEditor implements EditorInterface {
         this.error = null;
         this.executed = false;
         this.duration = null;
+        this.monaco = null;
     }
     
     async runQuery() {

@@ -4,7 +4,10 @@
             Models
         </div>
         <div class="connection-list">
-            <ModelConceptList v-if="activeModelFromConnection"  class="px-0" :model="activeModelFromConnection.name" height="400"/>
+            <ModelConceptList v-if="activeModelFromConnection"  class="px-0" 
+            :model="activeModelFromConnection.name" 
+            :editor="activeEditor.name"
+            :height="sidebarHeight - 160"/>
             <div class = "connection-list-item" v-else>No active model</div>
             <!-- <v-expansion-panels  theme="dark" variant="accordion">
                 <v-expansion-panel class="px-0" v-for="model in models" :key="model.name">
@@ -101,13 +104,13 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['models', 'getConnectionByName', 'activeEditor']),
+        ...mapGetters(['models', 'getConnectionByName', 'activeEditor', 'sidebarHeight']),
         activeConnection() {
             return this.getConnectionByName(this.activeEditor.connection)
         },
         activeModelFromConnection() {
-            console.log(this.activeConnection.model)
-            this.models.find(todo => todo.name === this.activeConnection.model)
+            console.log(this.activeConnection)
+            return this.models.find(todo => todo.name === this.activeConnection.model)
 
         }
     },

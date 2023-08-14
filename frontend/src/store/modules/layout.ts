@@ -4,6 +4,10 @@ const state = {
 
 const getters = {
     activeSidebar: state => state.activeSidebar,
+    sidebarHeight: state => {
+        const height = document.documentElement.clientHeight;
+        return height - 20;
+    }
 };
 
 const actions = {

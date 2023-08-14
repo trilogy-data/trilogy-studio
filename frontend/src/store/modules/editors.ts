@@ -5,6 +5,7 @@
 
 import { Editor, RawEditor } from '/src/models/Editor'
 import Store from 'electron-store'
+import { Range } from 'monaco-editor';
 
 function findMatchingValue(arr, condition) {
     const foundElement = arr.find(element => condition(element));
@@ -19,7 +20,15 @@ const store = new Store<Record<string, Object>>({
 const storageAPI = {
     setEditors(value: Array<Editor | RawEditor>) {
         // const buffer = safeStorage.encryptString(value);
-        store.set('editors', value);
+        const parsed = value.map(editor => {
+            JSON.stringify(editor, (key, value) => {
+                if (key === 'monaco') {
+                  return undefined; // Exclude the property from the JSON output
+                }
+                return value; // Include other properties as is
+                });
+            });
+        store.set('editors', parsed);
         // store.set(key, buffer.toString(encoding));
     },
 
@@ -27,10 +36,10 @@ const storageAPI = {
     getEditors(): Array<Editor | RawEditor> {
         const data = store.get('editors', []) as Array<any>
         const parsed = data.map(dict => {
-            if (dict.syntax === 'preql') {return Editor.fromJSON(dict)}
+            if (dict.syntax === 'preql') { return Editor.fromJSON(dict) }
             else if (dict.syntax === 'sql') {
-               return  RawEditor.fromJSON(dict)
-            } 
+                return RawEditor.fromJSON(dict)
+            }
         });
         return parsed
     },
@@ -40,7 +49,7 @@ const storageAPI = {
 function getInitialEditors() {
     let editors = storageAPI.getEditors();
     editors = editors.filter(editor => (typeof editor.name === 'string' && editor.connection))
-    if (editors.length === 0) { 
+    if (editors.length === 0) {
         editors = [new Editor('demo-editor', 'duckdb', 'duckdb_demo')]
     }
     return editors
@@ -59,7 +68,7 @@ const getters = {
 };
 
 const actions = {
-    async saveEditorText({commit}, data) {
+    async saveEditorText({ commit }, data) {
         commit('saveEditorText', data)
     },
     async setActiveEditor({ commit }, data) {
@@ -67,6 +76,14 @@ const actions = {
             commit('setActiveEditor', data);
         }
 
+    },
+    async addMonacoEditor({ commit }, data) {
+        console.log('adding monaco editor')
+        commit('addMonacoEditor', data)
+    },
+    async insertTextInEditor({ commit }, data) {
+        commit('insertTextInEditor', data);
+        commit('saveEditors', data)
     },
     async newEditor({ commit }, data) {
         commit('newEditor', data);
@@ -91,6 +108,12 @@ const actions = {
 
 
 const mutations = {
+    addMonacoEditor(state, data) {
+        console.log(data)
+        const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
+        editor.monaco = data.editor
+    },
+
     setActiveEditor(state, data) {
         state.activeEditor = data;
     },
@@ -103,6 +126,20 @@ const mutations = {
             state.activeEditor = newEditors[0].name
         }
         state.editors = newEditors
+    },
+    insertTextInEditor(state, data) {
+
+        const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
+        if (!editor.monaco) {
+            return
+        }
+        const monaco = editor.monaco;
+        var line = monaco.getPosition();
+        var range = new Range(line.lineNumber, 1, line.lineNumber, 1);
+        var id = { major: 1, minor: 1 };
+        var op = { identifier: id, range: range, text: data.text, forceMoveMarkers: true };
+        console.log(op)
+        monaco.executeEdits("my-source", [op]);
     },
     saveEditors(state, data) {
         storageAPI.setEditors(state.editors)
