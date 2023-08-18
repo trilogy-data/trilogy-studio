@@ -43,6 +43,7 @@ export class Editor implements EditorInterface {
     status_code:number;
     executed: boolean;
     duration: number | null;
+    generated_sql: string | null;
     // monaco: editor.IStandaloneCodeEditor | null;
 
 
@@ -59,6 +60,7 @@ export class Editor implements EditorInterface {
         this.duration = null;
         // this.monaco = null;
         this.status_code = 200;
+        this.generated_sql = null;
     }
 
     async runQuery() {
@@ -76,6 +78,7 @@ export class Editor implements EditorInterface {
                 for (const [key, value] of response.data.columns) {
                     columnMap.set(key, value);
                 }
+                local.generated_sql = response.data.generated_sql;
                 local.results = new Results(response.data.results, columnMap); //response.data;
                 const endTime = new Date();
                 local.duration = endTime.getTime() - startTime.getTime();

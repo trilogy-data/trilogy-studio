@@ -216,7 +216,6 @@ export default {
         },
         tableColumns() {
             // const columnWidth = this.result.fields.length > 30 ? globals.bigTableColumnWidth : undefined
-            console.log(this.headers)
             const calculated = []
             this.headers.forEach((details, column) => {
                 const result = {
@@ -231,7 +230,6 @@ export default {
                 }
                 calculated.push(result)
             })
-            console.log(calculated)
             return calculated;
         }
     },

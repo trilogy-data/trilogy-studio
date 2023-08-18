@@ -1,27 +1,91 @@
 
 
 <template>
-      <DataTableV2 :headers="headers" :results="results" />
-    <!-- <v-chip-group v-if="validChartTypes.length > 1" column v-model="mode" selected-class="text-deep-purple-accent-4"
-        mandatory align-self="end" class="text-right">
-
-        <v-chip v-for="option in validChartTypes" :key="option" :value="option" density="compact">{{ option }}</v-chip>
-    </v-chip-group>
-    <div v-if="mode === Display.TABLE">
-        <DataTableV2  :headers="headers" :results="results" />
+    <div class="editor-entry">
+        <v-tabs class="editor-tabs pa-0 ba-0" v-model="activeTab">
+            <v-tab class="editor-tab" value="results">Results</v-tab>
+            <v-tab v-if="editor.syntax === 'preql'" class="editor-tab" value="sql">SQL</v-tab>
+        </v-tabs>
+        <ROEditor class="sub-component-content" v-if="activeTab === 'sql'" :content="generated_sql" />
+        <DataTableV2 class="sub-component-content" v-else-if="activeTab === 'results'" id="rdisplay" :headers="headers" :results="results" />
     </div>
-    <div v-else-if="mode === Display.BAR_CHART">
-        <apexchart class="fill-width ma-0 ma-sm-2 px-0 px-sm-2" type="bar" :options="chartOptions" :series="series">
-        </apexchart>
-    </div>
-    <div v-else-if="mode === Display.LINE_CHART">
-        <apexchart class="fill-width ma-0 ma-sm-2 px-0 px-sm-2" type="line" :options="chartOptions" :series="series">
-        </apexchart>
-    </div> -->
 </template>
+<style>
+.editor-tabs {
+    height: 30px;
+    background-color: var(--main-bg-color);
+    border-radius: 0;
+}
+
+.editor-tab {
+    height: 10px;
+    font-size: .8rem;
+    color: var(--text-lighter);
+    border-radius: 0;
+}
+
+
+.editor-tab-add.v-slide-group {
+    width: 20px
+}
+
+.editor-tab.v-slide-group {
+    height: 30px;
+}
+
+.tab-icon {
+    height: 20px;
+}
+
+.editor-tab.v-btn {
+    height: 30px;
+    text-transform: none;
+    color: var(--text-lighter);
+    background-color: var(--main-bg-color);
+    border-radius: 0;
+
+}
+
+.sub-component {
+    display: 'flex';
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.sub-component-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    flex-shrink: 1;
+    /* flex-wrap: wrap; */
+    height: calc(100% - 30px);
+}
+
+.editor-entry {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    flex: 1 1 100%;
+    height: 100%;
+}
+
+.result-table {
+    display: flex;
+    flex-direction: row;
+    flex-basis: 100%;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    width: 100%;
+
+}
+</style>
 <script>
 import DataTableV2 from '/src/components/editor/DataTableV2.vue'
 import charts from '/src/helpers/charts'
+import ROEditor from '/src/components/editor/ReadOnlyEditor.vue'
 let Display = charts.Display()
 const DisplayMap = new Map();
 
@@ -29,30 +93,32 @@ const DisplayMap = new Map();
 DisplayMap.set(1, Display.TABLE);
 DisplayMap.set(2, Display.BAR_CHART);
 DisplayMap.set(3, Display.LINE_CHART);
+DisplayMap.set(4, Display.GENERATED_QUERY);
 
 export default {
     props: {
         'headers': {
-            type: Array,
+            type: Map,
             required: true,
         },
-        'results' : {
+        'results': {
             type: Array,
             required: true,
-        },
-        'columns': {
-            type: Object,
-            required:true,
         },
         'defaultMode': {
             required: false,
             default: Display.TABLE
         },
+        'editor': {
+            type: Object,
+            required: true
+        }
 
     }, //['headers', 'results', 'columns', 'defaultMode'],
     components: {
         // DataTable,
         DataTableV2,
+        ROEditor
     },
     data() {
 
@@ -61,7 +127,9 @@ export default {
             mode = DisplayMap.get(this.defaultMode);
         }
         return {
+            chips: [Display.TABLE, Display.GENERATED_QUERY],
             mode: mode,
+            activeTab: 'results',
             Display
 
         }
@@ -69,7 +137,9 @@ export default {
 
     computed: {
         /*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }]*/
-
+        generated_sql() {
+            return this.editor.generated_sql
+        },
         safe_columns() {
             if (this.columns) {
                 return Object.entries(this.columns).map(([_k, v]) => v);

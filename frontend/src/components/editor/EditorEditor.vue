@@ -3,57 +3,27 @@
         <!-- <div id="editor" > </div> -->
     </div>
 </template>
-
 <style scoped>
-.results {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 0;
-    flex-shrink: 1;
-    /* flex-wrap: wrap; */
-    height: 100%;
-}
-
-.editor {
-    background-color: var(--main-bg-color);
-    filter: brightness(85%);
-}
-
 .editor-fix-styles {
     text-align: left;
     border: none;
-}
-
-.split {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    flex: 1 1 100%;
-    height: 100%;
 }
 </style>
 <script>
 import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
-
-// import ModelConceptList from '@/components/model/ModelConceptList.vue';
 import editorMap from '/src/store/modules/monaco';
-import QueryResultsV2 from './QueryResult.vue';
-import HintsComponent from './HintsComponent.vue';
-import ErrorComponent from './ErrorComponent.vue';
 import axiosHelpers from '/src/api/helpers';
 import colorHelpers from '/src/helpers/color';
 import instance from '/src/api/instance';
 import * as monaco from 'monaco-editor';
-import Split from 'split.js'
-import EditorFooter from './EditorFooter.vue';
 import { Editor } from '/src/models/Editor'
 
 export default defineComponent({
     name: 'EditorComponent',
     props: {
         editorData: {
-            type: Object,
+            type: Editor,
             default: () => new Editor()
         }
     },
@@ -73,11 +43,6 @@ export default defineComponent({
         }
     },
     components: {
-        // ModelConceptList, 
-        HintsComponent,
-        QueryResultsV2,
-        ErrorComponent,
-        EditorFooter
     },
     mounted() {
         this.createEditor()
@@ -96,20 +61,8 @@ export default defineComponent({
         result() {
             return this.editorData.results
         },
-        splitElements() {
-            return [
-                this.$refs.editor,
-                this.$refs.results
-            ];
-        },
         passedQuery() {
             return this.editorData.contents === this.last_passed_query_text
-        },
-        defaultRows() {
-            if (this.$vuetify.display.mobile) {
-                return 10;
-            }
-            return 20;
         },
         generateOverlayVisible() {
             return this.prompt.length > 1 || this.generatingPrompt
@@ -170,9 +123,6 @@ export default defineComponent({
                 self.error = axiosHelpers.getErrorMessage(error);
                 self.loading = false;
             })
-        },
-        appendModelToQuery(obj) {
-            this.editorData.contents = this.editorData.contents + "\n\t" + (obj || '') + ",";
         },
         querySaveComplete() {
             this.$emit('querySaveComplete')

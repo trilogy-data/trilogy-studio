@@ -1,14 +1,13 @@
 <template>
     <div class="editor-entry pa-0 ba-0">
-        <!-- <div ref="editor" class="debug"> EDITOR HERE</div> -->
         <div ref="editor">
             <v-tabs class="editor-tabs pa-0 ba-0" v-model="localEditor" center-active
                 @update:modelValue="setActiveEditor(selectedEditor)">
                 <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
                     {{ n.name }} <span class="text-light"> ({{ n.syntax }})</span>
                     <div class="editor-tab close-button pl-4">
-                        <v-btn size="compact" @click="closeEditor(n)" 
-                        class="editor-tab close-button pa-0" height="20" width="10">
+                        <v-btn size="compact" @click="closeEditor(n)" class="editor-tab close-button pa-0" height="20"
+                            width="10">
                             <v-icon class="editor-tab close-button" height="10" width="5">mdi-close</v-icon>
                         </v-btn>
                     </div>
@@ -22,9 +21,9 @@
                 </EditorEditor>
             </template>
         </div>
-        <div class="editor-results editor" ref="results">
+        <div class="editor-results editor-color" ref="results">
             <template v-for="editor in editors">
-                <EditorResults key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
+                <EditorResults :key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
                 </EditorResults>
             </template>
         </div>
@@ -36,12 +35,7 @@
     color: var(--text-lighter);
     background-color: var(--main-bg-color);
     display: flex;
-  align-items: center;
-}
-
-.debug {
-    height: 500px;
-    border: 1px solid red;
+    align-items: center;
 }
 
 .editor-background {
@@ -50,7 +44,7 @@
     height: 100px;
 }
 
-.editor {
+.editor-color {
     background-color: var(--main-bg-color);
     filter: brightness(85%);
 }
@@ -126,7 +120,6 @@ export default {
         store.watch(
             (state) => state.activeEditor,
             (newValue) => {
-                console.log(newValue)
                 localEditor.value = newValue;
             }
         );
@@ -144,7 +137,7 @@ export default {
                 sizes: [50, 50],
                 minSize: 200,
                 expandToMin: true,
-                gutterSize: 0,
+                gutterSize: 0
             });
             // this.createEditor()
         })

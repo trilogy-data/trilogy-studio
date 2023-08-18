@@ -149,7 +149,8 @@ def generate_default_bigquery() -> Executor:
     )
     return executor
 CONNECTIONS: Dict[str, Executor] = {"duckdb_demo": generate_default_duckdb(),
-                                    "bigquery_demo": generate_default_bigquery()}
+                                    #"bigquery_demo": generate_default_bigquery()
+                                    }
 
 ## BEGIN REQUESTS
 

@@ -4,8 +4,8 @@
     </div>
     <ErrorComponent v-else-if="error" :error="error"></ErrorComponent>
     <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
-    <QueryResultsV2 v-else :headers="result.headers" :results="result.data">
-    </QueryResultsV2>
+    <QueryResult v-else :editor="editorData" :headers="result.headers" :results="result.data">
+    </QueryResult>
     <EditorFooter :executed="editorData.executed" :length="result.data.length" :duration="editorData.duration" />
 </template>
 
@@ -19,7 +19,7 @@ import { defineComponent } from 'vue';
 import { mapGetters } from 'vuex';
 
 // import ModelConceptList from '@/components/model/ModelConceptList.vue';
-import QueryResultsV2 from './QueryResult.vue';
+import QueryResult from './QueryResult.vue';
 import HintsComponent from './HintsComponent.vue';
 import ErrorComponent from './ErrorComponent.vue';
 import axiosHelpers from '/src/api/helpers';
@@ -50,7 +50,7 @@ export default defineComponent({
     components: {
         // ModelConceptList, 
         HintsComponent,
-        QueryResultsV2,
+        QueryResult,
         ErrorComponent,
         EditorFooter
     },
