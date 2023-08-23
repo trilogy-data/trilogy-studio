@@ -1,5 +1,5 @@
 <template>
-    <div class="editor-entry pa-0 ba-0">
+    <div class="editor-wrapper pa-0 ba-0">
         <div ref="editor">
             <v-tabs class="editor-tabs pa-0 ba-0" v-model="localEditor" center-active
                 @update:modelValue="setActiveEditor(selectedEditor)">
@@ -48,13 +48,20 @@
     background-color: var(--main-bg-color);
     filter: brightness(85%);
 }
+.editor-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    /* flex: 1 1 100%; */
+    height: 100%;
+}
 
 .editor-entry {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    flex: 1 1 100%;
-    height: 100%;
+    /* flex: 1 1 calc(100%-60px); */
+    height: calc(100% - 30px);
 }
 
 .editor-results {
@@ -63,7 +70,7 @@
     flex-grow: 0;
     flex-shrink: 1;
     /* flex-wrap: wrap; */
-    height: 100%;
+    height: calc(100%-30px);
 }
 
 .editor-tabs {

@@ -367,7 +367,7 @@ async def run_query(query: QueryInSchema):
             rs = executor.engine.execute(compiled_sql)
             outputs = [(
                 col.name, QueryOutColumn(
-                    name=col.name
+                    name=col.name.replace(".", "_")
                     if col.namespace == DEFAULT_NAMESPACE
                     else col.address.replace(".", "_"),
                     purpose=col.purpose,

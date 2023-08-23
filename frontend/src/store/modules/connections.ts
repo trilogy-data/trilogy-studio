@@ -91,7 +91,11 @@ const mutations = {
         state.connections[index].active = true
     },
     async setConnectionInactive(state, connection) {
+        console.log(connection)
         const index = state.connections.findIndex(c => c.name === connection.name)
+        if (!index) {
+            return
+        }
         state.connections[index].active = false
     },
     async editConnection(state, connection) {

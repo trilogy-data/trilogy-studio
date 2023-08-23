@@ -71,7 +71,7 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor',
-    'setConnectionInactive']),
+            'setConnectionInactive']),
         async generate() {
             this.loading = true;
             this.info = 'Generating query from prompt...'
@@ -102,13 +102,20 @@ export default defineComponent({
             if (!this.connection.active) {
                 await this.connectConnection(this.connection)
             }
-            await this.editorData.runQuery();
-
-            // result code handling
-        
-            if (this.editorData.status_code === 403) {
-                this.setConnectionInactive({name:this.connection})
+            try {
+                await this.editorData.runQuery();
             }
+
+            catch (error) {
+                console.log('error running query')
+                if (this.editorData.status_code === 403) {
+                    this.setConnectionInactive({ name: this.connection })
+                }
+                throw error
+            }
+            // result code handling
+
+
             this.last_passed_query_text = current_query;
         },
         async format() {
