@@ -10,31 +10,23 @@ jobs:
 
   release:
     runs-on: ${{ matrix.os }}
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.snapcraft_token }}
 
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-latest]
 
     steps:
-      - name: Exit if the branch is not main
-          run: |
-            if [[ "${{ github.ref }}" != "refs/heads/main" ]]; then
-              echo "Branch is not main, exiting."
-              exit 0
-            fi
       - name: Build and Publish
-            uses: samuelmeuli/action-electron-builder@v1
-            with:
-              package_root: frontend
-              # GitHub token, automatically provided to the action
-              # (No need to define this secret in the repo settings)
-              github_token: ${{ secrets.github_token }}
-              skip_build: true
-              use_vue_cli: true
-              max_attempts: 2
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          package_root: frontend
+          # GitHub token, automatically provided to the action
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+          skip_build: true
+          use_vue_cli: true
+          max_attempts: 2
 
-              # If the commit is tagged with a version (e.g. "v1.0.0"),
-              # release the app after building
-              release: true
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: true

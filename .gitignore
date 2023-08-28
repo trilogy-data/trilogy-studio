@@ -27,9 +27,10 @@ release
 *.sw?
 
 # python
+*.pyc
+*.parquet
+config.xlaunch
 .venv
 __pycache__
-
-config.xlaunch
-
 demo_data
+
