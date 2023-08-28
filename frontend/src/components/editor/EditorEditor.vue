@@ -18,6 +18,7 @@ import colorHelpers from '/src/helpers/color';
 import instance from '/src/api/instance';
 import * as monaco from 'monaco-editor';
 import { Editor } from '/src/models/Editor'
+import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
 
 export default defineComponent({
     name: 'EditorComponent',
@@ -39,7 +40,8 @@ export default defineComponent({
             info: 'Query processing...',
             editor: null,
             editorX: 400,
-            editorY: 400
+            editorY: 400,
+
         }
     },
     components: {
@@ -71,7 +73,7 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor',
-            'setConnectionInactive']),
+            'setConnectionInactive', 'setEditorError']),
         async generate() {
             this.loading = true;
             this.info = 'Generating query from prompt...'
@@ -97,7 +99,9 @@ export default defineComponent({
             let current_query = this.editorData.contents;
             let local = this;
             if (!this.connection) {
-                throw new Error('No connection selected for this editor')
+                this.setEditorError({ name: this.editorData.name, error: 'No connection selected for this editor.' })
+                return
+                // throw new Error('No connection selected for this editor')
             }
             if (!this.connection.active) {
                 await this.connectConnection(this.connection)
@@ -107,7 +111,6 @@ export default defineComponent({
             }
 
             catch (error) {
-                console.log('error running query')
                 if (this.editorData.status_code === 403) {
                     console.log('setting connection inactive')
                     this.setConnectionInactive({ name: this.connection })

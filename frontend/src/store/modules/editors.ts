@@ -70,6 +70,9 @@ const getters = {
 };
 
 const actions = {
+    async setEditorError({ commit }, data) {
+        commit('setEditorError', data)
+    },
     async saveEditorText({ commit }, data) {
         commit('saveEditorText', data)
     },
@@ -106,8 +109,11 @@ const actions = {
 
 
 const mutations = {
+    setEditorError(state, data) {
+        const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
+        editor.error = data.error
+    },
     addMonacoEditor(state, data) {
-        console.log(data)
         const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
         editor.monaco = data.editor
     },

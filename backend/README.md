@@ -5,9 +5,13 @@ Must be compiled with pyinstaller and copied into the frontend executable folder
 TODO: add script to scaffold this all together, and iterate in CI
 
 ## Activate venv
+
+
 source /home/edickinson/preql-studio/.venv/bin/activate
 
 install local package
+pip install /mnt/c/users/ethan/coding_projects/pypreql
+
 
 
 ## Building

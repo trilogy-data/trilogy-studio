@@ -85,13 +85,13 @@ export default {
         },
         localAddConnection() {
             let fullModel = null;
-            if (this.model) {
-                fullModel = this.getModelByName(this.model)
-            }
+            // if (this.model) {
+            //     fullModel = this.getModelByName(this.model)
+            // }
             this.addConnection({
                 name: this.name,
                 type: this.selectedType,
-                model: fullModel,
+                model: this.model,
             }).then(() => {
                 this.dialog = false;
                 this.name = '';

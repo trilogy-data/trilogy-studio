@@ -87,7 +87,7 @@ export default {
         // console.log(this.connections)
     },
     methods: {
-        ...mapActions(['newEditor']),
+        ...mapActions(['newEditor', 'setActiveEditor']),
         showPopup() {
             this.dialog = true;
         },
@@ -105,6 +105,7 @@ export default {
             }).then(() => {
                 this.dialog = false;
                 this.name = '';
+                setActiveEdtor(this.name)
             }).catch((e) => {
                 this.error = e.message;
             });

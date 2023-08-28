@@ -1,0 +1,26 @@
+@use 'vuetify/settings' with (
+  $button-height: 24px,
+  $button-icon-font-size: .5rem,
+
+
+  $expansion-panel-title-font-size:.7rem,
+  $expansion-panel-title-min-height: 12px,
+  $expansion-panel-active-title-min-height: 12px,
+  $expansion-panel-active-margin: 4px,
+  $expansion-panel-title-padding: 8px 12px,
+  $expansion-panel-text-padding: 0px 0px 0px,
+
+  $list-item-min-height: 8px,
+  $list-item-padding: 2px 4px,
+  $list-item-title-font-size: .7rem,
+  $list-item-icon-size: 8px,
+
+  $input-control-height: 24px,
+  $input-font-size: .7rem,
+
+  $tabs-height: 24px,
+
+  $toolbar-btn-icon-size: 24px,
+  $toolbar-content-padding-x: 4px,
+
+);

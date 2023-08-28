@@ -61,7 +61,7 @@
     flex-direction: column;
     flex-wrap: nowrap;
     /* flex: 1 1 calc(100%-60px); */
-    height: calc(100% - 30px);
+    height: calc(100% - 24x);
 }
 
 .editor-results {
@@ -70,11 +70,11 @@
     flex-grow: 0;
     flex-shrink: 1;
     /* flex-wrap: wrap; */
-    height: calc(100%-30px);
+    height: calc(100%-24px);
 }
 
 .editor-tabs {
-    height: 30px;
+    height: 24px;
     background-color: var(--main-bg-color);
 
 }
@@ -92,7 +92,7 @@
 }
 
 .editor-tab.v-btn {
-    height: 30px;
+    height: 24px;
     text-transform: none;
     color: var(--text-lighter);
     background-color: var(--main-bg-color);
@@ -101,7 +101,7 @@
 
 .editor-tab {
     height: 10px;
-    font-size: .8rem;
+    font-size: .7rem;
     color: var(--text-lighter);
 }
 </style>

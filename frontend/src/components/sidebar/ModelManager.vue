@@ -1,25 +1,40 @@
 <template>
     <div class="connection-manager py-0">
-        <div class="header">
-            Models
+        <div v-if="activeModelFromConnection" class="header">
+            {{ activeModelFromConnection.name }}
         </div>
-        <div class="connection-list">
-            <ModelConceptList v-if="activeModelFromConnection"  class="px-0" 
-            :model="activeModelFromConnection.name" 
-            :editor="activeEditor.name"
-            :height="sidebarHeight - 160"/>
-            <div class = "connection-list-item" v-else>No active model</div>
-            <!-- <v-expansion-panels  theme="dark" variant="accordion">
-                <v-expansion-panel class="px-0" v-for="model in models" :key="model.name">
-                    <v-expansion-panel-title>
-                        <div class="pl-4">{{ model.name }} </div>
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text class="px-0">
-                        <ModelConceptList  class="px-0" :model="model.name" height="400"/>
-                    </v-expansion-panel-text>
+        <div v-else class="header">
+            No active model
+        </div>
+
+        <div class="connection-list py-0">
+            <v-expansion-panels theme="dark" variant="accordion">
+                <v-expansion-panel class="py-0" >
+                <v-expansion-panel-title>
+                    <div class="pl-4">Concepts </div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text class="px-0 py-0">
+                    <ModelConceptList v-if="activeModelFromConnection" class="px-0"
+                         :model="activeModelFromConnection.name"
+
+                        :editor="activeEditor.name" :height="sidebarHeight - 260" />
+                    <div class="connection-list-item" v-else>No active model</div>
+                </v-expansion-panel-text>
                 </v-expansion-panel>
-            </v-expansion-panels> -->
+                <v-expansion-panel >
+                <v-expansion-panel-title>
+                    <div class="pl-4">Datasources</div>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text class="px-0">
+                    <ModelConceptList v-if="activeModelFromConnection" class="px-0"
+                         :model="activeModelFromConnection.name"
+                        :editor="activeEditor.name" :height="sidebarHeight - 260" />
+                    <div class="connection-list-item" v-else>No active model</div>
+                </v-expansion-panel-text>
+                </v-expansion-panel>
+            </v-expansion-panels>
         </div>
+
         <div class="footer">
             <!-- <NewConnectionPopup /> -->
             <!-- <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn> -->
@@ -109,7 +124,9 @@ export default {
             return this.getConnectionByName(this.activeEditor.connection)
         },
         activeModelFromConnection() {
-            console.log(this.activeConnection)
+            if (!this.activeConnection) {
+                return
+            }
             return this.models.find(todo => todo.name === this.activeConnection.model)
 
         }

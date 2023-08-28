@@ -52,20 +52,25 @@ export default defineComponent({
 
 });
 </script>
+<style scoped>
+.concept-icon {
+  font-size:12px
+}
+</style>
 
 
 <template>
   <v-list-item v-if="density === 'compact'" class="ma-0 pa-0" :density="density" :key="key" :title="key"
     @click="propogateModelClick">
     <template v-slot:prepend>
-      <v-icon class="ma-0 pa-4"> <v-tooltip > {{ concept.purpose }}</v-tooltip> {{ icon }} </v-icon>
+      <v-icon class="mr-0 concept-icon"> <v-tooltip > {{ concept.purpose }}</v-tooltip> {{ icon }} </v-icon>
     </template></v-list-item>
   <v-list-item v-else :density="density" :key="key + '2'" @click="propogateModelClick">
     <template v-slot:prepend>
       <!-- <v-icon> 
        {{ icon }}
       </v-icon> -->
-      <div  class="ma-0 pa-2"><v-tooltip activator="parent"  location="left"> {{ iconText }}</v-tooltip>
+      <div  class="ma-0 pr-2"><v-tooltip activator="parent"  location="left"> {{ iconText }}</v-tooltip>
       <v-icon> 
        {{ icon }}
       </v-icon>

@@ -343,6 +343,7 @@ async def run_query(query: QueryInSchema):
     executor = CONNECTIONS.get(query.connection)
     if not executor:
         raise HTTPException(403, "Not a valid connection")
+    
     outputs = {}
     # parsing errors or generation
     # should be 422

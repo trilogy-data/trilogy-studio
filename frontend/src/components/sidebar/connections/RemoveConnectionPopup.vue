@@ -41,8 +41,8 @@ export default {
     methods: {
         ...mapActions(['removeConnection']),
         localRemoveConnection() {
-            dialog = false;
-            removeConnection(this.connection)
+            this.removeConnection(this.connection)
+            this.dialog = false;
         }
     }
 }

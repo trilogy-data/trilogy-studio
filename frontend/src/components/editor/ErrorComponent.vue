@@ -2,7 +2,6 @@
     <v-alert  class="error"
     variant="outlined"
     type="error">
-    error
     <div class = "error-message-container">
         {{ error }}
     </div>
