@@ -109,6 +109,7 @@ export default defineComponent({
             catch (error) {
                 console.log('error running query')
                 if (this.editorData.status_code === 403) {
+                    console.log('setting connection inactive')
                     this.setConnectionInactive({ name: this.connection })
                 }
                 throw error
