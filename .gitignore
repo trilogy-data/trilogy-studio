@@ -16,6 +16,7 @@ release
 
 # Editor directories and files
 .vscode/*
+.vscode
 !.vscode/extensions.json
 .idea
 .DS_Store
@@ -25,12 +26,11 @@ release
 *.sln
 *.sw?
 
-#
-.venv
-
 # python
 *.pyc
-
 *.parquet
-
 config.xlaunch
+.venv
+__pycache__
+demo_data
+

@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
+const Store = require('electron-store');
 
 // The built directory structure
 //
@@ -10,6 +11,11 @@ import path from 'node:path'
 // │ │ ├── main.js
 // │ │ └── preload.js
 // │
+
+
+// enable renders to access store
+Store.initRenderer();
+
 process.env.DIST = path.join(__dirname, '../dist')
 process.env.PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
 
@@ -22,9 +28,12 @@ function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.PUBLIC, 'electron-vite.svg'),
     webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   })
+
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {

@@ -1,7 +1,8 @@
 const Display = {
     TABLE: 'Table',
     BAR_CHART: 'Bar Chart',
-    LINE_CHART: 'Line Chart'
+    LINE_CHART: 'Line Chart',
+    GENERATED_QUERY: 'Generated Query',
   };
   
   const Dimensions = ['key', 'property'];

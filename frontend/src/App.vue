@@ -1,8 +1,23 @@
 <template>
-  <v-app>
+  <v-app class="app-wrapper">
     <router-view />
   </v-app>
 </template>
+
+<style>
+
+
+/* Layout helpers */
+.expand {
+  flex-grow: 1;
+}
+
+.layout-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>
 
 <script>
 import { mapActions, mapGetters } from 'vuex';

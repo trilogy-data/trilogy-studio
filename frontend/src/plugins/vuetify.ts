@@ -1,15 +1,18 @@
 // Styles
 // import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
-import { Splitpanes, Pane } from 'splitpanes';
 import * as components from 'vuetify/components';
 import * as labs from 'vuetify/labs/components'
+import  "tabulator-tables/dist/css/tabulator.min.css";
+import "tabulator-tables/dist/css/tabulator_midnight.css"
+import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
+
 // Vuetify
 import { createVuetify } from 'vuetify'
-import 'splitpanes/dist/splitpanes.css'
+
 
 export default createVuetify({
-  components: { ...components, ...labs, Splitpanes, Pane }
+  components: { ...components, ...labs, }
 }
   // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 )
