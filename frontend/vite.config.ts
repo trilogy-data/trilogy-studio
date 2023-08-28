@@ -2,11 +2,18 @@ import { defineConfig } from 'vite'
 import electron from 'vite-plugin-electron'
 import renderer from 'vite-plugin-electron-renderer'
 import vue from '@vitejs/plugin-vue'
-
+import commonjsExternals from "vite-plugin-commonjs-externals";
+import {builtinModules} from 'module';
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    exclude: builtinModules,
+  },
   plugins: [
     vue(),
+    commonjsExternals({
+      externals: builtinModules,
+    }),
     electron([
       {
         // Main-Process entry file of the Electron App.
@@ -23,4 +30,13 @@ export default defineConfig({
     ]),
     renderer(),
   ],
+  build: {
+    assetsDir: '.',
+    rollupOptions: {
+      output: {
+        format: 'cjs'
+      },
+      external: builtinModules
+    },
+  }
 })

@@ -3,21 +3,28 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from os import environ
+from platform import system
 
 # Path to the Python virtual environment
 root = Path(__file__).parent
 
 base = root.parent
 
-virtual_env_path = f"{base}/.venv"
+if system() == 'Linux':
+    parent = 'bin'
+else:
+    parent = 'scripts'
+virtual_env_path = environ.get('VIRTUAL_ENV', f"{base}/.venv")
 
 SCRIPT_NAME = "backend"
 
 if __name__ == "__main__":
-    print(f"{virtual_env_path}/scripts/python")
+
+    print(f"{virtual_env_path}/{parent}/python")
     # Command to execute
     command = [
-        f"{virtual_env_path}/scripts/pyinstaller",
+        f"{virtual_env_path}/{parent}/pyinstaller",
         "main.py",
         "--noconsole",
         "--onefile",

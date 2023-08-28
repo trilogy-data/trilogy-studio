@@ -1,7 +1,7 @@
 
 <script>
 import { defineComponent } from 'vue';
-import colorHelpers from '@/helpers/color';
+import colorHelpers from '/src/helpers/color';
 
 export default defineComponent({
   name: 'ModelConcept',
