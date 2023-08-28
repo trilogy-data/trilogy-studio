@@ -27,3 +27,10 @@ release
 
 #
 .venv
+
+# python
+*.pyc
+
+*.parquet
+
+config.xlaunch
