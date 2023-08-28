@@ -18,12 +18,6 @@ jobs:
         os: [ubuntu-20.04, windows-latest]
 
     steps:
-      - name: Exit if the branch is not main
-          run: |
-            if [[ "${{ github.ref }}" != "refs/heads/main" ]]; then
-              echo "Branch is not main, exiting."
-              exit 0
-            fi
       - name: Build and Publish
             uses: samuelmeuli/action-electron-builder@v1
             with:
