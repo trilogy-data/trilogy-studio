@@ -45,7 +45,7 @@
 }
 
 </style>
-<script>
+<script lang="ts">
 //      :class="{hide: !sidebarShown, sidebar: true}"
 // add this back to sidebar to control toggling
 import instance from '../api/instance';
