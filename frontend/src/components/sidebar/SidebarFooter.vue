@@ -21,7 +21,7 @@
     font-size: 0.8rem;
 }
 </style>
-<script>
+<script lang="ts">
 import { mapGetters } from 'vuex';
 import FooterComponent from '/src/components/generic/FooterComponent.vue';
 export default {

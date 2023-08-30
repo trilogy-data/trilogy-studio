@@ -1,7 +1,7 @@
 <template>
     <div class="glowing-dot" ></div>
   </template>
-  
+  <script lang="ts"></script>
   <style scoped>
   .glowing-dot {
     width: 2px;

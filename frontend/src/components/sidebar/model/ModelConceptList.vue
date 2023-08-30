@@ -12,7 +12,7 @@
   </v-card>
 </template>
   
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 import ModelConcept from './ModelConcept.vue';

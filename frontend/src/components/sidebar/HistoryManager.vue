@@ -90,7 +90,7 @@
     background-color: var(--main-bg-color);
 }
 </style>
-<script>
+<script lang="ts">
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
 import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';

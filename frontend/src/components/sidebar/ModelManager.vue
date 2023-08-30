@@ -105,7 +105,7 @@
     background-color: var(--main-bg-color);
 }
 </style>
-<script>
+<script lang="ts">
 import ModelConceptList from '/src/components/sidebar/model/ModelConceptList.vue'
 import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';

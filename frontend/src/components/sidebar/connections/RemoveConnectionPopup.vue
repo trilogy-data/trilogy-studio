@@ -23,7 +23,7 @@
     background-color: var(--main-bg-color);
 }
 </style>
-<script>
+<script lang="ts">
 import { mapActions } from 'vuex'
 export default {
     data() {

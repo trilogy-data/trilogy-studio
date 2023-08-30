@@ -53,7 +53,7 @@
     border-radius:0;
 }
 </style>
-<script>
+<script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "AddConnection",

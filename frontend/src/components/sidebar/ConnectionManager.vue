@@ -5,14 +5,15 @@
         </div>
         <div class="connection-list">
 
-            <v-expansion-panels theme="dark" >
+            <v-expansion-panels theme="dark">
                 <v-expansion-panel v-for="connection in connections" :key="connection.name">
                     <v-expansion-panel-title>
                         <GlowingDot class="" v-if="connection.active" />
                         <div v-if="connection.model" class="pl-4">{{ connection.name }}
-                            <span class="opacity-light">({{ connection.model }})</span></div>
+                            <span class="opacity-light">({{ connection.model }})</span>
+                        </div>
                         <div v-else class="pl-4">{{ connection.name }}</div>
-                    
+
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                         <v-list-item @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]"
@@ -20,12 +21,12 @@
                             {{ editor.name }}
                         </v-list-item>
                         <div class="d-flex flex-column align-center  pa-0">
-                            <v-toolbar height="24" extension-height="24"  class="button-list">
+                            <v-toolbar height="24" extension-height="24" class="button-list">
                                 <!-- <v-btn icon="mdi-format-align-left"></v-btn> -->
                                 <!-- <v-btn  density="compact"   icon="mdi-format-align-center"></v-btn> -->
                                 <!-- <v-btn @click="removeConnection(connection)"  density="compact" icon="mdi-cancel"></v-btn> -->
-                                <EditConnectionPopup :connection="connection"/>
-                                <RemoveConnectionPopup :connection="connection"/>
+                                <EditConnectionPopup :connection="connection" />
+                                <RemoveConnectionPopup :connection="connection" />
                                 <NewEditorPopup :defaultConnection="connection.name" />
                             </v-toolbar>
 
@@ -42,12 +43,11 @@
     </div>
 </template>
 <style scoped>
-
-
 .opacity-light {
     opacity: 0.6;
     font-size: .6rem;
 }
+
 .button-list {
     display: 'flex';
     width: '100%';
@@ -121,13 +121,12 @@
     background-color: var(--main-bg-color);
 }
 </style>
-<script>
+<script lang="ts">
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
 import NewConnectionPopup from '/src/components/sidebar/connections/NewConnectionPopup.vue';
 import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
 import RemoveConnectionPopup from '/src/components/sidebar/connections/RemoveConnectionPopup.vue'
 import EditConnectionPopup from '/src/components/sidebar/connections/EditConnectionPopup.vue'
-import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ConnectionManager",

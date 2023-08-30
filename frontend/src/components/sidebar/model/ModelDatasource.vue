@@ -1,5 +1,5 @@
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import colorHelpers from '/src/helpers/color';
 
