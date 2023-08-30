@@ -22,7 +22,7 @@
 }
 </style>
 
-<script lang="typescript">
+<script lang="ts">
 export default {
     name: 'ErrorComponent',
     // data: () => ({

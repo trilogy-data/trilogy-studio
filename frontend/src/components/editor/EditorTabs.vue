@@ -105,7 +105,7 @@
     color: var(--text-lighter);
 }
 </style>
-<script>
+<script lang="ts">
 import EditorEditor from './EditorEditor.vue'
 import EditorResults from './EditorResults.vue'
 import NewEditorPopup from './NewEditorPopup.vue'

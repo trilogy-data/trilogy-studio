@@ -9,7 +9,7 @@
     border: none;
 }
 </style>
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import * as monaco from 'monaco-editor';
 

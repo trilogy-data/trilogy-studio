@@ -82,7 +82,7 @@
 
 }
 </style>
-<script>
+<script lang="ts">
 import DataTableV2 from '/src/components/editor/DataTableV2.vue'
 import charts from '/src/helpers/charts'
 import ROEditor from '/src/components/editor/ReadOnlyEditor.vue'

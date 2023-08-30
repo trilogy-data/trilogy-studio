@@ -53,7 +53,7 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import { TabulatorFull } from 'tabulator-tables'
 export default {
     data() {

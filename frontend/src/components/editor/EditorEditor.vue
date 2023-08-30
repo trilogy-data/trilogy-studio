@@ -9,7 +9,7 @@
     border: none;
 }
 </style>
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 import editorMap from '/src/store/modules/monaco';

@@ -53,7 +53,7 @@
     background-color: var(--main-bg-color);
 }
 </style>
-<script>
+<script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "AddEditorTab",
