@@ -6,6 +6,10 @@
     "name": "PreQL Team",
     "email": "ethan.dickinson@gmail.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/greenmtnboy/fundiverse.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build && node build-backend.js",
