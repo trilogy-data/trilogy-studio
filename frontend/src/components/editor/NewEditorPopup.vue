@@ -105,7 +105,7 @@ export default {
             }).then(() => {
                 this.dialog = false;
                 this.name = '';
-                setActiveEdtor(this.name)
+                this.setActiveEdtor(this.name)
             }).catch((e) => {
                 this.error = e.message;
             });

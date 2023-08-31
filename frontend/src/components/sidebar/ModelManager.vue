@@ -107,7 +107,6 @@
 </style>
 <script lang="ts">
 import ModelConceptList from '/src/components/sidebar/model/ModelConceptList.vue'
-import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ModelManager",

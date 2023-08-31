@@ -13,19 +13,17 @@
 import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 import editorMap from '/src/store/modules/monaco';
-import axiosHelpers from '/src/api/helpers';
-import colorHelpers from '/src/helpers/color';
+import axiosHelpers from '/src/api/helpers.ts';
 import instance from '/src/api/instance';
-import * as monaco from 'monaco-editor';
 import { Editor } from '/src/models/Editor'
-import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
+import * as monaco from 'monaco-editor';
+
 
 export default defineComponent({
     name: 'EditorComponent',
     props: {
         editorData: {
             type: Editor,
-            default: () => new Editor()
         }
     },
     data() {
@@ -97,7 +95,6 @@ export default defineComponent({
             this.info = 'Executing query...'
             // this.error = null;
             let current_query = this.editorData.contents;
-            let local = this;
             if (!this.connection) {
                 this.setEditorError({ name: this.editorData.name, error: 'No connection selected for this editor.' })
                 return
@@ -142,7 +139,11 @@ export default defineComponent({
             this.prompt = '';
         },
         createEditor() {
-            const editor = monaco.editor.create(document.getElementById('editor'), {
+            let editorElement = document.getElementById('editor')
+            if (!editorElement) {
+                return
+            }
+            const editor = monaco.editor.create(editorElement, {
                 value: this.editorData.contents,
                 language: 'sql',
                 automaticLayout: true,

@@ -122,6 +122,7 @@
 }
 </style>
 <script lang="ts">
+// @ts-ignore
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
 import NewConnectionPopup from '/src/components/sidebar/connections/NewConnectionPopup.vue';
 import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'

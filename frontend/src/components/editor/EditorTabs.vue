@@ -2,7 +2,7 @@
     <div class="editor-wrapper pa-0 ba-0">
         <div ref="editor">
             <v-tabs class="editor-tabs pa-0 ba-0" v-model="localEditor" center-active
-                @update:modelValue="setActiveEditor(selectedEditor)">
+                @update:modelValue="setActiveEditor()">
                 <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
                     {{ n.name }} <span class="text-light"> ({{ n.syntax }})</span>
                     <div class="editor-tab close-button pl-4">
@@ -131,11 +131,16 @@ export default {
             }
         );
 
-        store.watch((state, getters) => getters.activeEditor, () => {
+        store.watch((_, getters) => getters.activeEditor, () => {
             localEditor.value = store.getters['activeEditor'].name
         })
         onMounted(() => {
-            const self = getCurrentInstance().proxy;
+            const instance = getCurrentInstance();
+            if (!instance) {
+                return
+            }
+            const self = instance.proxy;
+            // @ts-ignore
             self.split = Split([self.$refs.editor, self.$refs.results], {
                 // elementStyle: (_dimension, size) => ({
                 //     "flex-basis": `calc(${size}%)`,
