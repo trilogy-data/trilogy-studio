@@ -5,7 +5,6 @@
 
 import { Editor, RawEditor } from '/src/models/Editor'
 import Store from 'electron-store'
-import { Range, } from 'monaco-editor';
 
 function findMatchingValue(arr, condition) {
     const foundElement = arr.find(element => condition(element));
@@ -131,14 +130,14 @@ const mutations = {
         }
         state.editors = newEditors
     },
-    saveEditors(state, data) {
+    saveEditors(state, _) {
         storageAPI.setEditors(state.editors)
     },
     saveEditorText(state, data) {
         const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
         editor.contents = data.contents
     },
-    loadEditors(state, data) {
+    loadEditors(state, _) {
         state.editors = storageAPI.getEditors()
     },
     newEditor(state, data) {

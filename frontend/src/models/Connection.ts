@@ -18,7 +18,8 @@ export class Connection implements ConnectionInterface {
         this.active = active || false
         this.model = model
     }
-
+    
+    // @ts-ignore
     static fromJSON({ name, type, active, model }) {
         return new Connection(name, type, false, model)
     }
