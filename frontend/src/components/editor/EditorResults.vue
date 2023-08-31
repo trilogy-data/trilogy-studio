@@ -4,9 +4,10 @@
     </div>
     <ErrorComponent v-else-if="error" :error="error"></ErrorComponent>
     <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
-    <QueryResult v-else :editor="editorData" :headers="result.headers" :results="result.data">
+    <QueryResult v-else :editor="editorData" :headers="editorData.results.headers" :results="editorData.results.data">
     </QueryResult>
-    <EditorFooter :executed="editorData.executed" :length="result.data.length" :duration="editorData.duration" />
+    <EditorFooter :executed="editorData.executed" :length="editorData.results.data.length"
+        :duration="editorData.duration" />
 </template>
 
 <style scoped>
@@ -22,11 +23,6 @@ import { mapGetters } from 'vuex';
 import QueryResult from './QueryResult.vue';
 import HintsComponent from './HintsComponent.vue';
 import ErrorComponent from './ErrorComponent.vue';
-import axiosHelpers from '/src/api/helpers';
-import colorHelpers from '/src/helpers/color';
-import instance from '/src/api/instance';
-import * as monaco from 'monaco-editor';
-import Split from 'split.js'
 import EditorFooter from './EditorFooter.vue';
 import { Editor } from '/src/models/Editor'
 
@@ -34,8 +30,8 @@ export default defineComponent({
     name: 'EditorComponent',
     props: {
         editorData: {
-            type: Object,
-            default: () => new Editor()
+            type: Editor,
+            required: true,
         }
     },
     data() {
@@ -64,9 +60,6 @@ export default defineComponent({
         loading() {
             return this.editorData.loading
         },
-        result() {
-            return this.editorData.results
-        },
         splitElements() {
             return [
                 this.$refs.editor,
@@ -79,14 +72,8 @@ export default defineComponent({
         computedWidth() {
             return `${this.editorX}px`
         },
-        modelNames() {
-            return [...this.models.map(item => item.name)]
-        },
         passedQuery() {
             return this.editorData.contents === this.last_passed_query_text
-        },
-        modelColor() {
-            return colorHelpers.stringToColor(this.query.model)
         },
         mobile() {
             return this.$vuetify.display.mobile

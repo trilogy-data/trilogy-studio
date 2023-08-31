@@ -46,9 +46,6 @@
 
 </style>
 <script lang="ts">
-//      :class="{hide: !sidebarShown, sidebar: true}"
-// add this back to sidebar to control toggling
-import instance from '../api/instance';
 import EditorTabs from '/src/components/editor/EditorTabs.vue';
 import SidebarComponent from '/src/components/sidebar/SidebarComponent.vue';
 import Split from 'split.js';
