@@ -38,7 +38,7 @@ const state = {
 
 const getters = {
   models: state => state.localModels.concat(state.communityModels),
-  getModelByName: (state, getters) => (name) => {
+  getModelByName: (_, getters) => (name) => {
     return getters.models.find(todo => todo.name === name)
   }
 };
