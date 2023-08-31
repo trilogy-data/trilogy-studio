@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/greenmtnboy/fundiverse.git"
+    "url": "https://github.com/preqldata/preql-studio.git"
   },
   "scripts": {
     "dev": "vite",
