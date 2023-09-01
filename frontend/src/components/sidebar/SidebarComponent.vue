@@ -41,7 +41,7 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import ConnectionManager from './ConnectionManager.vue'
 import HistoryManager from './HistoryManager.vue'
 import ModelManager from './ModelManager.vue'

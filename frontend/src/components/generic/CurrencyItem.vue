@@ -3,8 +3,7 @@
         {{ value.currency }}{{ Math.round(value.value * 100) / 100 }}
     </span>
 </template>
-<script>
-
+<script lang="ts">
 export default {
     name: "CurrencyItem",
     props: {

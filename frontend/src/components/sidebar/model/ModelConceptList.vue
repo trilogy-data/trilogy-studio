@@ -1,8 +1,8 @@
 <template>
-  <v-card theme="dark" class="px-0" style="display: flex;">
-    <v-card-text class="px-0">
+  <v-card theme="dark" class="px-0 py-0" style="display: flex;">
+    <v-card-text class="px-0 py-0">
       <v-text-field class="py-0" label="Filter" v-model="search" variant="solo"></v-text-field>
-      <v-virtual-scroll :height="height" :items="filteredConcepts" @model-click="propogateModelClick">
+      <v-virtual-scroll class = "py-0" :height="height" :items="filteredConcepts" @model-click="propogateModelClick">
         <template v-slot:default="{ item }">
           <ModelConcept :id="item.model + item.namespace + item.concept" density="compact" :concept="item"
             @model-click="propogateModelClick" />
@@ -12,7 +12,7 @@
   </v-card>
 </template>
   
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 import ModelConcept from './ModelConcept.vue';

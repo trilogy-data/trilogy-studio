@@ -2,7 +2,7 @@
     <LoadingPage/>
   </template>
   
-  <script>
+  <script lang="ts">
 
   import LoadingPage from '/src/components/LoadingPage.vue'
   

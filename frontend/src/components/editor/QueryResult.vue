@@ -7,7 +7,8 @@
             <v-tab v-if="editor.syntax === 'preql'" class="editor-tab" value="sql">SQL</v-tab>
         </v-tabs>
         <ROEditor class="sub-component-content" v-if="activeTab === 'sql'" :content="generated_sql" />
-        <DataTableV2 class="sub-component-content" v-else-if="activeTab === 'results'" id="rdisplay" :headers="headers" :results="results" />
+        <DataTableV2 class="sub-component-content" v-else-if="activeTab === 'results'" id="rdisplay" :headers="headers"
+            :results="results" />
     </div>
 </template>
 <style>
@@ -82,10 +83,11 @@
 
 }
 </style>
-<script>
+<script lang="ts">
 import DataTableV2 from '/src/components/editor/DataTableV2.vue'
 import charts from '/src/helpers/charts'
 import ROEditor from '/src/components/editor/ReadOnlyEditor.vue'
+import { ResultColumn } from '../../models/Results';
 let Display = charts.Display()
 const DisplayMap = new Map();
 
@@ -98,7 +100,7 @@ DisplayMap.set(4, Display.GENERATED_QUERY);
 export default {
     props: {
         'headers': {
-            type: Map,
+            type: Map<String, ResultColumn>,
             required: true,
         },
         'results': {
@@ -140,75 +142,75 @@ export default {
         generated_sql() {
             return this.editor.generated_sql
         },
-        safe_columns() {
-            if (this.columns) {
-                return Object.entries(this.columns).map(([_k, v]) => v);
-            }
-            return []
-        },
-        tableHeaders() {
-            return this.safe_columns.map(v => ({ title: v.name, key: v.name }));
-        },
+        // safe_columns() {
+        //     if (this.columns) {
+        //         return Object.entries(this.columns).map(([_k, v]) => v);
+        //     }
+        //     return []
+        // },
+        // tableHeaders() {
+        //     return this.safe_columns.map(v => ({ title: v.name, key: v.name }));
+        // },
 
-        validChartTypes() {
-            return charts.validChartTypes(this.safe_columns);
-        },
-        chartOptions() {
-            let dimension = ''
-            let type = 'category';
-            if (this.mode === charts.Display().BAR_CHART) {
-                dimension = charts.getDimensions(this.safe_columns)[0];
-            }
-            else if (this.mode === charts.Display().LINE_CHART) {
-                dimension = charts.getDateDimensions(this.safe_columns)[0];
-                type = 'datetime';
-            }
-            else {
-                return {}
-            }
-            let x_axis = this.results.map(y => y[dimension.name]);
-            let output = {
-                chart: {
-                    id: 'query_display',
-                    background: '#15141A',
-                    animations: {
-                        enabled: false,
-                        // easing: 'easeinout',
-                        // speed: 800,
-                        // animateGradually: {
-                        //     enabled: true,
-                        //     delay: 150
-                        // },
-                        // dynamicAnimation: {
-                        //     enabled: true,
-                        //     speed: 350
-                        // }
-                    }
-                },
-                xaxis: {
-                    type: type,
-                    categories: x_axis,
-                },
-                yaxis: {
-                    forceNiceScale: true,
-                },
-                theme: {
-                    mode: 'dark',
-                },
+        // validChartTypes() {
+        //     return charts.validChartTypes(this.safe_columns);
+        // },
+        // chartOptions() {
+        //     let dimension = ''
+        //     let type = 'category';
+        //     if (this.mode === charts.Display().BAR_CHART) {
+        //         dimension = charts.getDimensions(this.safe_columns)[0];
+        //     }
+        //     else if (this.mode === charts.Display().LINE_CHART) {
+        //         dimension = charts.getDateDimensions(this.safe_columns)[0];
+        //         type = 'datetime';
+        //     }
+        //     else {
+        //         return {}
+        //     }
+        //     let x_axis = this.results.map(y => y[dimension.name]);
+        //     let output = {
+        //         chart: {
+        //             id: 'query_display',
+        //             background: '#15141A',
+        //             animations: {
+        //                 enabled: false,
+        //                 // easing: 'easeinout',
+        //                 // speed: 800,
+        //                 // animateGradually: {
+        //                 //     enabled: true,
+        //                 //     delay: 150
+        //                 // },
+        //                 // dynamicAnimation: {
+        //                 //     enabled: true,
+        //                 //     speed: 350
+        //                 // }
+        //             }
+        //         },
+        //         xaxis: {
+        //             type: type,
+        //             categories: x_axis,
+        //         },
+        //         yaxis: {
+        //             forceNiceScale: true,
+        //         },
+        //         theme: {
+        //             mode: 'dark',
+        //         },
 
-            };
-            return output
-        },
-        series() {
-            let metrics = charts.getMetrics(this.safe_columns);
-            let values = metrics.map(x =>
-            ({
-                name: x.name,
-                data: this.results.map(y => y[x.name]),
-            })
-            );
-            return values
-        }
+        //     };
+        //     return output
+        // },
+        // series() {
+        //     let metrics = charts.getMetrics(this.safe_columns);
+        //     let values = metrics.map(x =>
+        //     ({
+        //         name: x.name,
+        //         data: this.results.map(y => y[x.name]),
+        //     })
+        //     );
+        //     return values
+        // }
     },
 
 };

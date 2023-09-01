@@ -6,7 +6,7 @@
 import {Connection} from '/src/models/Connection'
 
 const state = {
-  activeConnection: new Connection('duckdb_demo', 'duckdb'),
+  activeConnection: new Connection('duckdb_demo', 'duckdb', false, 'duckdb_demo'),
 };
 
 const getters = {

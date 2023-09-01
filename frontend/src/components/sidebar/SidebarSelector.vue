@@ -28,7 +28,7 @@
 }
 </style>
   
-<script>
+<script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
 
 export default {

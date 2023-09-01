@@ -2,7 +2,7 @@
     <div class="editor-wrapper pa-0 ba-0">
         <div ref="editor">
             <v-tabs class="editor-tabs pa-0 ba-0" v-model="localEditor" center-active
-                @update:modelValue="setActiveEditor(selectedEditor)">
+                @update:modelValue="setActiveEditor()">
                 <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
                     {{ n.name }} <span class="text-light"> ({{ n.syntax }})</span>
                     <div class="editor-tab close-button pl-4">
@@ -61,7 +61,7 @@
     flex-direction: column;
     flex-wrap: nowrap;
     /* flex: 1 1 calc(100%-60px); */
-    height: calc(100% - 30px);
+    height: calc(100% - 24px);
 }
 
 .editor-results {
@@ -70,11 +70,11 @@
     flex-grow: 0;
     flex-shrink: 1;
     /* flex-wrap: wrap; */
-    height: calc(100%-30px);
+    height: calc(100% - 24px);
 }
 
 .editor-tabs {
-    height: 30px;
+    height: 24px;
     background-color: var(--main-bg-color);
 
 }
@@ -92,7 +92,7 @@
 }
 
 .editor-tab.v-btn {
-    height: 30px;
+    height: 24px;
     text-transform: none;
     color: var(--text-lighter);
     background-color: var(--main-bg-color);
@@ -101,11 +101,11 @@
 
 .editor-tab {
     height: 10px;
-    font-size: .8rem;
+    font-size: .7rem;
     color: var(--text-lighter);
 }
 </style>
-<script>
+<script lang="ts">
 import EditorEditor from './EditorEditor.vue'
 import EditorResults from './EditorResults.vue'
 import NewEditorPopup from './NewEditorPopup.vue'
@@ -131,11 +131,16 @@ export default {
             }
         );
 
-        store.watch((state, getters) => getters.activeEditor, () => {
+        store.watch((_, getters) => getters.activeEditor, () => {
             localEditor.value = store.getters['activeEditor'].name
         })
         onMounted(() => {
-            const self = getCurrentInstance().proxy;
+            const instance = getCurrentInstance();
+            if (!instance) {
+                return
+            }
+            const self = instance.proxy;
+            // @ts-ignore
             self.split = Split([self.$refs.editor, self.$refs.results], {
                 // elementStyle: (_dimension, size) => ({
                 //     "flex-basis": `calc(${size}%)`,

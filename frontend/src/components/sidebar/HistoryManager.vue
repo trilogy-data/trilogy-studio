@@ -24,10 +24,6 @@
                 </v-expansion-panel>
             </v-expansion-panels>
         </div>
-        <div class="footer">
-            <NewConnectionPopup />
-            <!-- <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn> -->
-        </div>
     </div>
 </template>
 <style local>
@@ -94,18 +90,14 @@
     background-color: var(--main-bg-color);
 }
 </style>
-<script>
+<script lang="ts">
+// @ts-ignore
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
-import NewConnectionPopup from '/src/components/sidebar/NewConnectionPopup.vue';
-import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
-import instance from '../../api/instance';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "HistoryManager",
     components: {
         GlowingDot,
-        NewConnectionPopup,
-        NewEditorPopup
     },
     data() {
         return {

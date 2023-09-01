@@ -18,8 +18,7 @@
 
 }
 </style>
-<script>
-import { mapGetters } from 'vuex';
+<script lang="ts">
 export default {
     name: "FooterComponent",
     data: () => ({

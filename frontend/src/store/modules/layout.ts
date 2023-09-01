@@ -4,7 +4,7 @@ const state = {
 
 const getters = {
     activeSidebar: state => state.activeSidebar,
-    sidebarHeight: state => {
+    sidebarHeight: _ => {
         const height = document.documentElement.clientHeight;
         return height - 20;
     }

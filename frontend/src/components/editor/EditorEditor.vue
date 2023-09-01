@@ -9,22 +9,21 @@
     border: none;
 }
 </style>
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 import editorMap from '/src/store/modules/monaco';
-import axiosHelpers from '/src/api/helpers';
-import colorHelpers from '/src/helpers/color';
+import axiosHelpers from '/src/api/helpers.ts';
 import instance from '/src/api/instance';
-import * as monaco from 'monaco-editor';
 import { Editor } from '/src/models/Editor'
+import * as monaco from 'monaco-editor';
+
 
 export default defineComponent({
     name: 'EditorComponent',
     props: {
         editorData: {
             type: Editor,
-            default: () => new Editor()
         }
     },
     data() {
@@ -39,7 +38,8 @@ export default defineComponent({
             info: 'Query processing...',
             editor: null,
             editorX: 400,
-            editorY: 400
+            editorY: 400,
+
         }
     },
     components: {
@@ -71,7 +71,7 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor',
-            'setConnectionInactive']),
+            'setConnectionInactive', 'setEditorError']),
         async generate() {
             this.loading = true;
             this.info = 'Generating query from prompt...'
@@ -95,9 +95,10 @@ export default defineComponent({
             this.info = 'Executing query...'
             // this.error = null;
             let current_query = this.editorData.contents;
-            let local = this;
             if (!this.connection) {
-                throw new Error('No connection selected for this editor')
+                this.setEditorError({ name: this.editorData.name, error: 'No connection selected for this editor.' })
+                return
+                // throw new Error('No connection selected for this editor')
             }
             if (!this.connection.active) {
                 await this.connectConnection(this.connection)
@@ -107,7 +108,6 @@ export default defineComponent({
             }
 
             catch (error) {
-                console.log('error running query')
                 if (this.editorData.status_code === 403) {
                     console.log('setting connection inactive')
                     this.setConnectionInactive({ name: this.connection })
@@ -139,7 +139,11 @@ export default defineComponent({
             this.prompt = '';
         },
         createEditor() {
-            const editor = monaco.editor.create(document.getElementById('editor'), {
+            let editorElement = document.getElementById('editor')
+            if (!editorElement) {
+                return
+            }
+            const editor = monaco.editor.create(editorElement, {
                 value: this.editorData.contents,
                 language: 'sql',
                 automaticLayout: true,

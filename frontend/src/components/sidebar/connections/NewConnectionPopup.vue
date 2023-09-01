@@ -53,7 +53,7 @@
     border-radius:0;
 }
 </style>
-<script>
+<script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "AddConnection",
@@ -84,14 +84,10 @@ export default {
             this.dialog = true;
         },
         localAddConnection() {
-            let fullModel = null;
-            if (this.model) {
-                fullModel = this.getModelByName(this.model)
-            }
             this.addConnection({
                 name: this.name,
                 type: this.selectedType,
-                model: fullModel,
+                model: this.model,
             }).then(() => {
                 this.dialog = false;
                 this.name = '';

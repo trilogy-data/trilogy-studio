@@ -31,15 +31,15 @@ const storageAPI = {
     },
 };
 
-function findMatchingValue(arr, condition) {
-    const foundElement = arr.find(element => condition(element));
-    return foundElement !== undefined ? foundElement : null;
-}
+// function findMatchingValue(arr, condition) {
+//     const foundElement = arr.find(element => condition(element));
+//     return foundElement !== undefined ? foundElement : null;
+// }
 
 
 const state = {
-    connections: [new Connection('duckdb_demo', 'duck_db'),
-    new Connection('bigquery_demo', 'bigquery')],
+    connections: [new Connection('duckdb_demo', 'duck_db', false, 'duckdb_demo'),
+    new Connection('bigquery_demo', 'bigquery', false, 'bigquery_demo')],
 };
 
 const getters = {
@@ -51,9 +51,11 @@ const getters = {
 
 const actions = {
     async connectConnection({ commit }, connection) {
-        instance.post('/connection', { name: connection.name, 
-            dialect:connection.type, 
-            model: connection.model }).then((response) => {
+        instance.post('/connection', {
+            name: connection.name,
+            dialect: connection.type,
+            model: connection.model
+        }).then(() => {
             commit('setConnectionActive', connection)
         })
 
@@ -62,7 +64,7 @@ const actions = {
         commit('setConnectionInactive', connection)
     },
     async addConnection({ commit }, data) {
-        instance.post('/connection', { name: data.name, dialect: data.type, model: data.model }).then((response) => {
+        instance.post('/connection', { name: data.name, dialect: data.type, model: data.model }).then(() => {
             const connection = new Connection(data.name, data.type, true, data.model)
             commit('addConnection', connection)
         })
@@ -70,7 +72,7 @@ const actions = {
     },
     async editConnection({ commit }, data) {
         console.log(data.model)
-        instance.put('/connection', { name: data.name, dialect: data.type, model: data.model }).then((response) => {
+        instance.put('/connection', { name: data.name, dialect: data.type, model: data.model }).then(() => {
             const connection = new Connection(data.name, data.type, true, data.model)
             commit('editConnection', connection)
         })
@@ -78,7 +80,7 @@ const actions = {
     async removeConnection({ commit }, data) {
         commit('removeConnection', data)
     },
-    async loadConnections({commit }, data) {
+    async loadConnections({ commit }, _) {
         commit('setConnections', storageAPI.getConnections())
     }
 

@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
-const Store = require('electron-store');
+import Store from 'electron-store';
 
 // The built directory structure
 //

@@ -1,9 +1,8 @@
 
-import {  ConnectionInterface } from './Connection'
+import { ConnectionInterface } from './Connection'
 import { Results, ResultsInterface } from './Results'
 import axiosHelpers from '/src/api/helpers';
 import instance from '/src/api/instance';
-import {editor} from 'monaco-editor';
 
 export interface EditorInterface {
     name: string;
@@ -14,7 +13,7 @@ export interface EditorInterface {
     contents: string;
     loading: boolean;
     error: string | null;
-    status_code:number;
+    status_code: number;
     executed: boolean;
     // monaco: editor.IStandaloneCodeEditor | null;
 }
@@ -40,7 +39,7 @@ export class Editor implements EditorInterface {
     contents: string;
     loading: boolean;
     error: string | null;
-    status_code:number;
+    status_code: number;
     executed: boolean;
     duration: number | null;
     generated_sql: string | null;
@@ -86,17 +85,19 @@ export class Editor implements EditorInterface {
             })
             // this.last_passed_query_text = current_query;
         } catch (error) {
-            const resultCode = axiosHelpers.getResultCode(error);
-            this.status_code = resultCode;
-            local.error = axiosHelpers.getErrorMessage(error);
-            local.duration = null;
-            local.executed = false;
+            if (error instanceof Error) {
+                const resultCode = axiosHelpers.getResultCode(error);
+                this.status_code = resultCode;
+                local.error = axiosHelpers.getErrorMessage(error);
+                local.duration = null;
+                local.executed = false;
+            }
         } finally {
             local.loading = false;
         }
     }
 
-    static fromJSON({name, type, connection, contents, results}): Editor {
+    static fromJSON({ name, type, connection, contents, results }): Editor {
         let output = new Editor(name, type, connection);
         output.contents = contents
         output.results = results
@@ -135,7 +136,7 @@ export class RawEditor implements EditorInterface {
         // this.monaco = null;
         this.status_code = 200;
     }
-    
+
     async runQuery() {
         this.loading = true;
         // this.info = 'Executing query...'
@@ -158,18 +159,20 @@ export class RawEditor implements EditorInterface {
             })
             // this.last_passed_query_text = current_query;
         } catch (error) {
-            const resultCode = axiosHelpers.getResultCode(error);
-            this.status_code = resultCode;
-            local.error = axiosHelpers.getErrorMessage(error);
-            local.duration = null;
-            local.executed = false;
+            if (error instanceof Error) {
+                const resultCode = axiosHelpers.getResultCode(error);
+                this.status_code = resultCode;
+                local.error = axiosHelpers.getErrorMessage(error);
+                local.duration = null;
+                local.executed = false;
+            }
         } finally {
             local.loading = false;
         }
     }
 
-    
-    static fromJSON({name, type, connection, contents, results}): RawEditor {
+
+    static fromJSON({ name, type, connection, contents, results }): RawEditor {
         let output = new RawEditor(name, type, connection);
         output.contents = contents
         output.results = results

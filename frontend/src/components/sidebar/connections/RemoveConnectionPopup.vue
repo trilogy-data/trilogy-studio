@@ -23,7 +23,7 @@
     background-color: var(--main-bg-color);
 }
 </style>
-<script>
+<script lang="ts">
 import { mapActions } from 'vuex'
 export default {
     data() {
@@ -41,8 +41,8 @@ export default {
     methods: {
         ...mapActions(['removeConnection']),
         localRemoveConnection() {
-            dialog = false;
-            removeConnection(this.connection)
+            this.removeConnection(this.connection)
+            this.dialog = false;
         }
     }
 }

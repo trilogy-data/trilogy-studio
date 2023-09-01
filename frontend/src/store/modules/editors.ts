@@ -5,7 +5,6 @@
 
 import { Editor, RawEditor } from '/src/models/Editor'
 import Store from 'electron-store'
-import { Range,  } from 'monaco-editor';
 
 function findMatchingValue(arr, condition) {
     const foundElement = arr.find(element => condition(element));
@@ -21,13 +20,13 @@ const storageAPI = {
     setEditors(value: Array<Editor | RawEditor>) {
         // const buffer = safeStorage.encryptString(value);
         const parsed = value.map(editor => {
-           return  JSON.stringify(editor, (key, value) => {
+            return JSON.stringify(editor, (key, value) => {
                 if (key === 'monaco') {
-                  return undefined; // Exclude the property from the JSON output
+                    return undefined; // Exclude the property from the JSON output
                 }
                 return value; // Include other properties as is
-                });
             });
+        });
         store.set('editors', parsed);
         // store.set(key, buffer.toString(encoding));
     },
@@ -42,7 +41,7 @@ const storageAPI = {
             else if (subParsed.syntax === 'sql') {
                 return RawEditor.fromJSON(subParsed)
             }
-        });
+        }) as Array<Editor | RawEditor>;
         return parsed
     },
 };
@@ -70,6 +69,9 @@ const getters = {
 };
 
 const actions = {
+    async setEditorError({ commit }, data) {
+        commit('setEditorError', data)
+    },
     async saveEditorText({ commit }, data) {
         commit('saveEditorText', data)
     },
@@ -106,8 +108,11 @@ const actions = {
 
 
 const mutations = {
+    setEditorError(state, data) {
+        const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
+        editor.error = data.error
+    },
     addMonacoEditor(state, data) {
-        console.log(data)
         const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
         editor.monaco = data.editor
     },
@@ -125,25 +130,28 @@ const mutations = {
         }
         state.editors = newEditors
     },
-    saveEditors(state, data) {
+    saveEditors(state, _) {
         storageAPI.setEditors(state.editors)
     },
     saveEditorText(state, data) {
         const editor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
         editor.contents = data.contents
     },
-    loadEditors(state, data) {
+    loadEditors(state, _) {
         state.editors = storageAPI.getEditors()
     },
     newEditor(state, data) {
-        let newEd = null;
+        let newEd: Editor | RawEditor | null = null
         if (data.syntax === 'preql') {
             newEd = new Editor(data.name, data.connection.type, data.connection.name,);
         }
         else {
             newEd = new RawEditor(data.name, data.connection.type, data.connection.name,);
         }
-        state.editors.push(newEd)
+        if (newEd) {
+            state.editors.push(newEd)
+        }
+
     }
 };
 

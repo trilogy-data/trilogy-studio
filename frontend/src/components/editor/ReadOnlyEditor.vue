@@ -9,7 +9,7 @@
     border: none;
 }
 </style>
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 import * as monaco from 'monaco-editor';
 
@@ -20,7 +20,7 @@ export default defineComponent({
     },
     data() {
         return {
-            editor: null,
+            editor: null as monaco.editor.IStandaloneCodeEditor | null,
             editorX: 400,
             editorY: 400,
             
@@ -36,7 +36,11 @@ export default defineComponent({
     },
     methods: {
         createEditor() {
-            const editor = monaco.editor.create(document.getElementById('ro-editor'), {
+            let editorComponent =document.getElementById('ro-editor')
+            if (!editorComponent) {
+                return
+            }
+            const editor = monaco.editor.create(editorComponent, {
                 value: this.content,
                 language: 'sql',
                 automaticLayout: true,
