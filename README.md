@@ -6,7 +6,7 @@ Multi-platform IDE for PreQL language.
 
 Develop and query in PreQL or SQL in a modern, expressive editor.
 
-![UI Preview](https://github.com/greenmtnboy/preql-studi/blob/main/media/ui-example.png)
+![UI Preview](https://github.com/preqldata/preql-studio/blob/main/media/ui-example.png)
 
 ## Features
 
