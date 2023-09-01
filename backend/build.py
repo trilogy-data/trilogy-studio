@@ -6,25 +6,45 @@ from pathlib import Path
 from os import environ
 from platform import system
 
-# Path to the Python virtual environment
+# Get the root directory of the project
 root = Path(__file__).parent
 
 base = root.parent
 
-if system() == 'Linux':
-    parent = 'bin'
+if system() == "Linux":
+    parent = "bin"
 else:
-    parent = 'scripts'
-virtual_env_path = environ.get('VIRTUAL_ENV', f"{base}/.venv")
+    parent = "scripts"
+
+ci_python = os.environ.get("pythonLocation")
+virtual_env_path = environ.get("VIRTUAL_ENV", f"{base}/.venv")
 
 SCRIPT_NAME = "backend"
 
-if __name__ == "__main__":
+if ci_python:
+    python_path = ci_python
+else:
+    python_path = virtual_env_path
 
-    print(f"{virtual_env_path}/{parent}/python")
+dev_requirements = root / "backend" / "requirements-dev.txt"
+
+if __name__ == "__main__":
+    print(f"{python_path}/{parent}/python")
     # Command to execute
+    setup_command = [
+        f"{python_path}/python",
+        "pip",
+        "install",
+        "-r" f"{dev_requirements}",
+    ]
+    try:
+        # Execute the command
+        subprocess.check_call(setup_command, cwd=root)
+    except subprocess.CalledProcessError as e:
+        print("Error executing requirements install command:", e)
+        sys.exit(1)
     command = [
-        f"{virtual_env_path}/{parent}/pyinstaller",
+        f"{python_path}/{parent}/pyinstaller",
         "main.py",
         "--noconsole",
         "--onefile",
