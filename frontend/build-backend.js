@@ -7,13 +7,19 @@ const parentDir = path.resolve(__dirname, '..')
 const pythonScript = path.join(parentDir, 'backend/build.py');
 // const pythonScript = '../backend/src/build.py';
 
-const pyInstallerCommand = `python ${pythonScript}`;
+// this is set in CI
+const pythonPath = process.env.pythonLocation;
+const pyInstallerCommand = `${pythonPath}/python ${pythonScript}`;
+
+
 
 exec(pyInstallerCommand, (error, stdout, stderr) => {
   if (error) {
     console.error(`Error: ${error}`);
+    console.error(`PyInstaller Errors:\n${stderr}`);
     return;
   }
-  console.log(`PyInstaller Output:\n${stdout}`);
   console.error(`PyInstaller Errors:\n${stderr}`);
+  console.log(`PyInstaller Output:\n${stdout}`);
+  
 });
