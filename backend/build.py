@@ -33,6 +33,7 @@ if __name__ == "__main__":
     # Command to execute
     setup_command = [
         f"{python_path}/python",
+        "-m",
         "pip",
         "install",
         "-r" f"{dev_requirements}",

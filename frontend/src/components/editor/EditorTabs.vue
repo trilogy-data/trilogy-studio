@@ -70,7 +70,7 @@
     flex-grow: 0;
     flex-shrink: 1;
     /* flex-wrap: wrap; */
-    height: calc(100%-24px);
+    height: calc(100% - 24px);
 }
 
 .editor-tabs {
