@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - ubuntu-build
+      - ubuntu-ci
     # tags:
     #   - "v*"
 jobs:
