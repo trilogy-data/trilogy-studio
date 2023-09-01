@@ -26,7 +26,8 @@ if ci_python:
 else:
     python_path = virtual_env_path
 
-dev_requirements = root / "backend" / "requirements-dev.txt"
+dev_requirements = root / "requirements-dev.txt"
+requirements = root / "requirements.txt"
 
 if __name__ == "__main__":
     print(f"{python_path}/{parent}/python")
@@ -37,6 +38,19 @@ if __name__ == "__main__":
         "pip",
         "install",
         "-r" f"{dev_requirements}",
+    ]
+    try:
+        # Execute the command
+        subprocess.check_call(setup_command, cwd=root)
+    except subprocess.CalledProcessError as e:
+        print("Error executing dev requirements install command:", e)
+        sys.exit(1)
+    req_command = [
+        f"{python_path}/python",
+        "-m",
+        "pip",
+        "install",
+        "-r" f"{requirements}",
     ]
     try:
         # Execute the command

@@ -61,7 +61,7 @@
     flex-direction: column;
     flex-wrap: nowrap;
     /* flex: 1 1 calc(100%-60px); */
-    height: calc(100% - 24x);
+    height: calc(100% - 24px);
 }
 
 .editor-results {
