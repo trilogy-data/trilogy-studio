@@ -28,7 +28,7 @@ else:
     python_path = Path(virtual_env_path) / parent / 'python'
     pyinstaller_path = Path(virtual_env_path) / parent / 'pyinstaller'
 
-dev_requirements = root / "requirements-ci.txt"
+ci_requirements = root / "requirements-ci.txt"
 requirements = root / "requirements.txt"
 
 if __name__ == "__main__":
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         "-m",
         "pip",
         "install",
-        "-r" f"{dev_requirements}",
+        "-r" f"{ci_requirements}",
     ]
     try:
         # Execute the command

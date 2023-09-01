@@ -19,7 +19,7 @@ exec(pyInstallerCommand, (error, stdout, stderr) => {
   if (error) {
     console.error(`Error: ${error}`);
     console.error(`PyInstaller Errors:\n${stderr}`);
-    return;
+    throw error;
   }
   console.error(`PyInstaller Errors:\n${stderr}`);
   console.log(`PyInstaller Output:\n${stdout}`);
