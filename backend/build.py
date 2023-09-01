@@ -23,7 +23,7 @@ SCRIPT_NAME = "backend"
 
 if ci_python:
     python_path = Path(ci_python) / 'python'
-    pyinstaller_path = Path(virtual_env_path) / parent / 'pyinstaller'
+    pyinstaller_path = Path(ci_python) / parent / 'pyinstaller'
 else:
     python_path = Path(virtual_env_path) / parent / 'python'
     pyinstaller_path = Path(virtual_env_path) / parent / 'pyinstaller'
