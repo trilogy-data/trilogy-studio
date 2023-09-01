@@ -14,7 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-latest]
+        os: [windows-latest]
+        # os: [ubuntu-20.04, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
@@ -28,6 +29,11 @@ jobs:
           pip install wheel
           pip install -r backend/requirements.txt
           pip install -r backend/requirements-dev.txt
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v2
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          skip_install: ${{ matrix.os == 'ubuntu-arm64' }}
       - name: Build and Publish
         uses: samuelmeuli/action-electron-builder@v1
         with:
