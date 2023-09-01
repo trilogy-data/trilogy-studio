@@ -3,12 +3,13 @@
  */
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "YourAppID",
+  "appId": "com.electron.trilogy-studio",
   "asar": true,
   "directories": {
     "output": "release/${version}"
   },
   "files": [
+    "./index.html",
     "dist-electron",
     "dist"
   ],
@@ -28,6 +29,12 @@
       }
     ],
     "artifactName": "${productName}_${version}.${ext}"
+  },
+  "linux": {
+    "target": [
+      "snap"
+    ],
+    "category": "Development"
   },
   "nsis": {
     "oneClick": false,

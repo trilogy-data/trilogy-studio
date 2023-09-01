@@ -1,9 +1,10 @@
 {
-  "name": "preql-studio",
+  "name": "trilogy-studio",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.2",
+  "description": "A desktop IDE for running PreQL and SQL queries and building PreQL models.",
   "author": {
-    "name": "PreQL Team",
+    "name": "Trilogy/PreQL Team",
     "email": "ethan.dickinson@gmail.com"
   },
   "repository": {
@@ -13,7 +14,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build && node build-backend.js",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dist_linux": "electron-builder --linux snap"
   },
   "dependencies": {
     "axios": "^1.4.0",

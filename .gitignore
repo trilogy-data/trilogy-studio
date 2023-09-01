@@ -34,3 +34,4 @@ config.xlaunch
 __pycache__
 demo_data
 
+backend/build

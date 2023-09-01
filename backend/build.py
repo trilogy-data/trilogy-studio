@@ -22,18 +22,20 @@ virtual_env_path = environ.get("VIRTUAL_ENV", f"{base}/.venv")
 SCRIPT_NAME = "backend"
 
 if ci_python:
-    python_path = ci_python
+    python_path = Path(ci_python) / 'python'
+    pyinstaller_path = Path(virtual_env_path) / parent / 'pyinstaller'
 else:
-    python_path = virtual_env_path
+    python_path = Path(virtual_env_path) / parent / 'python'
+    pyinstaller_path = Path(virtual_env_path) / parent / 'pyinstaller'
 
-dev_requirements = root / "requirements-dev.txt"
+dev_requirements = root / "requirements-ci.txt"
 requirements = root / "requirements.txt"
 
 if __name__ == "__main__":
     print(f"{python_path}/{parent}/python")
     # Command to execute
     setup_command = [
-        f"{python_path}/python",
+        f"{python_path}",
         "-m",
         "pip",
         "install",
@@ -46,7 +48,7 @@ if __name__ == "__main__":
         print("Error executing dev requirements install command:", e)
         sys.exit(1)
     req_command = [
-        f"{python_path}/python",
+        f"{python_path}",
         "-m",
         "pip",
         "install",
@@ -59,7 +61,7 @@ if __name__ == "__main__":
         print("Error executing requirements install command:", e)
         sys.exit(1)
     command = [
-        f"{python_path}/{parent}/pyinstaller",
+        f"{pyinstaller_path}",
         "main.py",
         "--noconsole",
         "--onefile",
