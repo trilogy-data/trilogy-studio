@@ -11,15 +11,19 @@ root = Path(__file__).parent
 
 base = root.parent
 
+SCRIPT_NAME = "backend"
+
 if system() == "Linux":
     parent = "bin"
+    final_file = SCRIPT_NAME
 else:
     parent = "scripts"
+    final_file = f'{SCRIPT_NAME}.exe'
 
 ci_python = os.environ.get("pythonLocation")
 virtual_env_path = environ.get("VIRTUAL_ENV", f"{base}/.venv")
 
-SCRIPT_NAME = "backend"
+
 
 if ci_python:
     python_path = Path(ci_python) / 'python'
@@ -86,7 +90,7 @@ if __name__ == "__main__":
     # Create the destination folder if it doesn't exist
     destination_folder = base / "frontend" / "src" / "background"
     os.makedirs(destination_folder, exist_ok=True)
-    pyinstaller_output_file = root / "dist" / f"{SCRIPT_NAME}.exe"
+    pyinstaller_output_file = root / "dist" / final_file
     # Copy the PyInstaller output file to the destination folder
     print("copying to final location")
     shutil.copy(pyinstaller_output_file, destination_folder)
