@@ -13,11 +13,6 @@ require('dotenv').config();
 const pythonPath = process.env.pythonLocation;
 const pyInstallerCommand = pythonPath ? `${pythonPath}/python ${pythonScript}` : `${venvPath} ${pythonScript}`;
 
-if (!process.env.pyenv) {
-  throw new Error('must have pyenv set')
-}
-
-
 exec(pyInstallerCommand, {env: {'pyenv': process.env.pyenv}}, (error, stdout, stderr) => {
   if (error) {
     console.error(`Error: ${error}`);
