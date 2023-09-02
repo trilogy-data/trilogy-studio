@@ -12,8 +12,12 @@ from backend.conversations.characters import PARTIES, PLAYER
 from backend.conversations.engine import PersonalityEngine
 from backend.conversations.guardrails import ConversationalGuardrail
 from backend.conversations.inventory import PROLOGUE
-from backend.conversations.models import (Conversation, Message,
-                                          SingleConversation, Visibility)
+from backend.conversations.models import (
+    Conversation,
+    Message,
+    SingleConversation,
+    Visibility,
+)
 
 
 def render_convo(input: Conversation):

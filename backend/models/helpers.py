@@ -1,8 +1,15 @@
 from typing import Any, List, Union
 
 from preql.core.enums import DataType
-from preql.core.models import (AggregateWrapper, Comparison, Concept,
-                               Conditional, FilterItem, Function, WindowItem)
+from preql.core.models import (
+    AggregateWrapper,
+    Comparison,
+    Concept,
+    Conditional,
+    FilterItem,
+    Function,
+    WindowItem,
+)
 
 from backend.io_models import LineageItem
 

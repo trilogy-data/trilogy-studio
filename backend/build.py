@@ -18,7 +18,7 @@ if system() == "Linux":
     final_file = SCRIPT_NAME
 else:
     parent = "scripts"
-    final_file = f'{SCRIPT_NAME}.exe'
+    final_file = f"{SCRIPT_NAME}.exe"
 
 ci_python = os.environ.get("pythonLocation")
 pyenv_env = os.environ.get("pyenv")
@@ -26,14 +26,14 @@ virtual_env_path = environ.get("VIRTUAL_ENV", f"{base}/.venv")
 
 
 if pyenv_env:
-    python_path = Path(pyenv_env) / 'bin' / 'python'
-    pyinstaller_path = Path(pyenv_env) / parent /  'pyinstaller'
+    python_path = Path(pyenv_env) / "bin" / "python"
+    pyinstaller_path = Path(pyenv_env) / parent / "pyinstaller"
 elif ci_python:
-    python_path = Path(ci_python) / 'python'
-    pyinstaller_path = Path(ci_python) / parent / 'pyinstaller'
+    python_path = Path(ci_python) / "python"
+    pyinstaller_path = Path(ci_python) / parent / "pyinstaller"
 else:
-    python_path = Path(virtual_env_path) / parent / 'python'
-    pyinstaller_path = Path(virtual_env_path) / parent / 'pyinstaller'
+    python_path = Path(virtual_env_path) / parent / "python"
+    pyinstaller_path = Path(virtual_env_path) / parent / "pyinstaller"
 
 ci_requirements = root / "requirements-ci.txt"
 requirements = root / "requirements.txt"
@@ -43,19 +43,20 @@ if __name__ == "__main__":
 
     prefixes = []
     # Command to execute
-    setup_command = prefixes+[
+    setup_command = prefixes + [
         f"{python_path}",
         "-m",
         "pip",
         "install",
-        "-r", f"{ci_requirements}",
+        "-r",
+        f"{ci_requirements}",
     ]
     try:
         subprocess.check_call(setup_command, cwd=root)
     except subprocess.CalledProcessError as e:
         print("Error executing dev requirements install command:", e)
         sys.exit(1)
-    req_command = prefixes+[
+    req_command = prefixes + [
         f"{python_path}",
         "-m",
         "pip",
@@ -67,7 +68,7 @@ if __name__ == "__main__":
     except subprocess.CalledProcessError as e:
         print("Error executing requirements install command:", e)
         sys.exit(1)
-    command = prefixes+[
+    command = prefixes + [
         f"{pyinstaller_path}",
         "main.py",
         "--noconsole",

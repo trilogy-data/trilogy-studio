@@ -11,12 +11,10 @@ sys.path.append(str(current_directory))
 
 import asyncio
 import multiprocessing
-import os
-import sys
 import traceback
 from copy import deepcopy
 from datetime import datetime
-from typing import Mapping, Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple
 
 import uvicorn
 from fastapi import APIRouter, FastAPI, HTTPException, Response
@@ -25,37 +23,29 @@ from fastapi.responses import PlainTextResponse
 from google.auth import default
 from google.cloud import bigquery
 from google.oauth2 import service_account
-from preql import Dialects
 from preql.constants import DEFAULT_NAMESPACE
 from preql.core.enums import DataType, Purpose
-from preql.executor import Dialects, Executor
+from preql import Environment, Executor, Dialects
 from preql.parser import parse_text
 from pydantic import BaseModel, Field
-from sqlalchemy.engine import create_engine
 from starlette.background import BackgroundTask
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from trilogy_public_models import models as public_models
 from uvicorn.config import LOGGING_CONFIG
-from preql import Environment, Executor, Dialects
-from preql.core.models import (
-    Concept,
-    Datasource,
-    DataType,
-    Purpose,
-    Function,
-    FunctionType,
-)
+
 from sqlalchemy import create_engine
 from backend.io_models import ListModelResponse, Model, UIConcept
 from backend.models.helpers import flatten_lineage
-from duckdb_engine import * #this is for pyinstaller
+from duckdb_engine import *  # this is for pyinstaller
+
 PORT = 5678
 
 STATEMENT_LIMIT = 100
-GCP_PROJECT = "ttl-test-355422"
+
 app = FastAPI()
 
 from dataclasses import dataclass
+
 
 @dataclass
 class InstanceSettings:
@@ -77,58 +67,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def generate_default_duckdb():
-
-
     duckdb = Environment()
-
-    lineitem = Datasource(
-        identifier="lineitem",
-        address=r"'/home/edickinson/preql-studio/backend/demo_data/lineitem.parquet'",
-        columns=[],
-    )
-
-    order_key = duckdb.add_concept(
-        Concept(
-            name="l_orderkey",
-            datatype=DataType.INTEGER,
-            purpose=Purpose.KEY,
-        )
-    )
-
-    text = duckdb.add_concept(
-        Concept(
-            name="l_comment",
-            datatype=DataType.STRING,
-            purpose=Purpose.PROPERTY,
-        )
-    )
-
-    text_length = duckdb.add_concept(
-        Concept(
-            name="l_comment.length",
-            datatype=DataType.INTEGER,
-            purpose=Purpose.PROPERTY,
-            lineage=Function(
-                operator=FunctionType.LENGTH,
-                arguments=[text],
-                output_datatype=DataType.INTEGER,
-                output_purpose=Purpose.PROPERTY,
-            ),
-        )
-    )
-
-    lineitem.add_column(order_key, "l_orderkey")
-    lineitem.add_column(text, "l_comment")
-
-    duckdb.add_datasource(lineitem)
-
     executor = Executor(
         dialect=Dialects.DUCK_DB,
         engine=create_engine("duckdb:///:memory:"),
         environment=duckdb,
     )
     return executor
+
 
 def generate_default_bigquery() -> Executor:
     if os.path.isfile("/run/secrets/bigquery_auth"):
@@ -139,20 +87,26 @@ def generate_default_bigquery() -> Executor:
         project = credentials.project_id
     else:
         credentials, project = default()
-    client = bigquery.Client(credentials=credentials, project=GCP_PROJECT)
+    client = bigquery.Client(credentials=credentials, project=project)
     engine = create_engine(
-        f"bigquery://{GCP_PROJECT}/test_tables?user_supplied_client=True",
+        f"bigquery://{project}/test_tables?user_supplied_client=True",
         connect_args={"client": client},
     )
     executor = Executor(
-        dialect=Dialects.BIGQUERY, engine=engine, environment=deepcopy(public_models["bigquery.stack_overflow"])
+        dialect=Dialects.BIGQUERY,
+        engine=engine,
+        environment=deepcopy(public_models["bigquery.stack_overflow"]),
     )
     return executor
-CONNECTIONS: Dict[str, Executor] = {"duckdb_demo": generate_default_duckdb(),
-                                    #"bigquery_demo": generate_default_bigquery()
-                                    }
+
+
+CONNECTIONS: Dict[str, Executor] = {
+    # "duckdb_demo": generate_default_duckdb(),
+    # "bigquery_demo": generate_default_bigquery()
+}
 
 ## BEGIN REQUESTS
+
 
 class InputRequest(BaseModel):
     text: str
@@ -167,7 +121,7 @@ router = APIRouter()
 class ConnectionInSchema(BaseModel):
     name: str
     dialect: Dialects
-    extra: Dict  | None
+    extra: Dict | None
     model: str | None
 
 
@@ -202,9 +156,7 @@ class QueryOut(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     refreshed_at: datetime = Field(default_factory=datetime.now)
     duration: Optional[int]
-    columns: List[Tuple[str,QueryOutColumn]] | None
-
-
+    columns: List[Tuple[str, QueryOutColumn]] | None
 
 
 def safe_format_query(input: str) -> str:
@@ -250,11 +202,13 @@ async def list_connections():
         )
     return ConnectionListOutput(connections=output)
 
+
 @router.put("/connection")
-async def update_connection(connection:ConnectionInSchema):
+async def update_connection(connection: ConnectionInSchema):
     # if connection.name not in CONNECTIONS:
     #     raise HTTPException(status_code=404, detail=f"Connection {connection.name} not found.")
     create_connection(connection)
+
 
 @router.post("/connection")
 async def create_connection(connection: ConnectionInSchema):
@@ -276,9 +230,9 @@ async def create_connection(connection: ConnectionInSchema):
             project = credentials.project_id
         else:
             credentials, project = default()
-        client = bigquery.Client(credentials=credentials, project=GCP_PROJECT)
+        client = bigquery.Client(credentials=credentials, project=project)
         engine = create_engine(
-            f"bigquery://{GCP_PROJECT}/test_tables?user_supplied_client=True",
+            f"bigquery://{project}/test_tables?user_supplied_client=True",
             connect_args={"client": client},
         )
         executor = Executor(
@@ -294,6 +248,7 @@ async def create_connection(connection: ConnectionInSchema):
         raise HTTPException(400, "this dialect type is not supported currently")
     CONNECTIONS[connection.name] = executor
 
+
 @router.post("/raw_query")
 async def run_raw_query(query: QueryInSchema):
     start = datetime.now()
@@ -304,12 +259,15 @@ async def run_raw_query(query: QueryInSchema):
     outputs = {}
     try:
         rs = executor.engine.execute(query.query)
-        outputs = [(
-            col, QueryOutColumn(
-                name=col,
-                purpose=Purpose.KEY,
-                datatype=DataType.STRING,
-            ))
+        outputs = [
+            (
+                col,
+                QueryOutColumn(
+                    name=col,
+                    purpose=Purpose.KEY,
+                    datatype=DataType.STRING,
+                ),
+            )
             for col in rs.keys()
         ]
     except Exception as e:
@@ -336,6 +294,7 @@ async def run_raw_query(query: QueryInSchema):
     )
     return output
 
+
 @router.post("/query")
 async def run_query(query: QueryInSchema):
     start = datetime.now()
@@ -343,7 +302,7 @@ async def run_query(query: QueryInSchema):
     executor = CONNECTIONS.get(query.connection)
     if not executor:
         raise HTTPException(403, "Not a valid connection")
-    
+
     outputs = {}
     # parsing errors or generation
     # should be 422
@@ -366,17 +325,20 @@ async def run_query(query: QueryInSchema):
             )
             compiled_sql = executor.generator.compile_statement(statement)
             rs = executor.engine.execute(compiled_sql)
-            outputs = [(
-                col.name, QueryOutColumn(
-                    name=col.name.replace(".", "_")
-                    if col.namespace == DEFAULT_NAMESPACE
-                    else col.address.replace(".", "_"),
-                    purpose=col.purpose,
-                    datatype=col.datatype,
-                ))
+            outputs = [
+                (
+                    col.name,
+                    QueryOutColumn(
+                        name=col.name.replace(".", "_")
+                        if col.namespace == DEFAULT_NAMESPACE
+                        else col.address.replace(".", "_"),
+                        purpose=col.purpose,
+                        datatype=col.datatype,
+                    ),
+                )
                 for col in statement.output_columns
             ]
-            
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     if not rs:
@@ -454,6 +416,7 @@ app.include_router(router)
 
 PORT = 5678
 
+
 def run():
     LOGGING_CONFIG["disable_existing_loggers"] = True
     import sys
@@ -488,7 +451,6 @@ def run():
     except Exception as e:
         print(f"Server is shutting down due to {e}")
         exit(1)
-
 
 
 if __name__ == "__main__":
