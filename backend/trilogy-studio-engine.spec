@@ -1,8 +1,29 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
+import trilogy_public_models
+import sys
+from pathlib import Path
+
+def get_trilogy_data_files():
+    root = sys.modules.get(f'trilogy_public_models')
+    root = Path(root.__file__)
+
+    inclusion_files = []
+    for key, value in trilogy_public_models.models.items():
+    
+        path = key.replace('.' , '/')
+
+        check = root.parent / path
+
+        files = check.iterdir()
+        for f in files:
+            if f.suffix == '.preql':
+                subroot = Path('trilogy_public_models') / path
+                inclusion_files.append(( str(f), str(subroot)))
+    return inclusion_files
 
 
-datas = []
+datas = get_trilogy_data_files()
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('uvicorn')
@@ -10,6 +31,8 @@ datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('duckdb')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('duckdb-engine')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+tmp_ret = collect_all('sqlalchemy-bigquery')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 

@@ -64,7 +64,7 @@ const actions = {
         commit('setConnectionInactive', connection)
     },
     async addConnection({ commit }, data) {
-        instance.post('/connection', { name: data.name, dialect: data.type, model: data.model }).then(() => {
+        instance.post('/connection', { name: data.name, dialect: data.type, model: data.model, extra: data.extra }).then(() => {
             const connection = new Connection(data.name, data.type, true, data.model)
             commit('addConnection', connection)
         })

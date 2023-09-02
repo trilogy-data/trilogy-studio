@@ -70,21 +70,19 @@ if __name__ == "__main__":
         sys.exit(1)
     command = prefixes + [
         f"{pyinstaller_path}",
-        "main.py",
-        "--noconsole",
-        "--onefile",
-        "--name",
-        SCRIPT_NAME,
-        "--collect-all",
-        "uvicorn",
-        "--collect-all",
-        "duckdb",
-        "--collect-all",
-        "duckdb-engine",
-        "--noconfirm",
-        "--clean",
-        "--additional-hooks-dir",
-        "extra-hooks",
+        "trilogy-studio-engine.spec",
+        # "--noconsole",
+        # "--onefile",
+        # "--collect-all",
+        # "uvicorn",
+        # "--collect-all",
+        # "duckdb",
+        # "--collect-all",
+        # "duckdb-engine",
+        # "--noconfirm",
+        # "--clean",
+        # "--additional-hooks-dir",
+        # "extra-hooks",
     ]
 
     try:
@@ -99,6 +97,6 @@ if __name__ == "__main__":
     os.makedirs(destination_folder, exist_ok=True)
     pyinstaller_output_file = root / "dist" / final_file
     # Copy the PyInstaller output file to the destination folder
-    print("copying to final location")
+    print(f"copying to final location {destination_folder}")
     shutil.copy(pyinstaller_output_file, destination_folder)
     print("file copied")

@@ -128,7 +128,7 @@ function findProcessesByName(processName): Promise<object[]> {
 
 const startBackgroundService = () => {
   // let uuid = randomUUID()
-  const spath = path.join(process.env.DIST, targetProcessName)
+  const spath = path.join(process.env.PUBLIC, targetProcessName)
   //const spath = path.join(app.getAppPath(), '/src/background/', `${targetProcessName}`)
   console.log(`spawning background service at ${spath}`)
   const backgroundService = execFile(spath, [], {'windowsHide': true}, (error, stdout, stderr) => {

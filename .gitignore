@@ -27,6 +27,7 @@ release
 *.sln
 *.sw?
 *.pyc
+.ruff_cache
 
 # python
 *.pyc
@@ -37,3 +38,4 @@ __pycache__
 demo_data
 
 backend/build
+backend/dist

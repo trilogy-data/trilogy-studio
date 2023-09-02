@@ -32,11 +32,13 @@ from starlette.background import BackgroundTask
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from trilogy_public_models import models as public_models
 from uvicorn.config import LOGGING_CONFIG
+from trilogy_public_models.inventory import parse_initial_models
 
 from sqlalchemy import create_engine
 from backend.io_models import ListModelResponse, Model, UIConcept
 from backend.models.helpers import flatten_lineage
 from duckdb_engine import *  # this is for pyinstaller
+from sqlalchemy_bigquery import *  # this is for pyinstaller
 
 PORT = 5678
 
@@ -45,6 +47,30 @@ STATEMENT_LIMIT = 100
 app = FastAPI()
 
 from dataclasses import dataclass
+
+
+def load_pyinstaller_trilogy_files() -> None:
+    # dynamic imports used by trilogy_public_models
+    # won't function properly in a pyinstaller bundle
+    # so we manually load the modules here
+    if not getattr(sys, "frozen", False):
+        return
+    # If the application is run as a bundle, the PyInstaller bootloader
+    # extends the sys module by a flag frozen=True and sets the app
+    # path into variable _MEIPASS'.
+    application_path = Path(sys._MEIPASS)
+    search_path = application_path / "trilogy_public_models"
+
+    test = Path(search_path)
+
+    for item in test.glob("**/*preql"):
+        if item.name == "entrypoint.preql":
+            relative = item.parent.relative_to(test)
+            model = parse_initial_models(str(item))
+            public_models[str(relative).replace("/", ".")] = model
+
+
+load_pyinstaller_trilogy_files()
 
 
 @dataclass
@@ -121,7 +147,7 @@ router = APIRouter()
 class ConnectionInSchema(BaseModel):
     name: str
     dialect: Dialects
-    extra: Dict | None
+    extra: Dict | None = Field(default_factory = dict)
     model: str | None
 
 
@@ -169,17 +195,7 @@ def safe_format_query(input: str) -> str:
 @router.get("/models", response_model=ListModelResponse)
 async def get_models() -> ListModelResponse:
     models = []
-    keys = ['bigquery.age_of_empires_2',
-'bigquery.chicago_crime',
-'bigquery.fcc_political_ads',
-'bigquery.github',
-'bigquery.google_search_trends',
-'bigquery.ncaa_basketball',
-'bigquery.new_york_citibike',
-'bigquery.stack_overflow',
-'bigquery.thelook_ecommerce',
-'bigquery.usa_names']
-    for key in keys:
+    for key, value in public_models.items():
         value = public_models[key]
         final_concepts = []
         for skey, sconcept in value.concepts.items():
@@ -241,6 +257,8 @@ async def create_connection(connection: ConnectionInSchema):
             project = credentials.project_id
         else:
             credentials, project = default()
+
+        project = connection.extra.get("project", project)
         client = bigquery.Client(credentials=credentials, project=project)
         engine = create_engine(
             f"bigquery://{project}/test_tables?user_supplied_client=True",
