@@ -29,8 +29,6 @@ const storageAPI = {
   },
 };
 
-
-
 const state = {
   localModels: storageAPI.getModels(),
   communityModels: [],
