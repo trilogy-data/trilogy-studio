@@ -207,7 +207,7 @@ async def list_connections():
 async def update_connection(connection: ConnectionInSchema):
     # if connection.name not in CONNECTIONS:
     #     raise HTTPException(status_code=404, detail=f"Connection {connection.name} not found.")
-    create_connection(connection)
+    return await create_connection(connection)
 
 
 @router.post("/connection")
@@ -256,7 +256,6 @@ async def run_raw_query(query: QueryInSchema):
     executor = CONNECTIONS.get(query.connection)
     if not executor:
         raise HTTPException(401, "Not a valid connection")
-    outputs = {}
     try:
         rs = executor.engine.execute(query.query)
         outputs = [
@@ -303,7 +302,7 @@ async def run_query(query: QueryInSchema):
     if not executor:
         raise HTTPException(403, "Not a valid connection")
 
-    outputs = {}
+    outputs = []
     # parsing errors or generation
     # should be 422
     try:
@@ -387,14 +386,13 @@ def _get_last_exc():
 
 
 async def exit_app():
-    if asyncio.Task:
-        for task in asyncio.all_tasks():
-            print(f"cancelling task: {task}")
-            try:
-                task.cancel()
-            except Exception:
-                print(f"Task kill failed: {_get_last_exc()}")
-                pass
+    for task in asyncio.all_tasks():
+        print(f"cancelling task: {task}")
+        try:
+            task.cancel()
+        except Exception:
+            print(f"Task kill failed: {_get_last_exc()}")
+            pass
     asyncio.gather(asyncio.all_tasks())
     loop = asyncio.get_running_loop()
     loop.stop()

@@ -41,7 +41,7 @@ requirements = root / "requirements.txt"
 if __name__ == "__main__":
     print(f"{python_path}/{parent}/python")
 
-    prefixes = []
+    prefixes:list[str] = []
     # Command to execute
     setup_command = prefixes + [
         f"{python_path}",
