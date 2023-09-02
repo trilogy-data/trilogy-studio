@@ -169,7 +169,18 @@ def safe_format_query(input: str) -> str:
 @router.get("/models", response_model=ListModelResponse)
 async def get_models() -> ListModelResponse:
     models = []
-    for key, value in public_models.items():
+    keys = ['bigquery.age_of_empires_2',
+'bigquery.chicago_crime',
+'bigquery.fcc_political_ads',
+'bigquery.github',
+'bigquery.google_search_trends',
+'bigquery.ncaa_basketball',
+'bigquery.new_york_citibike',
+'bigquery.stack_overflow',
+'bigquery.thelook_ecommerce',
+'bigquery.usa_names']
+    for key in keys:
+        value = public_models[key]
         final_concepts = []
         for skey, sconcept in value.concepts.items():
             # don't show private concepts
