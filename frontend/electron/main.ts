@@ -258,5 +258,5 @@ app.on('window-all-closed', () => {
   }
 })
 
-// app.whenReady().then(startBackgroundServiceSafe).then(createWindow)
-app.whenReady().then(createWindow)
+app.whenReady().then(startBackgroundServiceSafe).then(createWindow)
+// app.whenReady().then(createWindow)

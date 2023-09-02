@@ -1,10 +1,19 @@
 import trilogy_public_models
 import pkgutil
+from pathlib import Path
+import sys
+root = sys.modules.get(f'trilogy_public_models')
 
+print(root.__file__)
+
+root = Path(root.__file__)
 
 for key, value in trilogy_public_models.models.items():
-    print(key)
+   
     path = key.replace('.' , '/')
-    trilogy_public_model_data = pkgutil.get_data('trilogy_public_models', f'{path}' )
 
-    print(trilogy_public_model_data)
+    check = root.parent / path
+
+    files = check.iterdir()
+    for f in files:
+        print(f)
