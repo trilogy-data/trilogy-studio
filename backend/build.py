@@ -11,7 +11,7 @@ root = Path(__file__).parent
 
 base = root.parent
 
-SCRIPT_NAME = "backend"
+SCRIPT_NAME = "trilogy-studio-engine"
 
 if system() == "Linux":
     parent = "bin"
@@ -21,11 +21,14 @@ else:
     final_file = f'{SCRIPT_NAME}.exe'
 
 ci_python = os.environ.get("pythonLocation")
+pyenv_env = os.environ.get("pyenv")
 virtual_env_path = environ.get("VIRTUAL_ENV", f"{base}/.venv")
 
 
-
-if ci_python:
+if pyenv_env:
+    python_path = Path(pyenv_env) / 'bin' / 'python'
+    pyinstaller_path = Path(pyenv_env) / parent /  'pyinstaller'
+elif ci_python:
     python_path = Path(ci_python) / 'python'
     pyinstaller_path = Path(ci_python) / parent / 'pyinstaller'
 else:
@@ -37,21 +40,22 @@ requirements = root / "requirements.txt"
 
 if __name__ == "__main__":
     print(f"{python_path}/{parent}/python")
+
+    prefixes = []
     # Command to execute
-    setup_command = [
+    setup_command = prefixes+[
         f"{python_path}",
         "-m",
         "pip",
         "install",
-        "-r" f"{ci_requirements}",
+        "-r", f"{ci_requirements}",
     ]
     try:
-        # Execute the command
         subprocess.check_call(setup_command, cwd=root)
     except subprocess.CalledProcessError as e:
         print("Error executing dev requirements install command:", e)
         sys.exit(1)
-    req_command = [
+    req_command = prefixes+[
         f"{python_path}",
         "-m",
         "pip",
@@ -59,12 +63,11 @@ if __name__ == "__main__":
         "-r" f"{requirements}",
     ]
     try:
-        # Execute the command
-        subprocess.check_call(setup_command, cwd=root)
+        subprocess.check_call(req_command, cwd=root)
     except subprocess.CalledProcessError as e:
         print("Error executing requirements install command:", e)
         sys.exit(1)
-    command = [
+    command = prefixes+[
         f"{pyinstaller_path}",
         "main.py",
         "--noconsole",
@@ -73,6 +76,10 @@ if __name__ == "__main__":
         SCRIPT_NAME,
         "--collect-all",
         "uvicorn",
+        "--collect-all",
+        "duckdb",
+        "--collect-all",
+        "duckdb-engine",
         "--noconfirm",
         "--clean",
         "--additional-hooks-dir",
@@ -80,7 +87,6 @@ if __name__ == "__main__":
     ]
 
     try:
-        # Execute the command
         subprocess.check_call(command, cwd=root)
     except subprocess.CalledProcessError as e:
         print("Error executing pyinstaller command:", e)
@@ -88,7 +94,7 @@ if __name__ == "__main__":
 
     # Move the executable to the root directory
     # Create the destination folder if it doesn't exist
-    destination_folder = base / "frontend" / "src" / "background"
+    destination_folder = base / "frontend" / "public"
     os.makedirs(destination_folder, exist_ok=True)
     pyinstaller_output_file = root / "dist" / final_file
     # Copy the PyInstaller output file to the destination folder

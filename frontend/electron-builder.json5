@@ -5,6 +5,8 @@
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "appId": "com.electron.trilogy-studio",
   "asar": true,
+  "buildDependenciesFromSource": true,
+  "npmRebuild": true,
   "directories": {
     "output": "release/${version}"
   },
@@ -36,6 +38,9 @@
     ],
     "category": "Development"
   },
+  "snap" : {
+      "base": "core22"
+    },
   "nsis": {
     "oneClick": false,
     "perMachine": false,

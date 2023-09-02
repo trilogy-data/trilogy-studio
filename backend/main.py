@@ -48,7 +48,7 @@ from preql.core.models import (
 from sqlalchemy import create_engine
 from backend.io_models import ListModelResponse, Model, UIConcept
 from backend.models.helpers import flatten_lineage
-
+from duckdb_engine import * #this is for pyinstaller
 PORT = 5678
 
 STATEMENT_LIMIT = 100
