@@ -147,7 +147,7 @@ router = APIRouter()
 class ConnectionInSchema(BaseModel):
     name: str
     dialect: Dialects
-    extra: Dict | None = Field(default_factory = dict)
+    extra: Dict | None = Field(default_factory=dict)
     model: str | None
 
 
@@ -249,9 +249,23 @@ async def create_connection(connection: ConnectionInSchema):
     else:
         environment = Environment()
     if connection.dialect == Dialects.BIGQUERY:
-        if os.path.isfile("/run/secrets/bigquery_auth"):
+
+
+        if connection.extra.get("user_or_service_auth_json"):
+            import json
+            from google.auth._default import load_credentials_from_dict
+            credentials, project = load_credentials_from_dict(
+                json.loads(connection.extra["user_or_service_auth_json"])
+            )
+        elif os.path.isfile("/run/secrets/bigquery_auth"):
             credentials = service_account.Credentials.from_service_account_file(
                 "/run/secrets/bigquery_auth",
+                scopes=["https://www.googleapis.com/auth/cloud-platform"],
+            )
+            project = credentials.project_id
+        elif "GOOGLE_APPLICATION_CREDENTIALS" in os.environ:
+            credentials = service_account.Credentials.from_service_account_file(
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"],
                 scopes=["https://www.googleapis.com/auth/cloud-platform"],
             )
             project = credentials.project_id
