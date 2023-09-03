@@ -64,16 +64,16 @@ const actions = {
         commit('setConnectionInactive', connection)
     },
     async addConnection({ commit }, data) {
-        instance.post('/connection', { name: data.name, dialect: data.type, model: data.model }).then(() => {
-            const connection = new Connection(data.name, data.type, true, data.model)
+        return instance.post('/connection', { name: data.name, dialect: data.type, model: data.model, extra: data.extra }).then(() => {
+            const connection = new Connection(data.name, data.type, true, data.model, data.extra)
             commit('addConnection', connection)
         })
 
     },
     async editConnection({ commit }, data) {
         console.log(data.model)
-        instance.put('/connection', { name: data.name, dialect: data.type, model: data.model }).then(() => {
-            const connection = new Connection(data.name, data.type, true, data.model)
+        return instance.put('/connection', { name: data.name, dialect: data.type, model: data.model, extra: data.extra }).then(() => {
+            const connection = new Connection(data.name, data.type, true, data.model, data.extra)
             commit('editConnection', connection)
         })
     },

@@ -7,17 +7,18 @@ const parentDir = path.resolve(__dirname, '..')
 const pythonScript = path.join(parentDir, 'backend/build.py');
 // const pythonScript = '../backend/src/build.py';
 
+const venvPath = path.join(parentDir, '.venv/bin/python');
+require('dotenv').config();
 // this is set in CI
+// but if you have a pyenv set will override
 const pythonPath = process.env.pythonLocation;
-const pyInstallerCommand = `${pythonPath}/python ${pythonScript}`;
+const pyInstallerCommand = pythonPath ? `${pythonPath}/python ${pythonScript}` : `${venvPath} ${pythonScript}`;
 
-
-
-exec(pyInstallerCommand, (error, stdout, stderr) => {
+exec(pyInstallerCommand, {env: {'pyenv': process.env.pyenv, 'pythonLocation': process.env.pythonLocation}}, (error, stdout, stderr) => {
   if (error) {
     console.error(`Error: ${error}`);
     console.error(`PyInstaller Errors:\n${stderr}`);
-    return;
+    throw error;
   }
   console.error(`PyInstaller Errors:\n${stderr}`);
   console.log(`PyInstaller Output:\n${stdout}`);

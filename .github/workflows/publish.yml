@@ -4,18 +4,18 @@ on:
   push:
     branches:
       - main
-      - ci-fixes
     # tags:
     #   - "v*"
 jobs:
 
   release:
     runs-on: ${{ matrix.os }}
-
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.snapcraft_token }}
     strategy:
       matrix:
-        os: [windows-latest]
-        # os: [ubuntu-20.04, windows-latest]
+        # os: [ubuntu-22.04]
+        os: [ubuntu-22.04, windows-latest]
 
     steps:
       - uses: actions/checkout@v3
@@ -33,7 +33,7 @@ jobs:
         uses: samuelmeuli/action-snapcraft@v2
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          skip_install: ${{ matrix.os == 'ubuntu-arm64' }}
+          snapcraft_token: ${{ secrets.snapcraft_token }}
       - name: Build and Publish
         uses: samuelmeuli/action-electron-builder@v1
         with:

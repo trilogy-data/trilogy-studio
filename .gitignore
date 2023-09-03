@@ -13,6 +13,7 @@ dist-ssr
 dist-electron
 release
 *.local
+.env
 
 # Editor directories and files
 .vscode/*
@@ -25,6 +26,8 @@ release
 *.njsproj
 *.sln
 *.sw?
+*.pyc
+.ruff_cache
 
 # python
 *.pyc
@@ -34,3 +37,5 @@ config.xlaunch
 __pycache__
 demo_data
 
+backend/build
+backend/dist

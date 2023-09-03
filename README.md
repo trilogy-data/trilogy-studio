@@ -1,10 +1,8 @@
 
 
-## PreQL Studio
+## Trilogy/PreQL Studio
 
-Multi-platform IDE for PreQL language.
-
-Develop and query in PreQL or SQL in a modern, expressive editor.
+The Trilogy desktop editor. Develop and query in PreQL or SQL languages in a modern, expressive editor.
 
 ![UI Preview](https://github.com/preqldata/preql-studio/blob/main/media/ui-example.png)
 
@@ -18,12 +16,17 @@ Supported backends.
 
 ## Installation
 
+### Windows
+
 Download latest release from the [releases page](https://github.com/preqldata/preql-studio/releases).
 
-Currently support platforms.
+Install the .exe. Windows will warn against running the file, so you'll have to bypass the popup.
 
-- Windows
+### Linux
 
+Installed from [snapcraft](https://snapcraft.io/). 
+
+`snap install trilogy-studio`
 
 ## Development
 
