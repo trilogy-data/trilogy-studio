@@ -58,7 +58,7 @@ def load_pyinstaller_trilogy_files() -> None:
     # If the application is run as a bundle, the PyInstaller bootloader
     # extends the sys module by a flag frozen=True and sets the app
     # path into variable _MEIPASS'.
-    application_path = Path(sys._MEIPASS)
+    application_path = Path(sys._MEIPASS) # type: ignore
     search_path = application_path / "trilogy_public_models"
 
     test = Path(search_path)
@@ -147,7 +147,7 @@ router = APIRouter()
 class ConnectionInSchema(BaseModel):
     name: str
     dialect: Dialects
-    extra: Dict | None = Field(default_factory=dict)
+    extra: Dict = Field(default_factory=dict)
     model: str | None
 
 
