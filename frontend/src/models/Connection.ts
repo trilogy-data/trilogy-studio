@@ -23,7 +23,7 @@ export class Connection implements ConnectionInterface {
     }
     
     // @ts-ignore
-    static fromJSON({ name, type, active, model }) {
-        return new Connection(name, type, false, model)
+    static fromJSON({ name, type, active, model, extra }) {
+        return new Connection(name, type, false, model, extra)
     }
 }

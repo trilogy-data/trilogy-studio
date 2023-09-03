@@ -259,6 +259,11 @@ async def create_connection(connection: ConnectionInSchema):
             credentials, project = default()
 
         project = connection.extra.get("project", project)
+        if not project:
+            raise HTTPException(
+                status_code=400,
+                detail="BigQuery dialect requires a project to be specified in the extra field",
+            )
         client = bigquery.Client(credentials=credentials, project=project)
         engine = create_engine(
             f"bigquery://{project}/test_tables?user_supplied_client=True",

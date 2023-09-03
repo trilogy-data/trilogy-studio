@@ -56,6 +56,7 @@
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
+import {getConnectionExtras } from './utility';
 export default {
     name: "AddConnection",
     data() {
@@ -76,27 +77,7 @@ export default {
     computed: {
         ...mapGetters(['models', 'getModelByName']),
         extra() {
-            if (this.selectedType === 'bigquery') {
-                return ['project', 'dataset']
-            } else if (this.selectedType === 'sql_server') {
-                return [
-                    'host',
-                    'port',
-                    'database',
-                    'username',
-                    'password'
-                ]
-
-                // {
-                //     host: '',
-                //     port: '',
-                //     database: '',
-                //     username: '',
-                //     password: '',
-                // }
-            } else {
-                return []
-            }
+            return getConnectionExtras(this.selectedType)
         },
     },
     mounted: () => {
