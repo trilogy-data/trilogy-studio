@@ -58,7 +58,7 @@ def load_pyinstaller_trilogy_files() -> None:
     # If the application is run as a bundle, the PyInstaller bootloader
     # extends the sys module by a flag frozen=True and sets the app
     # path into variable _MEIPASS'.
-    application_path = Path(sys._MEIPASS) # type: ignore
+    application_path = Path(sys._MEIPASS)  # type: ignore
     search_path = application_path / "trilogy_public_models"
 
     test = Path(search_path)
@@ -249,11 +249,10 @@ async def create_connection(connection: ConnectionInSchema):
     else:
         environment = Environment()
     if connection.dialect == Dialects.BIGQUERY:
-
-
         if connection.extra.get("user_or_service_auth_json"):
             import json
             from google.auth._default import load_credentials_from_dict
+
             credentials, project = load_credentials_from_dict(
                 json.loads(connection.extra["user_or_service_auth_json"])
             )
