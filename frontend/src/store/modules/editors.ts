@@ -101,6 +101,9 @@ const actions = {
     async setActiveConnection({ commit }, data) {
         commit('setActiveConnection', data);
     },
+    async changeEditorModel({ commit }, data) {
+        commit('changeEditorModel', data);
+    },
     async saveEditors({ commit }, data) {
         commit('saveEditors', data)
     }

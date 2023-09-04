@@ -54,7 +54,8 @@ const actions = {
         instance.post('/connection', {
             name: connection.name,
             dialect: connection.type,
-            model: connection.model
+            model: connection.model,
+            extra: connection.extra
         }).then(() => {
             commit('setConnectionActive', connection)
         })
@@ -71,7 +72,6 @@ const actions = {
 
     },
     async editConnection({ commit }, data) {
-        console.log(data.model)
         return instance.put('/connection', { name: data.name, dialect: data.type, model: data.model, extra: data.extra }).then(() => {
             const connection = new Connection(data.name, data.type, true, data.model, data.extra)
             commit('editConnection', connection)
