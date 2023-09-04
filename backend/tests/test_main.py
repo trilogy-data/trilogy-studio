@@ -32,5 +32,4 @@ def test_read_models(test_client: TestClient):
         parsed = ConnectionInSchema.parse_obj(arg)
 
         response = test_client.post("/connection", data=parsed.json()) #type: ignore
-        print(response.text)
         assert response.status_code == 200
