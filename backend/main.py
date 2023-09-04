@@ -146,12 +146,20 @@ class InputRequest(BaseModel):
 ## Begin Endpoints
 router = APIRouter()
 
+class ModelSourceInSchema(BaseModel):
+    name:str
+    contents:str
+
+class ModelInSchema(BaseModel):
+    name:str
+    sources:List[ModelSourceInSchema]
 
 class ConnectionInSchema(BaseModel):
     name: str
     dialect: Dialects
     extra: Dict = Field(default_factory=dict)
     model: str | None
+    full_model: ModelInSchema | None
 
 
 class ConnectionListItem(BaseModel):
@@ -194,6 +202,12 @@ def safe_format_query(input: str) -> str:
         return input + ";"
     return input
 
+
+def parse_env_from_full_model(input: ModelInSchema) -> Environment:
+    env = Environment()
+    for source in input.sources:
+        env.parse(source.contents, source.name)
+    return env
 
 @router.get("/models", response_model=ListModelResponse)
 async def get_models() -> ListModelResponse:
@@ -244,7 +258,12 @@ async def update_connection(connection: ConnectionInSchema):
 
 @router.post("/connection")
 async def create_connection(connection: ConnectionInSchema):
-    if connection.model:
+    if connection.full_model:
+        try:
+            environment = parse_env_from_full_model(connection.full_model)
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=str(e))
+    elif connection.model:
         try:
             environment = deepcopy(public_models[connection.model])
         except KeyError:
