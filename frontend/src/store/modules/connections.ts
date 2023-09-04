@@ -7,6 +7,7 @@ import { Connection } from '/src/models/Connection'
 import { Model, LocalModel } from '/src/models/Model'
 import Store from 'electron-store'
 import instance from '/src/api/instance'
+import NewConnectionPopupVue from '/src/components/sidebar/connections/NewConnectionPopup.vue';
 
 const store = new Store<Record<string, Object>>({
     name: 'connections',
@@ -50,6 +51,25 @@ const getters = {
     }
 };
 
+function getConnectionArgument(rootGetters, data) {
+    let modelArgs = {
+        model: data.model,
+        full_model: null
+    } as { model: any; full_model: any; }
+    let model = rootGetters.getModelByName(data.model)
+    if (model instanceof LocalModel) {
+        modelArgs = {
+            model: data.model,
+            full_model: { name: data.model, sources: [] }
+        }
+    }
+    return {
+        type: data.type,
+        name: data.name, dialect: data.type, extra: data.extra, ...modelArgs
+        //let session = context.rootState.instance.session;
+    }
+}
+
 const actions = {
     async connectConnection({ commit }, connection) {
         instance.post('/connection', {
@@ -66,33 +86,20 @@ const actions = {
         commit('setConnectionInactive', connection)
     },
     async addConnection({ commit, rootGetters }, data) {
-        let modelArgs = {
-            model: data.model,
-            full_model: null
-        } as { model: any; full_model: any; }
-        let model = rootGetters.get_module(data.model)
-        if (model instanceof LocalModel) {
-            modelArgs = {
-                model: null,
-                full_model: { name: data.model, sources: [] }
-            }
-        }
-        else
-            return instance.post('/connection', {
-                name: data.name, dialect: data.type, extra: data.extra, ...modelArgs
-                //let session = context.rootState.instance.session;
-            }).then(() => {
-                const connection = new Connection(data.name, data.type, true, data.model, data.extra)
-                commit('addConnection', connection)
-            })
+        const apiArgs = getConnectionArgument(rootGetters, data)
+        return instance.post('/connection', apiArgs).then(() => {
+            const connection = new Connection(apiArgs.name, apiArgs.type,
+                true, apiArgs.model, apiArgs.extra)
+            commit('addConnection', connection)
+        })
 
     },
-    async editConnection({ commit }, data) {
-        return instance.put('/connection', {
-            name: data.name, dialect: data.type,
-            model: data.model, extra: data.extra
-        }).then(() => {
-            const connection = new Connection(data.name, data.type, true, data.model, data.extra)
+    async editConnection({ commit, rootGetters }, data) {
+        const apiArgs = getConnectionArgument(rootGetters, data)
+        return instance.put('/connection', apiArgs).then(() => {
+            const connection = new Connection(apiArgs.name, apiArgs.type,
+                true, apiArgs.model, apiArgs.extra)
+            console.log(connection)
             commit('editConnection', connection)
         })
     },
