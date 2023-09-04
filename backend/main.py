@@ -17,21 +17,24 @@ from datetime import datetime
 from typing import Optional, Dict, List, Tuple
 
 import uvicorn
-from fastapi import APIRouter, FastAPI, HTTPException, Response
+from uvicorn.config import LOGGING_CONFIG
+
+from fastapi import APIRouter, FastAPI, HTTPException, Response, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
 from google.auth import default
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from preql.constants import DEFAULT_NAMESPACE
 from preql.core.enums import DataType, Purpose
 from preql import Environment, Executor, Dialects
+from preql.core.models import Concept
 from preql.parser import parse_text
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from trilogy_public_models import models as public_models
-from uvicorn.config import LOGGING_CONFIG
 from trilogy_public_models.inventory import parse_initial_models
 
 from sqlalchemy import create_engine
@@ -204,7 +207,9 @@ async def get_models() -> ListModelResponse:
                 continue
             final_concepts.append(
                 UIConcept(
-                    name=sconcept.name,
+                    name=sconcept.name.split('.')[-1]
+                    if sconcept.namespace == DEFAULT_NAMESPACE
+                    else sconcept.name,
                     datatype=sconcept.datatype,
                     purpose=sconcept.purpose,
                     description=sconcept.metadata.description
@@ -347,7 +352,7 @@ async def run_query(query: QueryInSchema):
     # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
     if not executor:
-        raise HTTPException(403, "Not a valid connection")
+        raise HTTPException(403, "Not a valid live connection. Refresh connection, then retry.")
 
     outputs = []
     # parsing errors or generation
@@ -440,21 +445,25 @@ async def exit_app():
         except Exception:
             print(f"Task kill failed: {_get_last_exc()}")
             pass
-    asyncio.gather(asyncio.all_tasks())
+    asyncio.gather(*asyncio.all_tasks())
     loop = asyncio.get_running_loop()
     loop.stop()
 
 
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request, exc):
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc:HTTPException):
+    '''Overdrive the default exception handler to allow for graceful shutdowns'''
     if exc.status_code == 503:
+        # here is where we terminate all running processes
         task = BackgroundTask(exit_app)
         return PlainTextResponse(
             "Server is shutting down", status_code=exc.status_code, background=task
         )
-    return Response(
-        status_code=exc.status_code, headers=exc.headers, content=exc.detail
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=jsonable_encoder({"detail": exc.detail}),
     )
+
 
 
 app.include_router(router)

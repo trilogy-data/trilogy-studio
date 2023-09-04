@@ -78,7 +78,7 @@ export class Editor implements EditorInterface {
                     columnMap.set(key, value);
                 }
                 local.generated_sql = response.data.generated_sql;
-                local.results = new Results(response.data.results, columnMap); //response.data;
+                local.results = new Results(response.data.results, columnMap);
                 const endTime = new Date();
                 local.duration = endTime.getTime() - startTime.getTime();
                 local.executed = true;
@@ -139,9 +139,7 @@ export class RawEditor implements EditorInterface {
 
     async runQuery() {
         this.loading = true;
-        // this.info = 'Executing query...'
         this.error = null;
-        // let current_query = this.editorData.contents;
         this.executed = true;
         let local = this;
         const startTime = new Date();

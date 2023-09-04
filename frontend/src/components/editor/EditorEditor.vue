@@ -15,15 +15,15 @@ import { mapGetters, mapActions } from 'vuex';
 import editorMap from '/src/store/modules/monaco';
 import axiosHelpers from '/src/api/helpers.ts';
 import instance from '/src/api/instance';
-import { Editor } from '/src/models/Editor'
+import { Editor, RawEditor } from '/src/models/Editor'
 import * as monaco from 'monaco-editor';
 
 
 export default defineComponent({
-    name: 'EditorComponent',
+    name: 'EditorEditor',
     props: {
         editorData: {
-            type: Editor,
+            type: [Editor, RawEditor],
         }
     },
     data() {
@@ -90,7 +90,7 @@ export default defineComponent({
                 self.generatingPrompt = false;
             })
         },
-        async submit() {
+        async submit(retry = false) {
             // this.loading = true;
             this.info = 'Executing query...'
             // this.error = null;
@@ -103,18 +103,17 @@ export default defineComponent({
             if (!this.connection.active) {
                 await this.connectConnection(this.connection)
             }
-            try {
-                await this.editorData.runQuery();
-            }
-
-            catch (error) {
-                if (this.editorData.status_code === 403) {
-                    console.log('setting connection inactive')
-                    this.setConnectionInactive({ name: this.connection })
+            await this.editorData.runQuery();
+            
+            // TODO: move this into query execution in editor?
+            if (this.editorData.status_code === 403) {
+                await this.setConnectionInactive({ name: this.editorData.connection })
+                // automatically retry
+                if (!retry) {
+                    await this.submit(true)
                 }
-                throw error
+                
             }
-            // result code handling
 
 
             this.last_passed_query_text = current_query;

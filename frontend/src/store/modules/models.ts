@@ -1,5 +1,5 @@
 
-import { Model } from '/src/models/Model'
+import { Model, LocalModel } from '/src/models/Model'
 import Store from 'electron-store'
 import instance from '/src/api/instance'
 
@@ -13,7 +13,7 @@ const store = new Store<Record<string, Object>>({
 
 
 const storageAPI = {
-  setConnections(value: Array<Model>) {
+  setModels(value: Array<Model>) {
     // const buffer = safeStorage.encryptString(value);
     store.set(storageName, value);
     // store.set(key, buffer.toString(encoding));
@@ -22,9 +22,11 @@ const storageAPI = {
 
   getModels(): Array<Model> {
     const data = store.get(storageName, []) as Array<any>
+    console.log(data)
     const parsed = data.map(dict => {
-      return Model.fromJSON(dict)
+      return LocalModel.fromJSON(dict)
     });
+    console.log(parsed)
     return parsed
   },
 };
@@ -38,7 +40,7 @@ const getters = {
   models: state => state.localModels.concat(state.communityModels),
   getModelByName: (_, getters) => (name) => {
     return getters.models.find(todo => todo.name === name)
-  }
+  },
 };
 
 const actions = {
@@ -47,18 +49,25 @@ const actions = {
     const parsed = data.models.map(dict => {
       return Model.fromJSON(dict)
     });
-    console.log(parsed)
     commit('setCommunityModels', parsed);
   },
+  async addNewModel({ commit }, data) {
+    commit('addNewModel', data);
+  }
 };
 
 
 const mutations = {
-  setModels(state, models) {
-    state.models = models;
-  },
+  // setModels(state, models) {
+  //   state.models = models;
+  // },
   setCommunityModels(state, models) {
     state.communityModels = models;
+  },
+  addNewModel(state, data) {
+    state.localModels.push(new LocalModel(data.name, [], []))
+    storageAPI.setModels(state.localModels)
+    console.log(state.localModels)
   }
 };
 

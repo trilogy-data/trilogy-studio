@@ -6,38 +6,40 @@
         <div v-else class="header">
             No active model
         </div>
+        <v-select theme="dark" variant="solo" density="compact" 
+        v-model="selectedModel" label="Change Connection Model"
+            :items="models" item-title="name" @update:modelValue="changeConnectionModel">
+        </v-select>
 
         <div class="connection-list py-0">
             <v-expansion-panels theme="dark" variant="accordion">
-                <v-expansion-panel class="py-0" >
-                <v-expansion-panel-title>
-                    <div class="pl-4">Concepts </div>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text class="px-0 py-0">
-                    <ModelConceptList v-if="activeModelFromConnection" class="px-0"
-                         :model="activeModelFromConnection.name"
-
-                        :editor="activeEditor.name" :height="sidebarHeight - 260" />
-                    <div class="connection-list-item" v-else>No active model</div>
-                </v-expansion-panel-text>
+                <v-expansion-panel class="py-0">
+                    <v-expansion-panel-title>
+                        <div class="pl-4">Concepts </div>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text class="px-0 py-0">
+                        <ModelConceptList v-if="activeModelFromConnection" class="px-0"
+                            :model="activeModelFromConnection.name" :editor="activeEditor.name"
+                            :height="sidebarHeight - 260" />
+                        <div class="connection-list-item" v-else>No active model</div>
+                    </v-expansion-panel-text>
                 </v-expansion-panel>
-                <v-expansion-panel >
-                <v-expansion-panel-title>
-                    <div class="pl-4">Datasources</div>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text class="px-0">
-                    <ModelConceptList v-if="activeModelFromConnection" class="px-0"
-                         :model="activeModelFromConnection.name"
-                        :editor="activeEditor.name" :height="sidebarHeight - 260" />
-                    <div class="connection-list-item" v-else>No active model</div>
-                </v-expansion-panel-text>
+                <v-expansion-panel>
+                    <v-expansion-panel-title>
+                        <div class="pl-4">Datasources</div>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text class="px-0">
+                        <ModelConceptList v-if="activeModelFromConnection" class="px-0"
+                            :model="activeModelFromConnection.name" :editor="activeEditor.name"
+                            :height="sidebarHeight - 260" />
+                        <div class="connection-list-item" v-else>No active model</div>
+                    </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
         </div>
 
         <div class="footer">
-            <!-- <NewConnectionPopup /> -->
-            <!-- <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" block>Add Connection</v-btn> -->
+            <NewModelPopup />
         </div>
     </div>
 </template>
@@ -107,18 +109,23 @@
 </style>
 <script lang="ts">
 import ModelConceptList from '/src/components/sidebar/model/ModelConceptList.vue'
+import NewModelPopup from './model/NewModelPopup.vue';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ModelManager",
     components: {
-        ModelConceptList
+        ModelConceptList,
+        NewModelPopup
     },
     data() {
+
         return {
+            selectedModel: null
         };
     },
     computed: {
-        ...mapGetters(['models', 'getConnectionByName', 'activeEditor', 'sidebarHeight']),
+        ...mapGetters(['models', 'getConnectionByName', 'activeEditor', 'sidebarHeight',]),
+
         activeConnection() {
             return this.getConnectionByName(this.activeEditor.connection)
         },
@@ -131,7 +138,22 @@ export default {
         }
     },
     methods: {
-        ...mapActions([]),
+        ...mapActions(['editConnection']),
+        changeConnectionModel(model) {
+            const args = {
+                name: this.activeConnection.name,
+                type: this.activeConnection.type,
+                model: model,
+                extra: this.activeConnection.extra,
+            }
+            console.log(args)
+            this.editConnection({
+                name: this.activeConnection.name,
+                type: this.activeConnection.type,
+                model: model,
+                extra: this.activeConnection.extra,
+            })
+        },
     },
 };
 </script>
