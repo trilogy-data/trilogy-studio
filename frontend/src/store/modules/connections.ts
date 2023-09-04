@@ -4,6 +4,7 @@
 // import instance from '/src/api/instance'
 
 import { Connection } from '/src/models/Connection'
+import { Model, LocalModel } from '/src/models/Model'
 import Store from 'electron-store'
 import instance from '/src/api/instance'
 
@@ -64,15 +65,33 @@ const actions = {
     async setConnectionInactive({ commit }, connection) {
         commit('setConnectionInactive', connection)
     },
-    async addConnection({ commit }, data) {
-        return instance.post('/connection', { name: data.name, dialect: data.type, model: data.model, extra: data.extra }).then(() => {
-            const connection = new Connection(data.name, data.type, true, data.model, data.extra)
-            commit('addConnection', connection)
-        })
+    async addConnection({ commit, rootGetters }, data) {
+        let modelArgs = {
+            model: data.model,
+            full_model: null
+        } as { model: any; full_model: any; }
+        let model = rootGetters.get_module(data.model)
+        if (model instanceof LocalModel) {
+            modelArgs = {
+                model: null,
+                full_model: { name: data.model, sources: [] }
+            }
+        }
+        else
+            return instance.post('/connection', {
+                name: data.name, dialect: data.type, extra: data.extra, ...modelArgs
+                //let session = context.rootState.instance.session;
+            }).then(() => {
+                const connection = new Connection(data.name, data.type, true, data.model, data.extra)
+                commit('addConnection', connection)
+            })
 
     },
     async editConnection({ commit }, data) {
-        return instance.put('/connection', { name: data.name, dialect: data.type, model: data.model, extra: data.extra }).then(() => {
+        return instance.put('/connection', {
+            name: data.name, dialect: data.type,
+            model: data.model, extra: data.extra
+        }).then(() => {
             const connection = new Connection(data.name, data.type, true, data.model, data.extra)
             commit('editConnection', connection)
         })
@@ -93,7 +112,6 @@ const mutations = {
         state.connections[index].active = true
     },
     async setConnectionInactive(state, connection) {
-        console.log(connection)
         const index = state.connections.findIndex(c => c.name === connection.name)
         if (!index) {
             return
@@ -102,7 +120,6 @@ const mutations = {
     },
     async editConnection(state, connection) {
         const index = state.connections.findIndex(c => c.name === connection.name)
-        console.log(connection)
         state.connections[index] = connection
         storageAPI.setConnections(state.connections)
     },
