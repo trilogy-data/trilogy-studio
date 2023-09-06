@@ -6,14 +6,38 @@
         <div v-else class="header">
             No active model
         </div>
-        <v-select theme="dark" variant="solo" density="compact" 
-        v-model="selectedModel" label="Change Connection Model"
-            :items="models" item-title="name" @update:modelValue="changeConnectionModel">
+        <v-select theme="dark" variant="solo" density="compact" class="minimal-select" v-model="selectedModel"
+            label="Change Connection Model" :items="models" item-title="name" @update:modelValue="changeConnectionModel">
         </v-select>
 
         <div class="connection-list py-0">
             <v-expansion-panels theme="dark" variant="accordion">
                 <v-expansion-panel class="py-0">
+                    <v-expansion-panel-title>
+                        <div class="pl-4">Editor Sources</div>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text class="px-0">
+                        <template v-if="activeModelFromConnection">
+                            <v-list-item @click="setActiveEditor(editor.name)" v-for="editor in editors"
+                                class="editor-list">
+                                {{ editor.name }}
+                            </v-list-item>
+                        </template>
+                        <div class="connection-list-item" v-else>No active model</div>
+                        <div class="d-flex flex-column align-center  pa-0">
+                            <v-toolbar height="24" extension-height="24" class="sidebar-button-list">
+                                <AddEditorToModelPopup :model="activeModelFromConnection" />
+                                <!-- <v-btn icon="mdi-format-align-left"></v-btn>
+                                <v-btn density="compact" icon="mdi-format-align-center"></v-btn> -->
+                                <!-- <v-btn @click="removeConnection(connection)"  density="compact" icon="mdi-cancel"></v-btn>
+                                <EditConnectionPopup :connection="connection" />
+                                <RemoveConnectionPopup :connection="connection" />
+                                <NewEditorPopup :defaultConnection="connection.name" /> -->
+                            </v-toolbar>
+                        </div>
+                    </v-expansion-panel-text>
+                </v-expansion-panel>
+                <v-expansion-panel>
                     <v-expansion-panel-title>
                         <div class="pl-4">Concepts </div>
                     </v-expansion-panel-title>
@@ -29,10 +53,7 @@
                         <div class="pl-4">Datasources</div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text class="px-0">
-                        <ModelConceptList v-if="activeModelFromConnection" class="px-0"
-                            :model="activeModelFromConnection.name" :editor="activeEditor.name"
-                            :height="sidebarHeight - 260" />
-                        <div class="connection-list-item" v-else>No active model</div>
+                        <div class="connection-list-item">No datasources</div>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
@@ -51,6 +72,11 @@
     min-height: 30px;
     line-height: 30px;
 }
+
+/* .minimal-select {
+    font-size: 1.0rem;
+    height:50px;
+} */
 
 .footer {
     --height: 20px;
@@ -110,12 +136,14 @@
 <script lang="ts">
 import ModelConceptList from '/src/components/sidebar/model/ModelConceptList.vue'
 import NewModelPopup from './model/NewModelPopup.vue';
+import AddEditorToModelPopup from './model/AddEditorToModelPopup.vue';
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ModelManager",
     components: {
         ModelConceptList,
-        NewModelPopup
+        NewModelPopup,
+        AddEditorToModelPopup,
     },
     data() {
 
@@ -124,7 +152,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['models', 'getConnectionByName', 'activeEditor', 'sidebarHeight',]),
+        ...mapGetters(['models', 'editors', 'getConnectionByName', 'activeEditor', 'sidebarHeight',]),
 
         activeConnection() {
             return this.getConnectionByName(this.activeEditor.connection)
@@ -135,18 +163,20 @@ export default {
             }
             return this.models.find(todo => todo.name === this.activeConnection.model)
 
+        },
+        editors() {
+            console.log(this.activeModelFromConnection)
+            if (!this.activeModelFromConnection) {
+                return []
+            }
+            return this.activeModelFromConnection.sources.map((source) => {
+                return source.editor
+            })
         }
     },
     methods: {
-        ...mapActions(['editConnection']),
+        ...mapActions(['editConnection', 'setActiveEditor']),
         changeConnectionModel(model) {
-            const args = {
-                name: this.activeConnection.name,
-                type: this.activeConnection.type,
-                model: model,
-                extra: this.activeConnection.extra,
-            }
-            console.log(args)
             this.editConnection({
                 name: this.activeConnection.name,
                 type: this.activeConnection.type,

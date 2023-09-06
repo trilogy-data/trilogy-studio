@@ -39,3 +39,5 @@ demo_data
 
 backend/build
 backend/dist
+
+playwright-report
