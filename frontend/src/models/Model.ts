@@ -6,6 +6,8 @@ import { ModelSource } from './ModelSource';
 export interface ModelInterface {
     name: string;
     concepts: Array<ConceptInterface>
+    sources: Array<ModelSource>
+
 }
 
 
@@ -14,6 +16,7 @@ export interface ModelInterface {
 export class Model implements ModelInterface {
     name: string;
     concepts: Array<Concept>
+    sources: Array<ModelSource> = []
 
 
     constructor(name: string, concepts: Array<Concept>) {

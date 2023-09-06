@@ -21,7 +21,7 @@
                             {{ editor.name }}
                         </v-list-item>
                         <div class="d-flex flex-column align-center  pa-0">
-                            <v-toolbar height="24" extension-height="24" class="button-list">
+                            <v-toolbar height="24" extension-height="24" class="sidebar-button-list">
                                 <!-- <v-btn icon="mdi-format-align-left"></v-btn> -->
                                 <!-- <v-btn  density="compact"   icon="mdi-format-align-center"></v-btn> -->
                                 <!-- <v-btn @click="removeConnection(connection)"  density="compact" icon="mdi-cancel"></v-btn> -->
@@ -48,14 +48,7 @@
     font-size: .6rem;
 }
 
-.button-list {
-    display: 'flex';
-    width: '100%';
-    align-items: 'center';
-    text-align: 'center';
-    height: 24px;
 
-}
 
 .header {
     color: var(--text-lighter);
