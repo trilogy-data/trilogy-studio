@@ -8,7 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Configure Node caching
-        working-directory: ./frontend
         uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
