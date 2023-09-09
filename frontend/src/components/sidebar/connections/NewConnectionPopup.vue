@@ -8,31 +8,28 @@
             </v-btn>
         </template>
         <v-card theme="dark" class="mx-auto" min-width="344" title="Add Connection">
-            <v-form v-model="form">
+            <v-form v-model="form" @submit.prevent="submit">
                 <v-container>
-                    <v-form v-model="form">
-                        <v-text-field variant="solo" density="compact" :readonly="loading" :rules="[required]"
-                            v-model="name" label="Name">
-                        </v-text-field>
-                        <v-divider />
-                        <v-select variant="solo" density="compact" :readonly="loading" :rules="[required]"
-                            v-model="selectedType" label="Type" :items="connectionTypes">
-                        </v-select>
-                        <v-divider />
-                        <v-select variant="solo" density="compact" :readonly="loading" v-model="model" label="Model"
-                            :items="models" item-title="name">
-                        </v-select>
-                        <v-text-field v-for="field in extra" variant="solo" density="compact" :readonly="loading"
-                            v-model="extraValues[field]" :label="field">
-                        </v-text-field>
-
-                    </v-form>
+                    <v-text-field variant="solo" density="compact" :readonly="loading" :rules="[required]" v-model="name"
+                        label="Name">
+                    </v-text-field>
+                    <v-divider />
+                    <v-select variant="solo" density="compact" :readonly="loading" :rules="[required]"
+                        v-model="selectedType" label="Type" :items="connectionTypes">
+                    </v-select>
+                    <v-divider />
+                    <v-select variant="solo" density="compact" :readonly="loading" v-model="model" label="Model"
+                        :items="models" item-title="name">
+                    </v-select>
+                    <v-text-field v-for="field in extra" variant="solo" density="compact" :readonly="loading"
+                        v-model="extraValues[field]" :label="field">
+                    </v-text-field>
                 </v-container>
                 <v-divider></v-divider>
                 <v-alert class="mx-auto square-corners" color="warning" v-if="error">{{ error }}</v-alert>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn :disabled="!form" :loading="loading" color="success" @click="localAddConnection">
+                    <v-btn :disabled="!form" :loading="loading" color="success" type="submit">
                         Add
                         <v-icon icon="mdi-chevron-right" end></v-icon>
                     </v-btn>
@@ -56,7 +53,7 @@
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
-import {getConnectionExtras } from './utility';
+import { getConnectionExtras } from './utility';
 export default {
     name: "AddConnection",
     data() {
@@ -88,8 +85,10 @@ export default {
         showPopup() {
             this.dialog = true;
         },
+        submit() {
+            this.localAddConnection();
+        },
         localAddConnection() {
-            console.log(this.extraValues)
             this.addConnection({
                 name: this.name,
                 type: this.selectedType,
@@ -97,6 +96,7 @@ export default {
                 extra: this.extraValues,
             }).then(() => {
                 this.dialog = false;
+                this.error = false;
                 this.name = '';
             }).catch((e) => {
                 this.error = e.message;

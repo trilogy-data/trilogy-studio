@@ -24,13 +24,13 @@ import QueryResult from './QueryResult.vue';
 import HintsComponent from './HintsComponent.vue';
 import ErrorComponent from './ErrorComponent.vue';
 import EditorFooter from './EditorFooter.vue';
-import { Editor } from '/src/models/Editor'
+import { Editor, RawEditor } from '/src/models/Editor'
 
 export default defineComponent({
-    name: 'EditorComponent',
+    name: 'EditorResults',
     props: {
         editorData: {
-            type: Editor,
+            type: [Editor, RawEditor],
             required: true,
         }
     },

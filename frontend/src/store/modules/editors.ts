@@ -5,6 +5,7 @@
 
 import { Editor, RawEditor } from '/src/models/Editor'
 import Store from 'electron-store'
+import axiosHelpers from '/src/api/helpers';
 
 function findMatchingValue(arr, condition) {
     const foundElement = arr.find(element => condition(element));
@@ -65,6 +66,9 @@ const state = {
 
 const getters = {
     editors: state => state.editors,
+    getEditorByName: (state) => (name) => {
+        return state.editors.find(conn => conn.name === name)
+    },
     activeEditor: state => findMatchingValue(state.editors, (editor) => editor.name === state.activeEditor),
 };
 
@@ -72,34 +76,53 @@ const actions = {
     async setEditorError({ commit }, data) {
         commit('setEditorError', data)
     },
-    async saveEditorText({ commit }, data) {
+    async saveEditorText({ commit, dispatch }, data) {
         commit('saveEditorText', data)
+        return dispatch('updateConnectionSourceText', { name: data.connection },
+            { root: true }).then(() => {
+                dispatch('setEditorError', { name: data.name, error: null })
+            }).catch((e) => {
+                dispatch('setEditorError', { name: data.name, error: axiosHelpers.getErrorMessage(e) })
+            })
     },
-    async setActiveEditor({ commit }, data) {
+    async setActiveEditor({ commit, rootGetters }, data) {
         if (data) {
             commit('setActiveEditor', data);
+        }
+        else {
+            const editor = rootGetters.editors[0]
+            if (editor) { commit('setActiveEditor', editor.name); }
+
         }
 
     },
     async addMonacoEditor({ commit }, data) {
-        console.log('adding monaco editor')
         commit('addMonacoEditor', data)
     },
-    async newEditor({ commit }, data) {
+    async newEditor({ commit, rootGetters }, data) {
+        const existing = rootGetters.getEditorByName(data.name)
+        if (existing) {
+            throw Error(`Editor with the name ${data.name} already exists!`)
+        }
         commit('newEditor', data);
         commit('saveEditors', data)
     },
     async removeEditor({ commit }, data) {
         commit('removeEditor', data)
+
         commit('saveEditors', data)
     },
     // unique from remove in case we want to prompt for save here 
-    async closeEditor({ commit }, data) {
+    async closeEditor({ commit, dispatch }, data) {
         commit('removeEditor', data)
+        dispatch('setActiveEditor', null)
         commit('saveEditors', data)
     },
     async setActiveConnection({ commit }, data) {
         commit('setActiveConnection', data);
+    },
+    async changeEditorModel({ commit }, data) {
+        commit('changeEditorModel', data);
     },
     async saveEditors({ commit }, data) {
         commit('saveEditors', data)

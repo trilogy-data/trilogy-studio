@@ -17,9 +17,12 @@ from datetime import datetime
 from typing import Optional, Dict, List, Tuple
 
 import uvicorn
-from fastapi import APIRouter, FastAPI, HTTPException, Response
+from uvicorn.config import LOGGING_CONFIG
+
+from fastapi import APIRouter, FastAPI, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
 from google.auth import default
 from google.cloud import bigquery
 from google.oauth2 import service_account
@@ -29,9 +32,7 @@ from preql import Environment, Executor, Dialects
 from preql.parser import parse_text
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
-from starlette.exceptions import HTTPException as StarletteHTTPException
 from trilogy_public_models import models as public_models
-from uvicorn.config import LOGGING_CONFIG
 from trilogy_public_models.inventory import parse_initial_models
 
 from sqlalchemy import create_engine
@@ -144,11 +145,22 @@ class InputRequest(BaseModel):
 router = APIRouter()
 
 
+class ModelSourceInSchema(BaseModel):
+    alias: str
+    contents: str
+
+
+class ModelInSchema(BaseModel):
+    name: str
+    sources: List[ModelSourceInSchema]
+
+
 class ConnectionInSchema(BaseModel):
     name: str
     dialect: Dialects
-    extra: Dict = Field(default_factory=dict)
-    model: str | None
+    extra: Dict | None = Field(default_factory=dict)
+    model: str | None = None
+    full_model: ModelInSchema | None = None
 
 
 class ConnectionListItem(BaseModel):
@@ -192,6 +204,16 @@ def safe_format_query(input: str) -> str:
     return input
 
 
+def parse_env_from_full_model(input: ModelInSchema) -> Environment:
+    env = Environment()
+    for source in input.sources:
+        if source.alias:
+            env.parse(source.contents, namespace = source.alias)
+        else:
+            env.parse(source.contents)
+    return env
+
+
 @router.get("/models", response_model=ListModelResponse)
 async def get_models() -> ListModelResponse:
     models = []
@@ -204,7 +226,9 @@ async def get_models() -> ListModelResponse:
                 continue
             final_concepts.append(
                 UIConcept(
-                    name=sconcept.name,
+                    name=sconcept.name.split(".")[-1]
+                    if sconcept.namespace == DEFAULT_NAMESPACE
+                    else sconcept.name,
                     datatype=sconcept.datatype,
                     purpose=sconcept.purpose,
                     description=sconcept.metadata.description
@@ -239,17 +263,20 @@ async def update_connection(connection: ConnectionInSchema):
 
 @router.post("/connection")
 async def create_connection(connection: ConnectionInSchema):
-    if connection.model:
+    if connection.full_model is not None:
+        try:
+            environment = parse_env_from_full_model(connection.full_model)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    elif connection.model:
         try:
             environment = deepcopy(public_models[connection.model])
         except KeyError:
-            raise HTTPException(
-                status_code=404, detail=f"Model {connection.model} not found."
-            )
+            environment = Environment()
     else:
         environment = Environment()
     if connection.dialect == Dialects.BIGQUERY:
-        if connection.extra.get("user_or_service_auth_json"):
+        if connection.extra and connection.extra.get("user_or_service_auth_json"):
             import json
             from google.auth._default import load_credentials_from_dict
 
@@ -270,8 +297,8 @@ async def create_connection(connection: ConnectionInSchema):
             project = credentials.project_id
         else:
             credentials, project = default()
-
-        project = connection.extra.get("project", project)
+        if connection.extra:
+            project = connection.extra.get("project", project)
         if not project:
             raise HTTPException(
                 status_code=400,
@@ -347,7 +374,9 @@ async def run_query(query: QueryInSchema):
     # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
     if not executor:
-        raise HTTPException(403, "Not a valid connection")
+        raise HTTPException(
+            403, "Not a valid live connection. Refresh connection, then retry."
+        )
 
     outputs = []
     # parsing errors or generation
@@ -440,20 +469,23 @@ async def exit_app():
         except Exception:
             print(f"Task kill failed: {_get_last_exc()}")
             pass
-    asyncio.gather(asyncio.all_tasks())
+    asyncio.gather(*asyncio.all_tasks())
     loop = asyncio.get_running_loop()
     loop.stop()
 
 
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request, exc):
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc: HTTPException):
+    """Overdrive the default exception handler to allow for graceful shutdowns"""
     if exc.status_code == 503:
+        # here is where we terminate all running processes
         task = BackgroundTask(exit_app)
         return PlainTextResponse(
             "Server is shutting down", status_code=exc.status_code, background=task
         )
-    return Response(
-        status_code=exc.status_code, headers=exc.headers, content=exc.detail
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=jsonable_encoder({"detail": exc.detail}),
     )
 
 

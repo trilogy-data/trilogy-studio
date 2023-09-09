@@ -74,17 +74,17 @@ export default {
         },
     },
     watch: {
-        // active() {
-        //     if (!this.tabulator) return;
-        //     if (this.active) {
-        //         this.tabulator.restoreRedraw()
-        //         this.$nextTick(() => {
-        //             this.tabulator.redraw()
-        //         })
-        //     } else {
-        //         this.tabulator.blockRedraw()
-        //     }
-        // },
+        active() {
+            if (!this.tabulator) return;
+            if (this.active) {
+                this.tabulator.restoreRedraw()
+                this.$nextTick(() => {
+                    this.tabulator.redraw()
+                })
+            } else {
+                this.tabulator.blockRedraw()
+            }
+        },
         tableData: {
             handler() {
                 if (!this.tabulator) return;

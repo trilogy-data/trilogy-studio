@@ -4,9 +4,6 @@ import Store from 'electron-store';
 import Os from 'os'
 import http from 'http';
 import { exec, execFile } from 'child_process';
-// const http = require('http');
-// const { exec } = require('child_process');
-// const { spawn } = require('child_process');
 
 
 /**
@@ -86,7 +83,6 @@ function findProcessesByName(processName): Promise<object[]> {
 
     exec(cmd, (error, stdout,) => {
       if (error) {
-        console.log(error)
         if ((platform === 'darwin' || platform === 'linux') && error.code === 1 && !error.killed) {
           resolve([]);
         }
@@ -258,5 +254,6 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.whenReady().then(startBackgroundServiceSafe).then(createWindow)
-// app.whenReady().then(createWindow)
+app.isPackaged ? app.whenReady().then(startBackgroundServiceSafe).then(createWindow) : app.whenReady().then(createWindow)
+// app.whenReady().then(startBackgroundServiceSafe).then(createWindow)
+// 

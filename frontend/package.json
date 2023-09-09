@@ -14,10 +14,12 @@
   "scripts": {
     "dev": "vite",
     "build_debug": "vue-tsc && vite build",
-    "build": "vue-tsc && vite build && node build-backend.js",
+    "build": "node build-backend.js && vue-tsc && vite build",
     "preview": "vite preview",
     "debug_bg": "node test-bg.js",
-    "dist_linux": "vue-tsc && vite build && node build-backend.js && electron-builder --linux snap"
+    "dist_linux": "vue-tsc && vite build && node build-backend.js && electron-builder --linux snap",
+    "dist_windows": "vue-tsc && vite build && node build-backend.js && electron-builder --win",
+    "test": "playwright test"
   },
   "dependencies": {
     "axios": "^1.4.0",
@@ -38,9 +40,10 @@
   },
   "devDependencies": {
     "@mdi/font": "^7.2.96",
+    "@playwright/test": "^1.37.1",
+    "@vitejs/plugin-vue": "^4.1.0",
     "electron": "^26.1.0",
     "electron-builder": "^24.6.4",
-    "@vitejs/plugin-vue": "^4.1.0",
     "sass": "^1.66.1",
     "sass-loader": "^13.3.2",
     "typescript": "^5.0.2",

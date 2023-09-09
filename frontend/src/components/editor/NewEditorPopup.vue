@@ -46,12 +46,7 @@
     border-radius: 0 !important;
 }
 
-.tab-btn {
-    /* height: 30px; */
-    text-transform: none;
-    color: var(--text-lighter);
-    background-color: var(--main-bg-color);
-}
+
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
@@ -103,9 +98,11 @@ export default {
                 connection: fullConnection,
                 syntax: this.selectedType,
             }).then(() => {
+                this.setActiveEditor(this.name).then(()=> {
                 this.dialog = false;
                 this.name = '';
-                this.setActiveEdtor(this.name)
+                })
+
             }).catch((e) => {
                 this.error = e.message;
             });

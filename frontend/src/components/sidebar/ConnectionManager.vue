@@ -21,13 +21,14 @@
                             {{ editor.name }}
                         </v-list-item>
                         <div class="d-flex flex-column align-center  pa-0">
-                            <v-toolbar height="24" extension-height="24" class="button-list">
+                            <v-toolbar height="24" extension-height="24" class="sidebar-button-list">
                                 <!-- <v-btn icon="mdi-format-align-left"></v-btn> -->
                                 <!-- <v-btn  density="compact"   icon="mdi-format-align-center"></v-btn> -->
                                 <!-- <v-btn @click="removeConnection(connection)"  density="compact" icon="mdi-cancel"></v-btn> -->
                                 <EditConnectionPopup :connection="connection" />
                                 <RemoveConnectionPopup :connection="connection" />
                                 <NewEditorPopup :defaultConnection="connection.name" />
+                                <v-btn @click="_ => refresh(connection)" icon="mdi-refresh" class="tab-btn pa-0 ba-0 " density="compact" block></v-btn>
                             </v-toolbar>
 
                         </div>
@@ -46,15 +47,6 @@
 .opacity-light {
     opacity: 0.6;
     font-size: .6rem;
-}
-
-.button-list {
-    display: 'flex';
-    width: '100%';
-    align-items: 'center';
-    text-align: 'center';
-    height: 24px;
-
 }
 
 .header {
@@ -98,7 +90,6 @@
     background-color: var(--light-bg-color-2);
 
 }
-
 .connection-list-item {
     height: 10px;
     font-size: 80%;
@@ -128,6 +119,7 @@ import NewConnectionPopup from '/src/components/sidebar/connections/NewConnectio
 import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
 import RemoveConnectionPopup from '/src/components/sidebar/connections/RemoveConnectionPopup.vue'
 import EditConnectionPopup from '/src/components/sidebar/connections/EditConnectionPopup.vue'
+import {Connection} from '/src/models/Connection'
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ConnectionManager",
@@ -155,7 +147,16 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setActiveEditor', 'loadConnections', 'removeConnection']),
+        ...mapActions(['setActiveEditor', 'loadConnections', 'removeConnection', 'editConnection']),
+        refresh(connection:Connection) {
+            this.editConnection({
+                name: connection.name,
+                type: connection.type,
+                model: connection.model,
+                extra: connection.extra,
+
+            })
+        },
     },
     mounted() {
         this.loadConnections()
