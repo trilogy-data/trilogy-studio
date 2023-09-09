@@ -146,7 +146,7 @@ router = APIRouter()
 
 
 class ModelSourceInSchema(BaseModel):
-    name: str
+    alias: str
     contents: str
 
 
@@ -207,7 +207,10 @@ def safe_format_query(input: str) -> str:
 def parse_env_from_full_model(input: ModelInSchema) -> Environment:
     env = Environment()
     for source in input.sources:
-        env.parse(source.contents)
+        if source.alias:
+            env.parse(source.contents, namespace = source.alias)
+        else:
+            env.parse(source.contents)
     return env
 
 
@@ -269,9 +272,7 @@ async def create_connection(connection: ConnectionInSchema):
         try:
             environment = deepcopy(public_models[connection.model])
         except KeyError:
-            raise HTTPException(
-                status_code=404, detail=f"Model {connection.model} not found."
-            )
+            environment = Environment()
     else:
         environment = Environment()
     if connection.dialect == Dialects.BIGQUERY:

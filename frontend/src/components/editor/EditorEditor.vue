@@ -181,8 +181,13 @@ export default defineComponent({
             });
 
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-                this.saveEditorText({ contents: editor.getValue(), name: this.editorData.name })
-                this.saveEditors()
+                this.saveEditorText({ contents: editor.getValue(), name: this.editorData.name,
+                connection:this.editorData.connection }).then( ()=> {
+                    this.saveEditors()
+                }).catch((error) => {
+                    this.error = axiosHelpers.getErrorMessage(error);
+                })
+                
             });
 
             // loader.init().then((monaco) => {

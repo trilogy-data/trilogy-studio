@@ -98,9 +98,11 @@ export default {
                 connection: fullConnection,
                 syntax: this.selectedType,
             }).then(() => {
+                this.setActiveEditor(this.name).then(()=> {
                 this.dialog = false;
                 this.name = '';
-                this.setActiveEdtor(this.name)
+                })
+
             }).catch((e) => {
                 this.error = e.message;
             });

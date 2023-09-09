@@ -6,7 +6,7 @@ const axiosHelpers = {
         if (axios.isAxiosError(error)) {
             base = error.message;
             if (error.response && error.response.data) {
-                base = error.response.data;
+                base = error.response.data.detail;
             }
         }
         return base;

@@ -56,6 +56,7 @@ export class LocalModel implements ModelInterface {
         sources = sources.map(dict => {
             return ModelSource.fromJSON(dict)
         });
+        sources = sources.filter(source => source.editor)
         let output = new LocalModel(name, concepts, sources);
         return output
     }

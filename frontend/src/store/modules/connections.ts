@@ -4,10 +4,11 @@
 // import instance from '/src/api/instance'
 
 import { Connection } from '/src/models/Connection'
-import { Model, LocalModel } from '/src/models/Model'
+import { LocalModel } from '/src/models/Model'
 import Store from 'electron-store'
 import instance from '/src/api/instance'
-import NewConnectionPopupVue from '/src/components/sidebar/connections/NewConnectionPopup.vue';
+
+// import editorMap from '/src/store/modules/monaco'
 
 const store = new Store<Record<string, Object>>({
     name: 'connections',
@@ -47,8 +48,8 @@ const state = {
 const getters = {
     connections: state => state.connections,
     getConnectionByName: (state) => (name) => {
-        return state.connections.find(todo => todo.name === name)
-    }
+        return state.connections.find(conn => conn.name === name)
+    },
 };
 
 function getConnectionArgument(rootGetters, data) {
@@ -58,9 +59,13 @@ function getConnectionArgument(rootGetters, data) {
     } as { model: any; full_model: any; }
     let model = rootGetters.getModelByName(data.model)
     if (model instanceof LocalModel) {
+        const enrichedSources = model.sources.map(source => {
+            let editor = rootGetters.editors.find(editor => editor.name === source.editor)
+            return { alias: source.alias, contents:editor.contents  }
+        })
         modelArgs = {
             model: data.model,
-            full_model: { name: data.model, sources: [] }
+            full_model: { name: data.model, sources: enrichedSources }
         }
     }
     return {
@@ -71,16 +76,19 @@ function getConnectionArgument(rootGetters, data) {
 }
 
 const actions = {
-    async connectConnection({ commit }, connection) {
-        instance.post('/connection', {
-            name: connection.name,
-            dialect: connection.type,
-            model: connection.model,
-            extra: connection.extra
-        }).then(() => {
-            commit('setConnectionActive', connection)
+    async connectConnection({ commit, rootGetters }, data) {
+        const apiArgs = getConnectionArgument(rootGetters, data)
+        instance.post('/connection', apiArgs).then(() => {
+            commit('setConnectionActive', data)
         })
 
+    },
+    async updateConnectionSourceText({ commit, rootGetters }, data) {
+        const conn = rootGetters.getConnectionByName(data.name)
+        const apiArgs = getConnectionArgument(rootGetters, conn)
+        return instance.post('/connection', apiArgs).then(() => {
+            commit('setConnectionActive', data)
+        })
     },
     async setConnectionInactive({ commit }, connection) {
         commit('setConnectionInactive', connection)
@@ -99,8 +107,8 @@ const actions = {
         return instance.put('/connection', apiArgs).then(() => {
             const connection = new Connection(apiArgs.name, apiArgs.type,
                 true, apiArgs.model, apiArgs.extra)
-            console.log(connection)
             commit('editConnection', connection)
+            
         })
     },
     async removeConnection({ commit }, data) {

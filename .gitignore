@@ -36,6 +36,7 @@ config.xlaunch
 .venv
 __pycache__
 demo_data
+.pytest_cache
 
 backend/build
 backend/dist

@@ -3,6 +3,7 @@ from main import ConnectionInSchema
 from typing import List, Mapping
 from trilogy_public_models import models as public_models
 
+
 def test_read_main(test_client: TestClient):
     response = test_client.get("/")
     assert response.status_code == 200
@@ -31,5 +32,5 @@ def test_read_models(test_client: TestClient):
     for arg in arguments:
         parsed = ConnectionInSchema.parse_obj(arg)
 
-        response = test_client.post("/connection", data=parsed.json()) #type: ignore
+        response = test_client.post("/connection", data=parsed.json())  # type: ignore
         assert response.status_code == 200

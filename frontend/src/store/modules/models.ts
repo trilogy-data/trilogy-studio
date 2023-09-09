@@ -1,5 +1,7 @@
 
 import { Model, LocalModel } from '/src/models/Model'
+import {ModelSource} from '/src/models/ModelSource'
+
 import Store from 'electron-store'
 import instance from '/src/api/instance'
 
@@ -22,6 +24,7 @@ const storageAPI = {
 
   getModels(): Array<Model> {
     const data = store.get(storageName, []) as Array<any>
+    console.log(data)
     const parsed = data.map(dict => {
       return LocalModel.fromJSON(dict)
     });
@@ -51,6 +54,9 @@ const actions = {
   },
   async addNewModel({ commit }, data) {
     commit('addNewModel', data);
+  },
+  async addEditorToModel({ commit }, data) {
+    commit('addEditorToModel', data);
   }
 };
 
@@ -66,6 +72,18 @@ const mutations = {
     state.localModels.push(new LocalModel(data.name, [], []))
     storageAPI.setModels(state.localModels)
     console.log(state.localModels)
+  },
+  addEditorToModel(state, data) {
+    const model = state.localModels.find(todo => todo.name === data.model)
+    console.log(data)
+    if (model) {
+      model.sources.push(new ModelSource(data.editor, data.alias))
+    }
+    else {
+      throw new Error(`Model ${data.model} not found`)
+    }
+    console.log(state.localModels)
+    storageAPI.setModels(state.localModels)
   }
 };
 

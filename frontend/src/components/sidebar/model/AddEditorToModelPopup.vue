@@ -11,12 +11,11 @@
         <v-card theme="dark" class="mx-auto" min-width="344" title="Add Editor to Model">
             <v-form v-model="form" @submit.prevent="submit">
                 <v-container>
-                    <v-text-field variant="solo" density="compact" :readonly="loading" :rules="[required]" v-model="name"
-                        label="Import as">
+                    <v-text-field variant="solo" density="compact" :readonly="loading" v-model="name" label="Import As">
                     </v-text-field>
                     <v-divider />
                     <v-select variant="solo" density="compact" :readonly="loading" v-model="editor" label="Editor"
-                        :items="editors" item-title="name">
+                        :rules="[required]" :items="editors" item-title="name">
                     </v-select>
                 </v-container>
                 <v-divider></v-divider>
@@ -55,6 +54,7 @@ export default {
             form: false,
             loading: false,
             error: '',
+            editor: null,
             dialog: false,
             // model: null,
             name: '',
@@ -76,18 +76,18 @@ export default {
             this.dialog = true;
         },
         submit() {
-            this.localAddConnection();
+            this.localAddEditorToModel();
         },
         localAddEditorToModel() {
             this.addEditorToModel({
-                name: this.name,
-                type: this.selectedType,
-                // model: this.model,
-                extra: this.extraValues,
+                alias: this.name,
+                editor: this.editor,
+                model: this.model.name,
             }).then(() => {
                 this.dialog = false;
                 this.error = false;
                 this.name = '';
+                this.editor = null;
             }).catch((e) => {
                 this.error = e.message;
             });

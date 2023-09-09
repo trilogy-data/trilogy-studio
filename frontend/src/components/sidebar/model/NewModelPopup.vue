@@ -33,13 +33,7 @@
     border-radius: 0 !important;
 }
 
-.tab-btn {
-    height: 25px;
-    text-transform: none;
-    color: var(--text-lighter);
-    background-color: var(--main-bg-color);
-    border-radius: 0;
-}
+
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';

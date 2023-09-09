@@ -20,7 +20,7 @@
                         <template v-if="activeModelFromConnection">
                             <v-list-item @click="setActiveEditor(editor.name)" v-for="editor in editors"
                                 class="editor-list">
-                                {{ editor.name }}
+                                {{ editor.editor }} ({{ editor.alias }})
                             </v-list-item>
                         </template>
                         <div class="connection-list-item" v-else>No active model</div>
@@ -170,7 +170,7 @@ export default {
                 return []
             }
             return this.activeModelFromConnection.sources.map((source) => {
-                return source.editor
+                return source
             })
         }
     },
