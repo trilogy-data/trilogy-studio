@@ -6,9 +6,9 @@
     </FooterComponent>
 </template>
 <style scoped>
-.footer {
+/* .footer {
     --height: 25px;
-    height: var(--height);
+    height: var(--height)6
     min-height: var(--height);
     display: flex;
     align-items: center;
@@ -16,10 +16,10 @@
     width: 100%;
 
 
-}
+} */
 
 .connection-display {
-    font-size: 0.8rem;
+    font-size: 0.6rem;
 }
 </style>
 <script lang="ts">
