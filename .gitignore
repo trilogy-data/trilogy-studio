@@ -28,6 +28,7 @@ release
 *.sw?
 *.pyc
 .ruff_cache
+.mypy_cache
 
 # python
 *.pyc

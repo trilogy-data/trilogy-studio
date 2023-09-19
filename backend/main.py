@@ -262,7 +262,7 @@ async def update_connection(connection: ConnectionInSchema):
 
 
 @router.post("/connection")
-async def create_connection(connection: ConnectionInSchema):
+def create_connection(connection: ConnectionInSchema):
     if connection.full_model is not None:
         try:
             environment = parse_env_from_full_model(connection.full_model)
@@ -324,7 +324,7 @@ async def create_connection(connection: ConnectionInSchema):
 
 
 @router.post("/raw_query")
-async def run_raw_query(query: QueryInSchema):
+def run_raw_query(query: QueryInSchema):
     start = datetime.now()
     # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
@@ -369,7 +369,7 @@ async def run_raw_query(query: QueryInSchema):
 
 
 @router.post("/query")
-async def run_query(query: QueryInSchema):
+def run_query(query: QueryInSchema):
     start = datetime.now()
     # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)

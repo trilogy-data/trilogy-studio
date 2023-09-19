@@ -43,6 +43,7 @@ export class Editor implements EditorInterface {
     executed: boolean;
     duration: number | null;
     generated_sql: string | null;
+    visible: boolean;
     // monaco: editor.IStandaloneCodeEditor | null;
 
 
@@ -60,6 +61,7 @@ export class Editor implements EditorInterface {
         // this.monaco = null;
         this.status_code = 200;
         this.generated_sql = null;
+        this.visible = true;
     }
 
     async runQuery() {
@@ -97,10 +99,11 @@ export class Editor implements EditorInterface {
         }
     }
 
-    static fromJSON({ name, type, connection, contents, results }): Editor {
+    static fromJSON({ name, type, connection, contents, results, visible }): Editor {
         let output = new Editor(name, type, connection);
         output.contents = contents
         output.results = results
+        output.visible = visible
         return output
     }
 
@@ -121,6 +124,7 @@ export class RawEditor implements EditorInterface {
     duration: number | null;
     // monaco: editor.IStandaloneCodeEditor | null;
     status_code: number;
+    visible: boolean;
 
     constructor(name: string, type: string, connection: string) {
         this.name = name
@@ -135,6 +139,7 @@ export class RawEditor implements EditorInterface {
         this.duration = null;
         // this.monaco = null;
         this.status_code = 200;
+        this.visible = true;
     }
 
     async runQuery() {
@@ -170,10 +175,11 @@ export class RawEditor implements EditorInterface {
     }
 
 
-    static fromJSON({ name, type, connection, contents, results }): RawEditor {
+    static fromJSON({ name, type, connection, contents, results, visible }): RawEditor {
         let output = new RawEditor(name, type, connection);
         output.contents = contents
         output.results = results
+        output.visible = visible
         return output
     }
 

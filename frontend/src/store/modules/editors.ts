@@ -69,6 +69,7 @@ const getters = {
     getEditorByName: (state) => (name) => {
         return state.editors.find(conn => conn.name === name)
     },
+    openEditors: state => state.editors.filter(editor => editor.visible),
     activeEditor: state => findMatchingValue(state.editors, (editor) => editor.name === state.activeEditor),
 };
 
@@ -114,7 +115,8 @@ const actions = {
     },
     // unique from remove in case we want to prompt for save here 
     async closeEditor({ commit, dispatch }, data) {
-        commit('removeEditor', data)
+        commit('hideEditor', data)
+        // commit('removeEditor', data)
         dispatch('setActiveEditor', null)
         commit('saveEditors', data)
     },
@@ -141,6 +143,9 @@ const mutations = {
     },
 
     setActiveEditor(state, data) {
+        const editor = findMatchingValue(state.editors, (editor) => editor.name === data)
+        if(!editor) { return }
+        editor.visible = true;
         state.activeEditor = data;
     },
     setActiveConnection(state, data) {
@@ -152,6 +157,14 @@ const mutations = {
             state.activeEditor = newEditors[0].name
         }
         state.editors = newEditors
+    },
+    hideEditor(state, data) {
+        const editor = state.editors.filter(editor => editor.name === data.name)
+        const otherEditors = state.editors.filter(editor => editor.name !== data.name)
+        editor[0].visible = false
+        if (data.name === state.activeEditor) {
+            state.activeEditor = otherEditors[0].name
+        }
     },
     saveEditors(state, _) {
         storageAPI.setEditors(state.editors)
