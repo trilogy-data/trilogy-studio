@@ -26,7 +26,6 @@ const storageAPI = {
 
     getConnections(): Array<Connection> {
         const data = store.get('connections', []) as Array<any>
-        console.log(data)
         const parsed = data.map(dict => {
             return Connection.fromJSON(dict)
         });
@@ -81,7 +80,6 @@ const actions = {
         instance.post('/connection', apiArgs).then(() => {
             commit('setConnectionActive', data)
         })
-
     },
     async updateConnectionSourceText({ commit, rootGetters }, data) {
         const conn = rootGetters.getConnectionByName(data.name)

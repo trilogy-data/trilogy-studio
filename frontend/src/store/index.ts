@@ -4,7 +4,10 @@ import models from './modules/models';
 import dev from './modules/dev';
 import editors from './modules/editors';
 import connections from './modules/connections';
-import layout from './modules/layout'
+import layout from './modules/layout';
+import history from './modules/history';
+import nlp from './modules/nlp';
+
 export default createStore({
   // state: {
   // },
@@ -20,6 +23,8 @@ export default createStore({
     dev,
     editors, 
     connections,
-    layout
+    layout,
+    history,
+    nlp
   }
 })

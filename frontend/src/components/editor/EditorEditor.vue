@@ -71,7 +71,7 @@ export default defineComponent({
     },
     methods: {
         ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor',
-            'setConnectionInactive', 'setEditorError']),
+            'setConnectionInactive', 'addHistory','setEditorError']),
         async generate() {
             this.loading = true;
             this.info = 'Generating query from prompt...'
@@ -93,6 +93,7 @@ export default defineComponent({
         async submit(retry = false) {
             // this.loading = true;
             this.info = 'Executing query...'
+            const start = new Date()
             // this.error = null;
             let current_query = this.editorData.contents;
             if (!this.connection) {
@@ -114,7 +115,14 @@ export default defineComponent({
                 }
                 
             }
-
+            this.addHistory({ 
+                text: this.editorData.contents, 
+                editor: this.editorData.name, 
+                timestamp: start, 
+                duration: this.editorData.duration, 
+                executed: this.editorData.executed, 
+                error: this.editorData.error
+            })
 
             this.last_passed_query_text = current_query;
         },

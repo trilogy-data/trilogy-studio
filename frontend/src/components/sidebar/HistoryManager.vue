@@ -6,18 +6,17 @@
         <div class="connection-list">
 
             <v-expansion-panels theme="dark" variant="accordion">
-                <v-expansion-panel v-for="connection in connections" :key="connection.name">
+                <v-expansion-panel v-for="connection in history" :key="connection.name">
                     <v-expansion-panel-title>
-                        <GlowingDot class="" v-if="connection.active" />
                         <div class="pl-4">{{ connection.name }}</div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                        TODO
-                        <!-- <div @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]"
+                        <div @click="setActiveEditor(event.editor)"
+                         v-for="event in connection.events"
                             class="editor-list">
-                            {{ editor.name }}
+                            {{ event.editor }}
                         </div>
-                        <div>
+                        <!-- <div>
                             <NewEditorPopup :defaultConnection="connection.name" />
                         </div> -->
                     </v-expansion-panel-text>
@@ -49,13 +48,10 @@
 
 }
 
-
-
 .editor-list {
     align-items: right;
     text-align: center;
     height: 25px;
-
 }
 
 .connection-list {
@@ -104,7 +100,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['activeEditor', 'connections']),
+        ...mapGetters(['activeEditor', 'connections', 'history']),
         editors() {
             let editors = {}
             this.connections.forEach((conn) => {
