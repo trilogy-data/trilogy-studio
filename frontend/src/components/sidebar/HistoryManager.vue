@@ -14,7 +14,7 @@
                         <div @click="setActiveEditor(event.editor)"
                          v-for="event in connection.events"
                             class="editor-list">
-                            {{ event.editor }}
+                            {{ event.editor }} ({{event.duration}})
                         </div>
                         <!-- <div>
                             <NewEditorPopup :defaultConnection="connection.name" />
@@ -101,15 +101,6 @@ export default {
     },
     computed: {
         ...mapGetters(['activeEditor', 'connections', 'history']),
-        editors() {
-            let editors = {}
-            this.connections.forEach((conn) => {
-                editors[conn.name] = this.$store.getters.editors.filter((editor) => {
-                    return editor.connection == conn.name
-                })
-            })
-            return editors
-        }
     },
     methods: {
         ...mapActions([]),

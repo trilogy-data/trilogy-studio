@@ -1,5 +1,5 @@
 
-import { ConnectionHistory, HistoryEvent } from '/src/models/history';
+import { ConnectionHistory, HistoryEvent } from '/src/models/History';
 
 
 import Store from 'electron-store'
@@ -13,8 +13,25 @@ const store = new Store<Record<string, Object>>({
     watch: true,
 });
 
+const storageAPI = {
+    setHistory(value: Array<ConnectionHistory>) {
+        // const buffer = safeStorage.encryptString(value);
+        store.set(storageName, value);
+        // store.set(key, buffer.toString(encoding));
+    },
+
+
+    getHistory(): Array<Connection> {
+        const data = store.get(storageName, []) as Array<any>
+        const parsed = data.map(dict => {
+            return ConnectionHistory.fromJSON(dict)
+        });
+        return parsed
+    },
+};
+
 const state = {
-    history: [],
+    history: storageAPI.getHistory(),
 };
 
 const getters = {
@@ -35,9 +52,10 @@ const actions = {
 
 const mutations = {
     async addHistory(state, data) {
-        let index = state.connections.findIndex(c => c.name === data.name)
+        let index = state.history.find(c => c.name === data.connection)
         if (!index) {
-            index = new ConnectionHistory(data.name, [])
+            index = new ConnectionHistory(data.connection, [])
+            state.history.push(index)
         }
         // text: string;
         // editor: string;
@@ -53,7 +71,9 @@ const mutations = {
             data.executed,
             data.error
         )
-        index.events.push(event)
+        console.log(index)
+        index.events.push(event)    
+        storageAPI.setHistory(state.history)
     }
 };
 

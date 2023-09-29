@@ -7,6 +7,14 @@ export class ConnectionHistory {
         this.name = name
         this.events = events
     }
+
+    // @ts-ignore
+    static fromJSON({ name, events }) {
+        events = events.map(dict => {
+            return HistoryEvent.fromJSON(dict)
+        });
+        return new ConnectionHistory(name, events)
+    }
 }
 
 export class HistoryEvent {
@@ -24,5 +32,9 @@ export class HistoryEvent {
         this.duration = duration
         this.executed = executed
         this.error = error
+    }
+
+    fromJSON({ text, editor, timestamp, duration, executed, error }) {
+        return new HistoryEvent(text, editor, timestamp, duration, executed, error)
     }
 }

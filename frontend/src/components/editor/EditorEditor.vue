@@ -116,6 +116,7 @@ export default defineComponent({
                 
             }
             this.addHistory({ 
+                connection: this.editorData.connection,
                 text: this.editorData.contents, 
                 editor: this.editorData.name, 
                 timestamp: start, 

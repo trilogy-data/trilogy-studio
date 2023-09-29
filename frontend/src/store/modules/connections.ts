@@ -60,6 +60,9 @@ function getConnectionArgument(rootGetters, data) {
     if (model instanceof LocalModel) {
         const enrichedSources = model.sources.map(source => {
             let editor = rootGetters.editors.find(editor => editor.name === source.editor)
+            if (!editor) {
+                return { alias: source.alias, contents: '' }
+            }
             return { alias: source.alias, contents:editor.contents  }
         })
         modelArgs = {

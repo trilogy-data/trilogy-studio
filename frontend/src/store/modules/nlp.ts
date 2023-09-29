@@ -19,14 +19,14 @@ const state = {
 
 const getters = {
     chatConnections: state => state.chatConnections,
-    getConnectionByName: (state) => (name) => {
+    getChatConnectionByName: (state) => (name) => {
         return state.chatConnections.find(conn => conn.name === name)
     },
 };
 
 
 const actions = {
-    async addHistory({ commit, rootGetters }, data) {
+    async addChatConnection({ commit, rootGetters }, data) {
         const apiArgs = getConnectionArgument(rootGetters, data)
         instance.post('/connection', apiArgs).then(() => {
             commit('setConnectionActive', data)
@@ -37,9 +37,9 @@ const actions = {
 
 
 const mutations = {
-    async addHistory(state, connection) {
+    async addChatConnection(state, connection) {
         const index = state.connections.findIndex(c => c.name === connection.name)
-        state.connections[index].active = true
+        state.chatConnections[index].active = true
     }
 };
 
