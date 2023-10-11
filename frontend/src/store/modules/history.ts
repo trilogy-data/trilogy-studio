@@ -71,7 +71,6 @@ const mutations = {
             data.executed,
             data.error
         )
-        console.log(index)
         index.events.push(event)    
         storageAPI.setHistory(state.history)
     }

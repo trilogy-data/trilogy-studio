@@ -50,30 +50,6 @@ app = FastAPI()
 from dataclasses import dataclass
 
 
-def load_pyinstaller_trilogy_files() -> None:
-    # dynamic imports used by trilogy_public_models
-    # won't function properly in a pyinstaller bundle
-    # so we manually load the modules here
-    if not getattr(sys, "frozen", False):
-        return
-    # If the application is run as a bundle, the PyInstaller bootloader
-    # extends the sys module by a flag frozen=True and sets the app
-    # path into variable _MEIPASS'.
-    application_path = Path(sys._MEIPASS)  # type: ignore
-    search_path = application_path / "trilogy_public_models"
-
-    test = Path(search_path)
-
-    for item in test.glob("**/*preql"):
-        if item.name == "entrypoint.preql":
-            relative = item.parent.relative_to(test)
-            model = parse_initial_models(str(item))
-            public_models[str(relative).replace("/", ".")] = model
-
-
-load_pyinstaller_trilogy_files()
-
-
 @dataclass
 class InstanceSettings:
     connections: Dict[str, Executor]
@@ -128,8 +104,6 @@ def generate_default_bigquery() -> Executor:
 
 
 CONNECTIONS: Dict[str, Executor] = {
-    # "duckdb_demo": generate_default_duckdb(),
-    # "bigquery_demo": generate_default_bigquery()
 }
 
 ## BEGIN REQUESTS
@@ -490,8 +464,6 @@ async def http_exception_handler(request, exc: HTTPException):
 
 
 app.include_router(router)
-
-PORT = 5678
 
 
 def run():

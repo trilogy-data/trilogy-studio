@@ -34,7 +34,7 @@ export class HistoryEvent {
         this.error = error
     }
 
-    fromJSON({ text, editor, timestamp, duration, executed, error }) {
+    static fromJSON({ text, editor, timestamp, duration, executed, error }) {
         return new HistoryEvent(text, editor, timestamp, duration, executed, error)
     }
 }
