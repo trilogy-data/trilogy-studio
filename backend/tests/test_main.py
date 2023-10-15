@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from ..main import ConnectionInSchema
 from typing import List, Mapping
 from trilogy_public_models import models as public_models
-from datetime import datetime
+
 
 def test_read_main(test_client: TestClient):
     response = test_client.get("/")
