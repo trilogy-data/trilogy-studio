@@ -3,7 +3,7 @@
         <div ref="editor">
             <v-tabs class="editor-tabs pa-0 ba-0" v-model="localEditor" center-active
                 @update:modelValue="setActiveEditor()">
-                <v-tab class="editor-tab" v-for="n in editors" :key="n.name" :value="n.name">
+                <v-tab class="editor-tab" v-for="n in openEditors" :key="n.name" :value="n.name">
                     {{ n.name }} <span class="text-light"> ({{ n.syntax }})</span>
                     <div class="editor-tab close-button pl-4">
                         <v-btn size="compact" @click="closeEditor(n)" class="editor-tab close-button pa-0" height="20"
@@ -16,13 +16,16 @@
                     <NewEditorPopup></NewEditorPopup>
                 </v-tab>
             </v-tabs>
-            <template v-for="editor in editors">
+            <template v-if="openEditors.length === 0">
+                <div>Open an editor to get started</div>>
+            </template>
+            <template v-else v-for="editor in openEditors">
                 <EditorEditor class="editor-entry" key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
                 </EditorEditor>
             </template>
         </div>
         <div class="editor-results editor-color" ref="results">
-            <template v-for="editor in editors">
+            <template v-for="editor in openEditors">
                 <EditorResults :key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
                 </EditorResults>
             </template>
@@ -122,6 +125,7 @@ export default {
         const store = useStore()
         localEditor.value = store.getters['activeEditor'];
         const editors = computed(() => store.getters['editors'])
+        const openEditors = computed(() => store.getters['openEditors'])
         const setActiveEditor = () => store.dispatch('setActiveEditor', localEditor.value)
         const closeEditor = (editor) => store.dispatch('closeEditor', editor)
         store.watch(
@@ -156,6 +160,7 @@ export default {
 
         return {
             editors,
+            openEditors,
             setActiveEditor,
             closeEditor,
             localEditor,

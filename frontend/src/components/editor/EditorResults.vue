@@ -6,7 +6,7 @@
     <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
     <QueryResult v-else :editor="editorData" :headers="editorData.results.headers" :results="editorData.results.data">
     </QueryResult>
-    <EditorFooter :executed="editorData.executed" :length="editorData.results.data.length"
+    <EditorFooter :loading="loading" :executed="editorData.executed" :length="editorData.results.data.length"
         :duration="editorData.duration" />
 </template>
 

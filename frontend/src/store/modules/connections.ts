@@ -26,7 +26,6 @@ const storageAPI = {
 
     getConnections(): Array<Connection> {
         const data = store.get('connections', []) as Array<any>
-        console.log(data)
         const parsed = data.map(dict => {
             return Connection.fromJSON(dict)
         });
@@ -61,6 +60,9 @@ function getConnectionArgument(rootGetters, data) {
     if (model instanceof LocalModel) {
         const enrichedSources = model.sources.map(source => {
             let editor = rootGetters.editors.find(editor => editor.name === source.editor)
+            if (!editor) {
+                return { alias: source.alias, contents: '' }
+            }
             return { alias: source.alias, contents:editor.contents  }
         })
         modelArgs = {
@@ -81,7 +83,6 @@ const actions = {
         instance.post('/connection', apiArgs).then(() => {
             commit('setConnectionActive', data)
         })
-
     },
     async updateConnectionSourceText({ commit, rootGetters }, data) {
         const conn = rootGetters.getConnectionByName(data.name)

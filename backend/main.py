@@ -15,7 +15,7 @@ import traceback
 from copy import deepcopy
 from datetime import datetime
 from typing import Optional, Dict, List, Tuple
-
+from dataclasses import dataclass
 import uvicorn
 from uvicorn.config import LOGGING_CONFIG
 
@@ -46,8 +46,6 @@ PORT = 5678
 STATEMENT_LIMIT = 100
 
 app = FastAPI()
-
-from dataclasses import dataclass
 
 
 def load_pyinstaller_trilogy_files() -> None:
@@ -127,10 +125,7 @@ def generate_default_bigquery() -> Executor:
     return executor
 
 
-CONNECTIONS: Dict[str, Executor] = {
-    # "duckdb_demo": generate_default_duckdb(),
-    # "bigquery_demo": generate_default_bigquery()
-}
+CONNECTIONS: Dict[str, Executor] = {}
 
 ## BEGIN REQUESTS
 
@@ -208,7 +203,7 @@ def parse_env_from_full_model(input: ModelInSchema) -> Environment:
     env = Environment()
     for source in input.sources:
         if source.alias:
-            env.parse(source.contents, namespace = source.alias)
+            env.parse(source.contents, namespace=source.alias)
         else:
             env.parse(source.contents)
     return env
@@ -262,7 +257,7 @@ async def update_connection(connection: ConnectionInSchema):
 
 
 @router.post("/connection")
-async def create_connection(connection: ConnectionInSchema):
+def create_connection(connection: ConnectionInSchema):
     if connection.full_model is not None:
         try:
             environment = parse_env_from_full_model(connection.full_model)
@@ -324,7 +319,7 @@ async def create_connection(connection: ConnectionInSchema):
 
 
 @router.post("/raw_query")
-async def run_raw_query(query: QueryInSchema):
+def run_raw_query(query: QueryInSchema):
     start = datetime.now()
     # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
@@ -369,7 +364,7 @@ async def run_raw_query(query: QueryInSchema):
 
 
 @router.post("/query")
-async def run_query(query: QueryInSchema):
+def run_query(query: QueryInSchema):
     start = datetime.now()
     # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
@@ -490,8 +485,6 @@ async def http_exception_handler(request, exc: HTTPException):
 
 
 app.include_router(router)
-
-PORT = 5678
 
 
 def run():

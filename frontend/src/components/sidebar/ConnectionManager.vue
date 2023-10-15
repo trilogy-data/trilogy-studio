@@ -19,6 +19,7 @@
                         <v-list-item @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]"
                             class="editor-list">
                             {{ editor.name }}
+                            <v-btn v-if="editor.visible" @click="closeEditor(editor)" icon="mdi-close" class="detail-btn pl-2 ba-0 " density="compact"></v-btn>
                         </v-list-item>
                         <div class="d-flex flex-column align-center  pa-0">
                             <v-toolbar height="24" extension-height="24" class="sidebar-button-list">
@@ -28,7 +29,7 @@
                                 <EditConnectionPopup :connection="connection" />
                                 <RemoveConnectionPopup :connection="connection" />
                                 <NewEditorPopup :defaultConnection="connection.name" />
-                                <v-btn @click="_ => refresh(connection)" icon="mdi-refresh" class="tab-btn pa-0 ba-0 " density="compact" block></v-btn>
+                                <v-btn @click="_ => refresh(connection)" icon="mdi-refresh" class="tab-btn pa-0 ba-0 " density="compact"></v-btn>
                             </v-toolbar>
 
                         </div>
@@ -44,6 +45,16 @@
     </div>
 </template>
 <style scoped>
+.detail-btn {
+    font-size: .4rem;
+    height: 10px;
+    width: 5px;
+    text-align: center;
+    vertical-align: middle;
+    text-transform: none;
+    color: var(--text-lighter);
+    background-color: var(--main-bg-color);
+}
 .opacity-light {
     opacity: 0.6;
     font-size: .6rem;
@@ -147,7 +158,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['setActiveEditor', 'loadConnections', 'removeConnection', 'editConnection']),
+        ...mapActions(['setActiveEditor', 'loadConnections', 'removeConnection', 'editConnection', 'closeEditor']),
         refresh(connection:Connection) {
             this.editConnection({
                 name: connection.name,
