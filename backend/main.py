@@ -47,7 +47,6 @@ STATEMENT_LIMIT = 100
 
 app = FastAPI()
 
-
 def load_pyinstaller_trilogy_files() -> None:
     # dynamic imports used by trilogy_public_models
     # won't function properly in a pyinstaller bundle
@@ -77,52 +76,27 @@ class InstanceSettings:
     connections: Dict[str, Executor]
     models: Dict[str, Environment]
 
+allowed_origins = [
+    "app://.",
+]
+
+# if not IN_APP_CONFIG.validate:
+allowed_origins += [
+    "http://localhost:8080",
+    "http://localhost:8081",
+    "http://localhost:8090",
+]
+allow_origin_regex = "(app://.)|(http://localhost:[0-9]+)"
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    # allow_origins=[
-    #     "http://localhost:8080",
-    #     "http://localhost:8081",
-    #     "http://localhost:8090",
-    #     "app://.",
-    # ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["Authorization"],
+    allow_origin_regex = allow_origin_regex
 )
-
-
-def generate_default_duckdb():
-    duckdb = Environment()
-    executor = Executor(
-        dialect=Dialects.DUCK_DB,
-        engine=create_engine("duckdb:///:memory:"),
-        environment=duckdb,
-    )
-    return executor
-
-
-def generate_default_bigquery() -> Executor:
-    if os.path.isfile("/run/secrets/bigquery_auth"):
-        credentials = service_account.Credentials.from_service_account_file(
-            "/run/secrets/bigquery_auth",
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
-        )
-        project = credentials.project_id
-    else:
-        credentials, project = default()
-    client = bigquery.Client(credentials=credentials, project=project)
-    engine = create_engine(
-        f"bigquery://{project}/test_tables?user_supplied_client=True",
-        connect_args={"client": client},
-    )
-    executor = Executor(
-        dialect=Dialects.BIGQUERY,
-        engine=engine,
-        environment=deepcopy(public_models["bigquery.stack_overflow"]),
-    )
-    return executor
 
 
 CONNECTIONS: Dict[str, Executor] = {}
