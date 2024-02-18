@@ -224,10 +224,10 @@ async def list_connections():
 
 
 @router.put("/connection")
-async def update_connection(connection: ConnectionInSchema):
+def update_connection(connection: ConnectionInSchema):
     # if connection.name not in CONNECTIONS:
     #     raise HTTPException(status_code=404, detail=f"Connection {connection.name} not found.")
-    return await create_connection(connection)
+    return create_connection(connection)
 
 
 @router.post("/connection")
@@ -340,7 +340,6 @@ def run_raw_query(query: QueryInSchema):
 @router.post("/query")
 def run_query(query: QueryInSchema):
     start = datetime.now()
-    # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
     if not executor:
         raise HTTPException(

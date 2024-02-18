@@ -3,7 +3,7 @@
 <template>
     <v-dialog v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" 
+            <v-btn class="sidebar-action-button pa-0 ba-0" v-bind="props" 
             density="compact"  
             icon="mdi-plus"
             v-shortkey.once="['ctrl', 'n']" @shortkey="showPopup()">

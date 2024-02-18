@@ -110,6 +110,8 @@ export default defineComponent({
             if (this.editorData.status_code === 403) {
                 console.log('403 error, automatically setting connection inactive and retrying.')
                 await this.setConnectionInactive({ name: this.editorData.connection })
+                // immediately force reconnection
+                await this.connectConnection(this.connection)
                 // automatically retry
                 if (!retry) {
                     return await this.submit(true)

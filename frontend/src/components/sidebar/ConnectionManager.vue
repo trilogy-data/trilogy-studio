@@ -6,7 +6,7 @@
         <div class="connection-list">
 
             <v-expansion-panels theme="dark">
-                <v-expansion-panel v-for="connection in connections" :key="connection.name">
+                <v-expansion-panel class="square-corner" v-for="connection in connections" :key="connection.name">
                     <v-expansion-panel-title>
                         <GlowingDot class="" v-if="connection.active" />
                         <div v-if="connection.model" class="pl-4">{{ connection.name }}
@@ -21,15 +21,14 @@
                             {{ editor.name }}
                             <v-btn v-if="editor.visible" @click="closeEditor(editor)" icon="mdi-close" class="detail-btn pl-2 ba-0 " density="compact"></v-btn>
                         </v-list-item>
-                        <div class="d-flex flex-column align-center  pa-0">
-                            <v-toolbar height="24" extension-height="24" class="sidebar-button-list">
-                                <!-- <v-btn icon="mdi-format-align-left"></v-btn> -->
-                                <!-- <v-btn  density="compact"   icon="mdi-format-align-center"></v-btn> -->
-                                <!-- <v-btn @click="removeConnection(connection)"  density="compact" icon="mdi-cancel"></v-btn> -->
+                        <div class="d-flex flex-column align-center pa-0">
+                            
+                            <v-toolbar height="24" extension-height="24" class="sidebar-button-list align-center">
                                 <EditConnectionPopup :connection="connection" />
                                 <RemoveConnectionPopup :connection="connection" />
                                 <NewEditorPopup :defaultConnection="connection.name" />
-                                <v-btn @click="_ => refresh(connection)" icon="mdi-refresh" class="tab-btn pa-0 ba-0 " density="compact"></v-btn>
+                                <v-btn @click="_ => refresh(connection)" icon="mdi-refresh" class="sidebar-action-button pa-0 ba-0" density="compact">
+                                    </v-btn>
                             </v-toolbar>
 
                         </div>
@@ -82,8 +81,6 @@
 
 }
 
-
-
 .editor-list {
     align-items: right;
     text-align: center;
@@ -99,7 +96,6 @@
     width: 100%;
     height: 100%;
     background-color: var(--light-bg-color-2);
-
 }
 .connection-list-item {
     height: 10px;
@@ -152,6 +148,9 @@ export default {
             this.connections.forEach((conn) => {
                 editors[conn.name] = this.$store.getters.editors.filter((editor) => {
                     return editor.connection == conn.name
+                })
+                editors['Unconnected'] = this.$store.getters.editors.filter((editor) => {
+                    return  this.connections.map((conn) => conn.name).includes(editor.connection) == false
                 })
             })
             return editors

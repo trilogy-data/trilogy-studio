@@ -44,8 +44,12 @@ const state = {
     new Connection('bigquery_demo', 'bigquery', false, 'bigquery_demo')],
 };
 
+function addDefault(connections) {
+    return connections.concat([new Connection('Unconnected', '', false, null)])
+}
+
 const getters = {
-    connections: state => state.connections,
+    connections: state => addDefault(state.connections),
     getConnectionByName: (state) => (name) => {
         return state.connections.find(conn => conn.name === name)
     },
