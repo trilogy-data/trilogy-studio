@@ -19,16 +19,21 @@
                         <v-list-item @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]"
                             class="editor-list">
                             {{ editor.name }}
-                            <v-btn v-if="editor.visible" @click="closeEditor(editor)" icon="mdi-close" class="detail-btn pl-2 ba-0 " density="compact"></v-btn>
+                            <toolbar class="pl-2">
+                            <v-btn  v-if="editor.visible" @click="closeEditor(editor)" icon="mdi-close"
+                                class="pl-2 detail-btn" density="compact"></v-btn>
+                                <EditEditorPopup :name="editor.name" class="pl-10" density="compact" :defaultConnection="connection.name" />
+                            </toolbar>
                         </v-list-item>
-                        <div class="d-flex flex-column align-center pa-0">
-                            
+                        <div v-if="connection.name != unconnectedLabel" class="d-flex flex-column align-center pa-0">
+
                             <v-toolbar height="24" extension-height="24" class="sidebar-button-list align-center">
                                 <EditConnectionPopup :connection="connection" />
                                 <RemoveConnectionPopup :connection="connection" />
-                                <NewEditorPopup :defaultConnection="connection.name" />
-                                <v-btn @click="_ => refresh(connection)" icon="mdi-refresh" class="sidebar-action-button pa-0 ba-0" density="compact">
-                                    </v-btn>
+                                <AddEditorPopup :defaultConnection="connection.name" />
+                                <v-btn @click="_ => refresh(connection)" icon="mdi-refresh"
+                                    class="sidebar-action-button pa-0 ba-0" density="compact">
+                                </v-btn>
                             </v-toolbar>
 
                         </div>
@@ -47,13 +52,16 @@
 .detail-btn {
     font-size: .4rem;
     height: 10px;
-    width: 5px;
+    width: 10px;
     text-align: center;
     vertical-align: middle;
     text-transform: none;
     color: var(--text-lighter);
     background-color: var(--main-bg-color);
+    padding-left:10px;
+    border-radius: 0;
 }
+
 .opacity-light {
     opacity: 0.6;
     font-size: .6rem;
@@ -97,6 +105,7 @@
     height: 100%;
     background-color: var(--light-bg-color-2);
 }
+
 .connection-list-item {
     height: 10px;
     font-size: 80%;
@@ -124,9 +133,10 @@
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
 import NewConnectionPopup from '/src/components/sidebar/connections/NewConnectionPopup.vue';
 import NewEditorPopup from '/src/components/editor/NewEditorPopup.vue'
+import EditEditorPopup from '/src/components/editor/EditEditorPopup.vue'
 import RemoveConnectionPopup from '/src/components/sidebar/connections/RemoveConnectionPopup.vue'
 import EditConnectionPopup from '/src/components/sidebar/connections/EditConnectionPopup.vue'
-import {Connection} from '/src/models/Connection'
+import { Connection } from '/src/models/Connection'
 import { mapActions, mapGetters } from 'vuex';
 export default {
     name: "ConnectionManager",
@@ -135,22 +145,23 @@ export default {
         NewConnectionPopup,
         NewEditorPopup,
         RemoveConnectionPopup,
-        EditConnectionPopup
+        EditConnectionPopup,
+        EditEditorPopup,
     },
     data() {
         return {
         };
     },
     computed: {
-        ...mapGetters(['activeEditor', 'connections']),
+        ...mapGetters(['activeEditor', 'connections', 'unconnectedLabel']),
         editors() {
             let editors = {}
             this.connections.forEach((conn) => {
                 editors[conn.name] = this.$store.getters.editors.filter((editor) => {
                     return editor.connection == conn.name
                 })
-                editors['Unconnected'] = this.$store.getters.editors.filter((editor) => {
-                    return  this.connections.map((conn) => conn.name).includes(editor.connection) == false
+                editors[this.unconnectedLabel] = this.$store.getters.editors.filter((editor) => {
+                    return this.connections.map((conn) => conn.name).includes(editor.connection) == false
                 })
             })
             return editors
@@ -158,7 +169,7 @@ export default {
     },
     methods: {
         ...mapActions(['setActiveEditor', 'loadConnections', 'removeConnection', 'editConnection', 'closeEditor']),
-        refresh(connection:Connection) {
+        refresh(connection: Connection) {
             this.editConnection({
                 name: connection.name,
                 type: connection.type,

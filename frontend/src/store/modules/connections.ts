@@ -10,6 +10,9 @@ import instance from '/src/api/instance'
 
 // import editorMap from '/src/store/modules/monaco'
 
+
+const unconnectedLabel = 'Unconnected';
+
 const store = new Store<Record<string, Object>>({
     name: 'connections',
     watch: true,
@@ -45,7 +48,7 @@ const state = {
 };
 
 function addDefault(connections) {
-    return connections.concat([new Connection('Unconnected', '', false, null)])
+    return connections.concat([new Connection(unconnectedLabel, '', false, null)])
 }
 
 const getters = {
@@ -53,6 +56,8 @@ const getters = {
     getConnectionByName: (state) => (name) => {
         return state.connections.find(conn => conn.name === name)
     },
+    unconnectedLabel: () => unconnectedLabel
+
 };
 
 function getConnectionArgument(rootGetters, data) {

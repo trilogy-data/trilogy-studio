@@ -128,6 +128,14 @@ button:focus-visible {
   /* background-color: var(--main-bg-color) !important;  */
 }
 
+.sidebar-action-button-small {
+  height: 10px !important;
+  width: 10px !important;
+  border-radius: 0 !important;
+  text-transform: none;
+  color: var(--text-lighter);
+  /* background-color: var(--main-bg-color) !important;  */
+}
 
 /* button specifics */
 

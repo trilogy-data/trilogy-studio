@@ -28,6 +28,11 @@ from google.cloud import bigquery
 from google.oauth2 import service_account
 from preql.constants import DEFAULT_NAMESPACE
 from preql.core.enums import DataType, Purpose
+from preql.core.models import (
+    ProcessedQuery,
+    ProcessedQueryPersist,
+    ProcessedShowStatement,
+)
 from preql import Environment, Executor, Dialects
 from preql.parser import parse_text
 from pydantic import BaseModel, Field
@@ -40,12 +45,14 @@ from backend.io_models import ListModelResponse, Model, UIConcept
 from backend.models.helpers import flatten_lineage
 from duckdb_engine import *  # this is for pyinstaller
 from sqlalchemy_bigquery import *  # this is for pyinstaller
+from preql.executor import generate_result_set
 
 PORT = 5678
 
 STATEMENT_LIMIT = 100
 
 app = FastAPI()
+
 
 def load_pyinstaller_trilogy_files() -> None:
     # dynamic imports used by trilogy_public_models
@@ -76,6 +83,7 @@ class InstanceSettings:
     connections: Dict[str, Executor]
     models: Dict[str, Environment]
 
+
 allowed_origins = [
     "app://.",
 ]
@@ -95,7 +103,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["Authorization"],
-    allow_origin_regex = allow_origin_regex
+    allow_origin_regex=allow_origin_regex,
 )
 
 
@@ -195,14 +203,16 @@ async def get_models() -> ListModelResponse:
                 continue
             final_concepts.append(
                 UIConcept(
-                    name=sconcept.name.split(".")[-1]
-                    if sconcept.namespace == DEFAULT_NAMESPACE
-                    else sconcept.name,
+                    name=(
+                        sconcept.name.split(".")[-1]
+                        if sconcept.namespace == DEFAULT_NAMESPACE
+                        else sconcept.name
+                    ),
                     datatype=sconcept.datatype,
                     purpose=sconcept.purpose,
-                    description=sconcept.metadata.description
-                    if sconcept.metadata
-                    else None,
+                    description=(
+                        sconcept.metadata.description if sconcept.metadata else None
+                    ),
                     namespace=sconcept.namespace,
                     key=skey,
                     lineage=flatten_lineage(sconcept, depth=0),
@@ -361,26 +371,58 @@ def run_query(query: QueryInSchema):
         compiled_sql = ""
         for statement in sql:
             # for UI execution, cap the limit
-            statement.limit = (
-                min(int(statement.limit), STATEMENT_LIMIT)
-                if statement.limit
-                else STATEMENT_LIMIT
-            )
-            compiled_sql = executor.generator.compile_statement(statement)
-            rs = executor.engine.execute(compiled_sql)
-            outputs = [
-                (
-                    col.name,
-                    QueryOutColumn(
-                        name=col.name.replace(".", "_")
-                        if col.namespace == DEFAULT_NAMESPACE
-                        else col.address.replace(".", "_"),
-                        purpose=col.purpose,
-                        datatype=col.datatype,
-                    ),
+            if isinstance(statement, ProcessedQuery):
+                statement.limit = (
+                    min(int(statement.limit), STATEMENT_LIMIT)
+                    if statement.limit
+                    else STATEMENT_LIMIT
                 )
-                for col in statement.output_columns
-            ]
+
+            if isinstance(statement, (ProcessedQuery, ProcessedQueryPersist)):
+                compiled_sql = executor.generator.compile_statement(statement)
+                rs = executor.engine.execute(compiled_sql)
+                outputs = [
+                    (
+                        col.name,
+                        QueryOutColumn(
+                            name=(
+                                col.name.replace(".", "_")
+                                if col.namespace == DEFAULT_NAMESPACE
+                                else col.address.replace(".", "_")
+                            ),
+                            purpose=col.purpose,
+                            datatype=col.datatype,
+                        ),
+                    )
+                    for col in statement.output_columns
+                ]
+            elif isinstance(statement, (ProcessedShowStatement)):
+                compiled_sql = executor.generator.compile_statement(
+                    statement.output_values[0]
+                )
+                outputs = [
+                    (
+                        col.name,
+                        QueryOutColumn(
+                            name=(
+                                col.name.replace(".", "_")
+                                if col.namespace == DEFAULT_NAMESPACE
+                                else col.address.replace(".", "_")
+                            ),
+                            purpose=col.purpose,
+                            datatype=col.datatype,
+                        ),
+                    )
+                    for col in statement.output_columns
+                ]
+                rs = generate_result_set(
+                    statement.output_columns,
+                    [
+                        executor.generator.compile_statement(x)
+                        for x in statement.output_values
+                        if isinstance(x, ProcessedQuery)
+                    ],
+                )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
