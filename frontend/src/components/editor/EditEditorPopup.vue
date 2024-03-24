@@ -1,9 +1,9 @@
 
 
 <template>
-    <v-dialog v-model="dialog" max-width="500" min-width=400>
+    <v-dialog v-model="dialog" max-width="500">
         <template v-slot:activator="{ props }">
-            <v-btn class="sidebar-action-button-small pa-0 ba-0" v-bind="props" :density="density" icon="mdi-edit"
+            <v-btn class="sidebar-detail-btn square-corner"  v-bind="props" :density="density" icon="mdi-edit"
              >
                 Edit
             </v-btn>
@@ -35,9 +35,7 @@
     </v-dialog>
 </template>
 <style scoped>
-.square-corners {
-    border-radius: 0 !important;
-}
+
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';

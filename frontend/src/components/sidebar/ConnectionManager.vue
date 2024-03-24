@@ -18,12 +18,15 @@
                     <v-expansion-panel-text>
                         <v-list-item @click="setActiveEditor(editor.name)" v-for="editor in editors[connection.name]"
                             class="editor-list">
+
                             {{ editor.name }}
-                            <toolbar class="pl-2">
-                            <v-btn  v-if="editor.visible" @click="closeEditor(editor)" icon="mdi-close"
-                                class="pl-2 detail-btn" density="compact"></v-btn>
-                                <EditEditorPopup :name="editor.name" class="pl-10" density="compact" :defaultConnection="connection.name" />
-                            </toolbar>
+                            <span></span>
+                            <v-btn v-if="editor.visible" @click="closeEditor(editor)" icon="mdi-close"
+                                class="sidebar-detail-btn square-corner" density="compact">Close</v-btn>
+
+                            <EditEditorPopup class="sidebar-detail-btn square-corner" :name="editor.name"
+                                density="compact" :defaultConnection="connection.name" />
+
                         </v-list-item>
                         <div v-if="connection.name != unconnectedLabel" class="d-flex flex-column align-center pa-0">
 
@@ -49,19 +52,6 @@
     </div>
 </template>
 <style scoped>
-.detail-btn {
-    font-size: .4rem;
-    height: 10px;
-    width: 10px;
-    text-align: center;
-    vertical-align: middle;
-    text-transform: none;
-    color: var(--text-lighter);
-    background-color: var(--main-bg-color);
-    padding-left:10px;
-    border-radius: 0;
-}
-
 .opacity-light {
     opacity: 0.6;
     font-size: .6rem;

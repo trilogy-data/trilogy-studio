@@ -188,7 +188,6 @@ const mutations = {
         const newEditor = findMatchingValue(state.editors, (editor) => editor.name === data.name)
         newEditor.connection = data.connection.name;
         state.editors = state.editors.map(editor => editor.name === data.name ? newEditor : editor)
-        console.log(state.editors)
     },
     newEditor(state, data) {
         let newEd: Editor | RawEditor | null = null

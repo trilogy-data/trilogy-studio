@@ -66,6 +66,10 @@ button:focus-visible {
   border-radius: 0 !important;
 }
 
+.square-corners {
+  border-radius: 0 !important;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
@@ -126,6 +130,15 @@ button:focus-visible {
   text-transform: none;
   color: var(--text-lighter);
   /* background-color: var(--main-bg-color) !important;  */
+}
+
+.sidebar-detail-btn {
+  font-size: .2rem;
+  height: 10px;
+  width: 50px !important;
+  color: var(--text-lighter);
+  background-color: var(--main-bg-color);
+  border-radius: 0;
 }
 
 .sidebar-action-button-small {
