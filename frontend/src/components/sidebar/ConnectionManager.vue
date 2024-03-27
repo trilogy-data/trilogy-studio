@@ -33,7 +33,7 @@
                             <v-toolbar height="24" extension-height="24" class="sidebar-button-list align-center">
                                 <EditConnectionPopup :connection="connection" />
                                 <RemoveConnectionPopup :connection="connection" />
-                                <AddEditorPopup :defaultConnection="connection.name" />
+                                <NewEditorPopup :defaultConnection="connection.name" />
                                 <v-btn @click="_ => refresh(connection)" icon="mdi-refresh"
                                     class="sidebar-action-button pa-0 ba-0" density="compact">
                                 </v-btn>
