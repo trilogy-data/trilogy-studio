@@ -191,6 +191,9 @@ const mutations = {
     },
     newEditor(state, data) {
         let newEd: Editor | RawEditor | null = null
+        if (!data.name) {
+            throw Error('Editor name is required')
+        }
         if (data.syntax === 'preql') {
             newEd = new Editor(data.name, data.connection.type, data.connection.name,);
         }

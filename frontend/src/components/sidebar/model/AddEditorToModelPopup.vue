@@ -1,9 +1,7 @@
-
-
 <template>
     <v-dialog v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="tab-btn pa-0 ba-0" v-bind="props" density="compact" icon="mdi-plus"
+            <v-btn class="sidebar-action-button pa-0 ba-0" v-bind="props" density="compact" icon="mdi-plus"
                 v-shortkey.once="['ctrl', 'n']" @shortkey="showPopup()">
                 +
             </v-btn>
@@ -15,7 +13,7 @@
                     </v-text-field>
                     <v-divider />
                     <v-select variant="solo" density="compact" :readonly="loading" v-model="editor" label="Editor"
-                        :rules="[required]" :items="editors" item-title="name">
+                        :items="editors" item-title="name">
                     </v-select>
                 </v-container>
                 <v-divider></v-divider>
@@ -65,13 +63,10 @@ export default {
         model: [Model, LocalModel],
     },
     computed: {
-        ...mapGetters(['editors']),
-    },
-    mounted: () => {
-        // console.log(this.connections)
+        ...mapGetters(['editors', 'activeEditor', 'getConnectionByName',]),
     },
     methods: {
-        ...mapActions(['addEditorToModel']),
+        ...mapActions(['addEditorToModel', 'newEditor']),
         showPopup() {
             this.dialog = true;
         },
@@ -79,6 +74,22 @@ export default {
             this.localAddEditorToModel();
         },
         localAddEditorToModel() {
+            // create it with alias name if not exist
+            let local = this;
+            if (!this.editor) {
+                const fullConnection = local.getConnectionByName(local.activeEditor.connection)
+
+                local.newEditor({
+                    name: local.name,
+                    connection: fullConnection,
+                    syntax: 'preql',
+                }).then(() => {
+                    local.editor = local.name
+                    return localAddEditortoModel()
+                })
+
+            }
+            //otherwise add
             this.addEditorToModel({
                 alias: this.name,
                 editor: this.editor,
