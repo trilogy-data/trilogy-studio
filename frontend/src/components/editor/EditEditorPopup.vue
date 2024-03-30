@@ -1,9 +1,10 @@
 
 
 <template>
-    <v-dialog v-model="dialog" max-width="500">
+    <v-dialog class="override-style" v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="sidebar-detail-btn square-corner"  v-bind="props" :density="density" icon="mdi-edit"
+            <v-btn class="sidebar-detail-btn square-corner"  v-bind="props" :density="density" 
+            icon="mdi-edit"
              >
                 Edit
             </v-btn>
@@ -35,12 +36,16 @@
     </v-dialog>
 </template>
 <style scoped>
+.override-style {
+  display: 'auto';
+  width: '100%';
+}
 
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
 export default {
-    name: "AddEditorTab",
+    name: "EditEditorPopup",
     data() {
 
         return {
@@ -71,9 +76,6 @@ export default {
         allowedConnections() {
             return this.connections.filter((c) => c.name != this.unconnectedLabel)
         }
-    },
-    mounted: () => {
-        // console.log(this.connections)
     },
     methods: {
         ...mapActions(['editEditor', 'setActiveEditor']),

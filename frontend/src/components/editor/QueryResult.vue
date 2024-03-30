@@ -58,7 +58,7 @@
     display: flex;
     flex-direction: column;
     flex: 1 1 100%;
-    height: 100%;
+    height: 95%;
 }
 
 .query-result {
@@ -66,7 +66,7 @@
     flex-direction: column;
     flex-wrap: nowrap;
     flex: 1 1 100%;
-    height: 100%;
+    height:  95%;
 }
 
 .result-table {

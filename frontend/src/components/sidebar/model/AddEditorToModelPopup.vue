@@ -85,7 +85,7 @@ export default {
                     syntax: 'preql',
                 }).then(() => {
                     local.editor = local.name
-                    return localAddEditortoModel()
+                    return local.addEditorToModel()
                 })
 
             }

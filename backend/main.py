@@ -51,6 +51,8 @@ PORT = 5678
 
 STATEMENT_LIMIT = 100
 
+PARSE_DEPENDENCY_RESOLUTION_ATTEMPTS = 50
+
 app = FastAPI()
 
 
@@ -183,11 +185,41 @@ def safe_format_query(input: str) -> str:
 
 def parse_env_from_full_model(input: ModelInSchema) -> Environment:
     env = Environment()
-    for source in input.sources:
-        if source.alias:
-            env.parse(source.contents, namespace=source.alias)
-        else:
-            env.parse(source.contents)
+
+    parsed = dict()
+    successful = set()
+    attempts = 0
+    exception = None
+    # attempt to determine the dependency order of inputs
+    # TODO: do some smarter first path dependency resolution based on imports
+    while (
+        len(parsed) < len(input.sources)
+        and attempts < PARSE_DEPENDENCY_RESOLUTION_ATTEMPTS
+    ):
+        attempts += 1
+        for source in input.sources:
+            if source.alias in successful:
+                continue
+            try:
+                if source.alias:
+                    new = Environment(namespace=source.alias)
+                    for k, v in parsed.items():
+                        new.add_import(k, v)
+                    new.parse(source.contents)
+                    env.add_import(source.alias, new)
+                    parsed[source.alias] = new
+                else:
+                    env.parse(source.contents)
+                successful.add(source.alias)
+            except Exception as e:
+                exception = e
+                pass
+    success = len(successful) == len(input.sources)
+    if not success:
+        raise ValueError(
+            f"unable to parse input models after {attempts} attempts; successfully parsed {parsed}; error was {str(exception)}, have {[c.address for c in env.concepts.values()]}"
+        )
+
     return env
 
 
