@@ -1,9 +1,10 @@
 <template>
-    <div class="connection-manager py-0">
+    <div class="history-manager py-0">
         <div class="header">
             History
         </div>
-        <div class="connection-list">
+        <modal v-if="modalVisible" @close="modalVisible = false" :data="modalData"/>
+        <div class="history-list">
 
             <v-expansion-panels theme="dark" variant="accordion">
                 <v-expansion-panel v-for="connection in history" :key="connection.name">
@@ -13,8 +14,10 @@
                     <v-expansion-panel-text>
                         <div @click="setActiveEditor(event.editor)"
                          v-for="event in connection.events"
-                            class="editor-list">
-                            {{ event.editor }} ({{event.duration}})
+                            :class="{ failed: event.error }"
+                            class="history-list-item">
+                            <span v-if="event.duration">{{ event.editor }} ({{event.duration}} ms)</span>
+                            <span v-else>{{ event.editor }}</span>
                         </div>
                         <!-- <div>
                             <NewEditorPopup :defaultConnection="connection.name" />
@@ -33,6 +36,9 @@
     min-height: 30px;
     line-height: 30px;
 }
+.failed {
+    color: var(--text-error);
+}
 
 .footer {
     --height: 20px;
@@ -48,28 +54,25 @@
 
 }
 
-.editor-list {
+.history-list-item {
     align-items: right;
     text-align: center;
     height: 25px;
 }
 
-.connection-list {
+.history-list {
     display: 'flex';
     align-items: left;
     text-align: left;
     width: 100%;
     height: 100%;
     background-color: var(--light-bg-color-2);
+    background-color: var(--main-bg-color);
 
 }
 
-.connection-list-item {
-    height: 10px;
-    font-size: 80%;
-}
 
-.connection-manager {
+.history-manager {
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -82,9 +85,7 @@
     font-size: .8rem;
 }
 
-.connection-list {
-    background-color: var(--main-bg-color);
-}
+
 </style>
 <script lang="ts">
 // @ts-ignore
@@ -97,6 +98,7 @@ export default {
     },
     data() {
         return {
+            modalVisible: false,
         };
     },
     computed: {

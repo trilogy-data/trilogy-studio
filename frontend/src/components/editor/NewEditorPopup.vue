@@ -3,7 +3,9 @@
 <template>
     <v-dialog v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="sidebar-action-button pa-0 ba-0" v-bind="props" density="compact" icon="mdi-plus"
+            <v-btn class="add-editor-button pa-0 ba-0" v-bind="props"
+             density="compact" icon="mdi-plus"
+             theme="dark"
                 v-shortkey.once="['ctrl', 'n']" @shortkey="showPopup()">
                 +
             </v-btn>
@@ -42,6 +44,16 @@
 .square-corners {
     border-radius: 0 !important;
 }
+
+.add-editor-button {
+  height: 30px !important;
+  width: 50px !important;
+  border-radius: 0 !important;
+  text-transform: none;
+  color: var(--text-lighter);
+  background-color: var(--main-bg-color) !important; 
+}
+
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';

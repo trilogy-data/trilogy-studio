@@ -217,7 +217,7 @@ def parse_env_from_full_model(input: ModelInSchema) -> Environment:
     success = len(successful) == len(input.sources)
     if not success:
         raise ValueError(
-            f"unable to parse input models after {attempts} attempts; successfully parsed {parsed}; error was {str(exception)}, have {[c.address for c in env.concepts.values()]}"
+            f"unable to parse input models after {attempts} attempts; successfully parsed {parsed.keys()}; error was {str(exception)}, have {[c.address for c in env.concepts.values()]}"
         )
 
     return env

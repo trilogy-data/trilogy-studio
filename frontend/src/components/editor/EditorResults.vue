@@ -43,11 +43,6 @@ export default defineComponent({
     },
     data() {
         return {
-            last_passed_query_text: null,
-            form: null,
-            prompt: '',
-            generatingPrompt: false,
-            info: 'Query processing...',
         }
     },
     components: {
@@ -56,8 +51,6 @@ export default defineComponent({
         QueryResult,
         ErrorComponent,
         EditorFooter
-    },
-    mounted() {
     },
     computed: {
         ...mapGetters(['models', 'activeConnection']),
@@ -91,9 +84,6 @@ export default defineComponent({
             }
             return 20;
         },
-        generateOverlayVisible() {
-            return this.prompt.length > 1 || this.generatingPrompt
-        }
 
     },
     methods: {
