@@ -1,5 +1,5 @@
 <template>
-    <div ref="editor" id="editor" class="editor-fix-styles">
+    <div :key="editorData.name" ref="editor" id="editor" class="editor-fix-styles">
         <!-- <div id="editor" > </div> -->
     </div>
 </template>

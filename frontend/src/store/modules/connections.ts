@@ -89,7 +89,7 @@ function getConnectionArgument(rootGetters, data) {
 const actions = {
     async connectConnection({ commit, rootGetters }, data) {
         const apiArgs = getConnectionArgument(rootGetters, data)
-        instance.post('/connection', apiArgs).then(() => {
+        return instance.post('/connection', apiArgs).then(() => {
             commit('setConnectionActive', data)
         })
     },

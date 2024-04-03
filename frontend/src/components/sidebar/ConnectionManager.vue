@@ -5,7 +5,7 @@
         </div>
         <div class="connection-list">
 
-            <v-expansion-panels theme="dark">
+            <v-expansion-panels v-if="connections" theme="dark">
                 <v-expansion-panel class="square-corner" v-for="connection in connections" :key="connection.name">
                     <v-expansion-panel-title>
                         <GlowingDot class="" v-if="connection.active" />

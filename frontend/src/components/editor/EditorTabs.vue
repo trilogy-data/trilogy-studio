@@ -16,8 +16,8 @@
                     <NewEditorPopup></NewEditorPopup>
                 </v-tab>
             </v-tabs>
-            <template v-if="activeEditor">
-                <EditorEditor :key="activeEditor.name" class="editor-entry" :editorData="activeEditor">
+            <template v-if="openEditors" v-for="editor in openEditors">
+                <EditorEditor class="editor-entry" key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
                 </EditorEditor>
             </template>
             <template v-else>
@@ -25,8 +25,8 @@
             </template>
         </div>
         <div class="editor-results editor-color" ref="results">
-            <template v-if="activeEditor">
-                <EditorResults :key="activeEditor.name"  :editorData="activeEditor">
+            <template v-for="editor in openEditors">
+                <EditorResults :key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
                 </EditorResults>
             </template>
         </div>

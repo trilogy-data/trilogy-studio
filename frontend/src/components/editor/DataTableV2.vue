@@ -53,12 +53,12 @@
 </style>
 
 <script lang="ts">
-import { TabulatorFull } from 'tabulator-tables'
+import { Tabulator } from 'tabulator-tables'
 import { ResultColumn } from '../../models/Results';
 export default {
     data() {
         return {
-            tabulator: null as TabulatorFull | null,
+            tabulator: null as Tabulator | null,
             actualTableHeight: '100%',
             selectedCell: null
         }
@@ -127,14 +127,18 @@ export default {
             return calculated;
         }
     },
-    beforeDestroy() {
+    unmounted() {
+        console.log('unmount event')
         if (this.tabulator) {
+            console.log('destroy tabulator')
             this.tabulator.destroy()
+            this.tabulator = null;
+            console.log('tabulator is null')
         }
     },
     async mounted() {
-
-        this.tabulator = new TabulatorFull(this.$refs.tabulator, {
+        if (!this.tabulator ) {
+            this.tabulator = new Tabulator(this.$refs.tabulator, {
             // data: this.tableData, //link data to table  
             reactiveData: true,
             renderHorizontal: 'virtual',
@@ -153,6 +157,7 @@ export default {
                 columnHeaders: true
             }
         });
+    }
     },
     methods: {
     }

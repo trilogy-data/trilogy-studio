@@ -1,5 +1,3 @@
-
-
 <template>
     <div class="query-result">
         <v-tabs class="editor-tabs pa-0 ba-0" v-model="activeTab">
@@ -7,7 +5,8 @@
             <v-tab v-if="editor.syntax === 'preql'" class="editor-tab" value="sql">SQL</v-tab>
         </v-tabs>
         <ROEditor class="sub-component-content" v-if="activeTab === 'sql'" :content="generated_sql" />
-        <DataTableV2 class="sub-component-content" v-else-if="activeTab === 'results'" id="rdisplay" :headers="headers"
+        <DataTableV2 class="sub-component-content" v-if="activeTab === 'results'" 
+        id="rdisplay" :headers="headers"
             :results="results" />
     </div>
 </template>
@@ -66,19 +65,7 @@
     flex-direction: column;
     flex-wrap: nowrap;
     flex: 1 1 100%;
-    height:  95%;
-}
-
-.result-table {
-    display: flex;
-    flex-direction: row;
-    flex-basis: 100%;
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex: 1 1 100%;
-    flex-wrap: nowrap;
-    width: 100%;
-
+    height: 95%;
 }
 </style>
 <script lang="ts">
