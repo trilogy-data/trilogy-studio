@@ -7,7 +7,7 @@
 
             <v-expansion-panels v-if="connections" theme="dark">
                 <v-expansion-panel class="square-corner" v-for="connection in connections" :key="connection.name">
-                    <v-expansion-panel-title>
+                    <v-expansion-panel-title :key="connection.name">
                         <GlowingDot class="" v-if="connection.active" />
                         <div v-if="connection.model" class="pl-4">{{ connection.name }}
                             <span class="opacity-light">({{ connection.model }})</span>

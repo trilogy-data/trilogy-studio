@@ -17,7 +17,7 @@
                 </v-tab>
             </v-tabs>
             <template v-if="openEditors" v-for="editor in openEditors">
-                <EditorEditor class="editor-entry" key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
+                <EditorEditor class="editor-entry" :key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
                 </EditorEditor>
             </template>
             <template v-else>
