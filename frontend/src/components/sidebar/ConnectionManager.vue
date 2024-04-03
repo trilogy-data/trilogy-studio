@@ -5,8 +5,11 @@
         </div>
         <div class="connection-list">
 
-            <v-expansion-panels v-if="connections" theme="dark">
-                <v-expansion-panel class="square-corner" v-for="connection in connections" :key="connection.name">
+            <v-expansion-panels v-model="selectedPanel"
+            theme="dark">
+                <v-expansion-panel class="square-corner" v-for="connection in connections" 
+                :key="connection.name"
+                :value="connection.name">
                     <v-expansion-panel-title :key="connection.name">
                         <GlowingDot class="" v-if="connection.active" />
                         <div v-if="connection.model" class="pl-4">{{ connection.name }}
@@ -128,6 +131,7 @@ import RemoveConnectionPopup from '/src/components/sidebar/connections/RemoveCon
 import EditConnectionPopup from '/src/components/sidebar/connections/EditConnectionPopup.vue'
 import { Connection } from '/src/models/Connection'
 import { mapActions, mapGetters } from 'vuex';
+import connections from '/src/store/modules/connections';
 export default {
     name: "ConnectionManager",
     components: {
@@ -140,6 +144,7 @@ export default {
     },
     data() {
         return {
+            selectedPanel: null
         };
     },
     computed: {
