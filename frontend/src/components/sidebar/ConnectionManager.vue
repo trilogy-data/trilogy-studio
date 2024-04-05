@@ -1,6 +1,6 @@
 <template>
     <div class="connection-manager py-0">
-        <div class="header">
+        <div class="sidebar-header">
             Connections
         </div>
         <div class="connection-list">
@@ -60,13 +60,6 @@
     font-size: .6rem;
 }
 
-.header {
-    color: var(--text-lighter);
-    font-size: 1.0rem;
-    height: 30px;
-    min-height: 30px;
-    line-height: 30px;
-}
 
 .footer {
     --height: 20px;

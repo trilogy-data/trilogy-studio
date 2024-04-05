@@ -8,6 +8,7 @@
                 <ConnectionManager v-if="activeSidebar == 'connections'" />
                 <HistoryManager v-if="activeSidebar == 'history'" />
                 <ModelManager v-if="activeSidebar == 'models'" />
+                <GenAIManager v-if="activeSidebar == 'genai'" />
             </div>
         </div>
         <SidebarFooter class="footer" />
@@ -54,6 +55,7 @@
 import ConnectionManager from './ConnectionManager.vue'
 import HistoryManager from './HistoryManager.vue'
 import ModelManager from './ModelManager.vue'
+import GenAIManager from './GenAIManager.vue'
 import SidebarFooter from './SidebarFooter.vue'
 import SidebarSelector from './SidebarSelector.vue'
 import { mapGetters } from 'vuex';
@@ -65,7 +67,7 @@ export default {
         return {
         };
     },
-    components: { ConnectionManager, HistoryManager, SidebarFooter, SidebarSelector, ModelManager },
+    components: { ConnectionManager, HistoryManager, SidebarFooter, SidebarSelector, ModelManager, GenAIManager },
     computed: {
         ...mapGetters(['activeSidebar'])
 

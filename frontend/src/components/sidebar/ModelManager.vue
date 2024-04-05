@@ -1,11 +1,13 @@
 <template>
     <div class="connection-manager py-0">
-        <div v-if="activeModelFromConnection" class="header">
-            {{ activeModelFromConnection.name }}
+        <div class="sidebar-header">
+            Model Management
         </div>
-        <div v-else class="header">
+        <div class="sidebar-subheader" v-if="activeModelFromConnection" >{{ activeModelFromConnection.name }}</div>
+        <div class="sidebar-subheader" v-else >
             No active model
         </div>
+       <div></div>
         <v-select theme="dark" variant="solo" density="compact" class="minimal-select" v-model="selectedModel"
             label="Change Connection Model" :items="models" item-title="name"
             @update:modelValue="changeConnectionModel">
@@ -60,13 +62,12 @@
     </div>
 </template>
 <style local>
-.header {
-    color: var(--text-lighter);
-    font-size: .8rem;
-    height: 30px;
-    min-height: 30px;
-    line-height: 30px;
+
+.sidebar-subheader {
+  color: var(--text-lighter);
+  font-size: .75rem;
 }
+
 
 /* .minimal-select {
     font-size: 1.0rem;
@@ -86,7 +87,6 @@
     color: var(--text-lighter);
 
 }
-
 
 
 .editor-list {

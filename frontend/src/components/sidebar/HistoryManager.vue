@@ -1,6 +1,6 @@
 <template>
     <div class="history-manager py-0">
-        <div class="header">
+        <div class="sidebar-header">
             History
         </div>
         <modal v-if="modalVisible" @close="modalVisible = false" :data="modalData"/>
@@ -29,13 +29,7 @@
     </div>
 </template>
 <style local>
-.header {
-    color: var(--text-lighter);
-    font-size: 1.0rem;
-    height: 30px;
-    min-height: 30px;
-    line-height: 30px;
-}
+
 .failed {
     color: var(--text-error);
 }

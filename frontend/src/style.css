@@ -113,7 +113,18 @@ button:focus-visible {
 }
 
 
+
 /* sidebar CSS */
+.sidebar-header {
+  color: var(--text-lighter);
+  font-size: 1.0rem;
+  height: 30px;
+  min-height: 30px;
+  line-height: 30px;
+}
+
+
+
 .sidebar-button-list {
   display: 'flex';
   width: '100%';
