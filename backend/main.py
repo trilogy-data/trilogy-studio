@@ -41,11 +41,20 @@ from trilogy_public_models import models as public_models
 from trilogy_public_models.inventory import parse_initial_models
 
 from sqlalchemy import create_engine
-from backend.io_models import ListModelResponse, Model, UIConcept
+from backend.io_models import (
+    ListModelResponse,
+    Model,
+    UIConcept,
+    GenAIConnectionInSchema,
+    QueryInSchema,
+    GenAIQueryInSchema,
+    GenAIQueryOutSchema,
+)
 from backend.models.helpers import flatten_lineage
 from duckdb_engine import *  # this is for pyinstaller
 from sqlalchemy_bigquery import *  # this is for pyinstaller
 from preql.executor import generate_result_set
+from preql_nlp.core import NLPEngine
 
 PORT = 5678
 
@@ -111,6 +120,8 @@ app.add_middleware(
 
 CONNECTIONS: Dict[str, Executor] = {}
 
+GENAI_CONNECTIONS: Dict[str, NLPEngine] = {}
+
 ## BEGIN REQUESTS
 
 
@@ -152,10 +163,7 @@ class ConnectionListOutput(BaseModel):
     connections: List[ConnectionListItem]
 
 
-class QueryInSchema(BaseModel):
-    connection: str
-    query: str
-    # chart_type: ChartType | None = None
+
 
 
 class QueryOutColumn(BaseModel):
@@ -334,6 +342,24 @@ def create_connection(connection: ConnectionInSchema):
     CONNECTIONS[connection.name] = executor
 
 
+@router.post("/gen_ai_connection")
+def create_connection(connection: GenAIConnectionInSchema):
+    engine = NLPEngine(
+        # name=connection.name,
+        provider=connection.provider,
+        model=connection.extra.get("model", None),
+        api_key=connection.api_key,
+    )
+    try:
+        engine.test_connection()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Error validating connection: {str(e)}",
+        )
+    GENAI_CONNECTIONS[connection.name] = engine
+
+
 @router.post("/raw_query")
 def run_raw_query(query: QueryInSchema):
     start = datetime.now()
@@ -378,6 +404,23 @@ def run_raw_query(query: QueryInSchema):
     )
     return output
 
+
+@router.post("/genai_query")
+def run_genai_query(query: GenAIQueryInSchema):
+    from preql_nlp.main_v2 import build_query as build_query_v2
+    start = datetime.now()
+    executor = CONNECTIONS.get(query.connection)
+    gen_ai = GENAI_CONNECTIONS.get(query.genai_connection)
+
+    try:
+        processed_query_v2 = build_query_v2(
+            query.text, executor.environment, debug=True, llm=gen_ai.llm
+        )
+
+        generated = executor.generator.compile_statement(processed_query_v2)
+        return GenAIQueryOutSchema(text = generated)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/query")
 def run_query(query: QueryInSchema):

@@ -38,7 +38,7 @@ export default {
             links: [{ 'name': 'Connections', 'address': 'connections', 'icon': 'mdi-database' },
             { 'name': 'History', 'address': 'history', 'icon': 'mdi-history' },
             { 'name': "Models", 'address': 'models', 'icon': 'mdi-table' },
-            { 'name': 'Other', 'address': 'other', 'icon': 'mdi-dots-horizontal' },
+            // { 'name': 'Other', 'address': 'other', 'icon': 'mdi-dots-horizontal' },
             { 'name': 'GenAI', 'address': 'genai', 'icon': 'mdi-brain' },
 
             ],

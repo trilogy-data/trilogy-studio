@@ -90,6 +90,11 @@ export default defineComponent({
                 self.generatingPrompt = false;
             })
         },
+        async submitGenAI(selection:String) {
+            this.info = 'Generating PreQL query from prompt...'
+            let response = await this.editorData.runGenAIQuery(selection);
+            return response
+        },
         async submit(retry = false) {
             // this.loading = true;
             this.info = 'Executing query...'
@@ -189,6 +194,30 @@ export default defineComponent({
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
                 if (!this.loading) {
                     this.submit();
+                }
+            });
+
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyG, () => {
+
+                if (!this.loading && this.$store.getters.hasGenAIConnection) {
+                    // this.submit();
+                    var selected: monaco.Selection | monaco.Range | null = editor.getSelection();
+                    if (!selected) {
+                        var line = editor.getPosition();
+                        if (!line) {
+                            return
+                        }
+                        selected = new monaco.Range(line.lineNumber, 1, line.lineNumber, 1);
+
+                    }
+                    console.log(selected)
+                    this.submitGenAI(selected).then((response) => {
+                        var op = {range: selected, text: response, forceMoveMarkers: true};
+                        editor.executeEdits("gen-ai-prompt-shortcut", [op]);
+                    }).catch((error) => {
+                        this.error = axiosHelpers.getErrorMessage(error);
+                    }
+                    )
                 }
             });
 

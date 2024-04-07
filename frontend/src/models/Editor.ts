@@ -142,7 +142,39 @@ export class RawEditor implements EditorInterface {
         this.status_code = 200;
         this.visible = true;
     }
+    async runGenAIQuery() {
+        this.loading = true;
+        this.error = null;
+        this.executed = true;
+        let local = this;
+        const startTime = new Date();
+        try {
+            let info = { connection: local.connection, query: local.contents };
+            await instance.post('genai_query', info).then(function (response) {
+                const columnMap = new Map();
+                for (const [key, value] of response.data.columns) {
+                    columnMap.set(key, value);
+                }
+                local.status_code = 200;
+                local.results = new Results(response.data.results, columnMap); //response.data;
+                const endTime = new Date();
+                local.duration = endTime.getTime() - startTime.getTime();
+                local.executed = true;
+            })
+            // this.last_passed_query_text = current_query;
+        } catch (error) {
+            if (error instanceof Error) {
 
+                const resultCode = axiosHelpers.getResultCode(error);
+                local.status_code = resultCode;
+                local.error = axiosHelpers.getErrorMessage(error);
+                local.duration = null;
+                local.executed = false;
+            }
+        } finally {
+            local.loading = false;
+        }
+    }
     async runQuery() {
         this.loading = true;
         this.error = null;
