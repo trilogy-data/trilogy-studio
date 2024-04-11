@@ -137,7 +137,11 @@ const mutations = {
         state.connections[index].active = true
     },
     async setConnectionInactive(state, connection) {
-        const index = state.connections.findIndex(c => c.name === connection.name)
+        let arg = connection
+        if (connection.name) {
+            arg = connection.name
+        }
+        const index = state.connections.findIndex(c => c.name === arg)
         if (!index) {
             return
         }

@@ -15,6 +15,9 @@
 
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
+                        type: {{connection.type}}
+                        extra: {{connection.extra}}
+                        apiKey: {{connection.apiKey}}
                         <v-toolbar height="24" extension-height="24" class="sidebar-button-list align-right">
                             <!-- <EditConnectionPopup :connection="connection" />
                     <RemoveConnectionPopup :connection="connection" />
@@ -23,10 +26,7 @@
                         icon="mdi-pencil"
                         class="sidebar-action-button pa-0 ba-0" density="compact">
                     </v-btn> 
-                    <v-btn :disabled="true"
-                        icon="mdi-cancel"
-                        class="sidebar-action-button pa-0 ba-0" density="compact">
-                    </v-btn> 
+                    <RemoveConnectionPopup :connection="connection" />
                      <v-btn :disabled="true"
                         icon="mdi-refresh"
                         class="sidebar-action-button pa-0 ba-0" density="compact">
@@ -97,11 +97,13 @@
 // @ts-ignore
 import GlowingDot from '/src/components/generic/GlowingDot.vue';
 import NewConnectionPopup from '/src/components/sidebar/genai/NewConnectionPopup.vue';
+import RemoveConnectionPopup from '/src/components/sidebar/genai/RemoveConnectionPopup.vue';
 export default {
     name: "GenAIManager",
     components: {
         GlowingDot,
         NewConnectionPopup,
+        RemoveConnectionPopup
     },
     data() {
         return {

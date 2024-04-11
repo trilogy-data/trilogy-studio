@@ -48,7 +48,7 @@ export default defineComponent({
         this.createEditor()
     },
     computed: {
-        ...mapGetters(['getConnectionByName']),
+        ...mapGetters(['getConnectionByName', 'activeGenAIConnection']),
         connection() {
             return this.getConnectionByName(this.editorData.connection)
         },
@@ -72,30 +72,15 @@ export default defineComponent({
     methods: {
         ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor',
             'setConnectionInactive', 'addHistory','setEditorError']),
-        async generate() {
-            this.loading = true;
-            this.info = 'Generating query from prompt...'
-            this.error = null;
-            var self = this;
-            await instance.post('parse_question', {
-                model: this.query.model,
-                text: this.prompt
-            }).then(function (resp) {
-                self.query.query = '# generated from prompt: ' + self.prompt + '\n' + resp.data.query_text;
-                self.prompt = '';
-                self.submit();
-            }).catch((error) => {
-                self.error = axiosHelpers.getErrorMessage(error);
-                self.loading = false;
-                self.generatingPrompt = false;
-            })
-        },
         async submitGenAI(selection:String) {
             this.info = 'Generating PreQL query from prompt...'
-            let response = await this.editorData.runGenAIQuery(selection);
+            console.log('submitting query')
+            console.log(this.activeGenAIConnection)
+            let response = await this.editorData.runGenAIQuery(this.$store,this.activeGenAIConnection.name, selection);
+            console.log(response)
             return response
         },
-        async submit(retry = false) {
+        async submit() {
             // this.loading = true;
             this.info = 'Executing query...'
             const start = new Date()
@@ -109,20 +94,8 @@ export default defineComponent({
             if (!this.connection.active) {
                 await this.connectConnection(this.connection)
             }
-            await this.editorData.runQuery();
+            await this.editorData.runQuery(this.$store);
             
-            // TODO: move this into query execution in editor?
-            if (this.editorData.status_code === 403) {
-                console.log('403 error, automatically setting connection inactive and retrying.')
-                await this.setConnectionInactive({ name: this.editorData.connection })
-                // immediately force reconnection
-                await this.connectConnection(this.connection)
-                // automatically retry
-                if (!retry) {
-                    return await this.submit(true)
-                }
-                
-            }
             this.addHistory({ 
                 connection: this.editorData.connection,
                 text: this.editorData.contents, 
@@ -202,20 +175,26 @@ export default defineComponent({
                 if (!this.loading && this.$store.getters.hasGenAIConnection) {
                     // this.submit();
                     var selected: monaco.Selection | monaco.Range | null = editor.getSelection();
+                    let range: monaco.Range;
                     if (!selected) {
                         var line = editor.getPosition();
                         if (!line) {
                             return
                         }
-                        selected = new monaco.Range(line.lineNumber, 1, line.lineNumber, 1);
+                        let lineLength = editor.getModel()?.getLineLength(line.lineNumber)
+                        range = new monaco.Range(line.lineNumber, 1, line.lineNumber, lineLength ? lineLength + 1 : 1,);
 
                     }
-                    console.log(selected)
-                    this.submitGenAI(selected).then((response) => {
-                        var op = {range: selected, text: response, forceMoveMarkers: true};
+                    else {
+                        range = new monaco.Range(selected.startLineNumber, selected.startColumn, selected.endLineNumber, selected.endColumn)
+                    }
+                    // run our async call
+                    Promise.all([this.submitGenAI(editor.getModel()?.getValueInRange(range))]).then(() => {
+                        var op = {range: range, text: this.editorData.generated_sql, forceMoveMarkers: true};
                         editor.executeEdits("gen-ai-prompt-shortcut", [op]);
+                        this.editorData.runQuery(this.$store);
                     }).catch((error) => {
-                        this.error = axiosHelpers.getErrorMessage(error);
+                        this.setEditorError({name:this.editorData.name, error: axiosHelpers.getErrorMessage(error)});
                     }
                     )
                 }
@@ -226,7 +205,8 @@ export default defineComponent({
                 connection:this.editorData.connection }).then( ()=> {
                     this.saveEditors()
                 }).catch((error) => {
-                    this.error = axiosHelpers.getErrorMessage(error);
+                    this.setEditorError({name:this.editorData.name, error: axiosHelpers.getErrorMessage(error)});
+
                 })
                 
             });

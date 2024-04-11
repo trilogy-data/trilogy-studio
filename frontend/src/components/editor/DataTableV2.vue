@@ -114,7 +114,7 @@ export default {
             this.headers.forEach((details, _) => {
                 const result = {
                     title: details.name,
-                    titleFormatter: 'plaintext',
+                    // titleFormatter: 'plaintext',
                     field: details.name,
                     // formatter: this.cellFormatter,
                     // tooltip: this.cellTooltip,

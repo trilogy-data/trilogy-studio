@@ -17,7 +17,6 @@ const storageAPI = {
     const parsed = data.map((dict) => {
       return GenAIConnection.fromJSON(dict);
     });
-    console.log(parsed);
     return parsed;
   },
 };
@@ -37,21 +36,41 @@ const getters = {
   getGenAIConnectionByName: (state) => (name) => {
     return state.genAIConnections.find((conn) => conn.name === name);
   },
+  activeGenAIConnection: (state) => {
+    return state.genAIConnections.find((conn) => conn.active);
+  }
 };
 
 const actions = {
+
+  async connectGenAIConnection({ commit, rootGetters }, name) {
+    const connection = rootGetters.getGenAIConnectionByName(name);
+    if (connection) {
+      instance.post("/gen_ai_connection", {
+        provider: connection.type,
+        name: connection.name,
+        extra: connection.extra,
+        apiKey: connection.apiKey,
+      
+      }).then(() => {
+        commit("setGenAIConnectionState", { connection, active: true });
+      });
+    }
+  },
   async addGenAIConnection({ commit, rootGetters }, data) {
-    console.log(data);
     instance.post("/gen_ai_connection", data).then(() => {
       const connection = GenAIConnection.fromJSON({
-        type: data.type,
+        type: data.provider,
         name: data.name,
         extra: data.extra,
-        apiKey: data.extra,
+        apiKey: data.apiKey,
         active: true,
       });
       commit("addGenAIConnection", connection);
     });
+  },
+  async removeGenAIConnection({ commit, rootGetters }, data) {
+    commit("removeGenAIConnection", data);
   },
   async setGenAIConnectionState({ commit, rootGetters }, args) {
     commit("setGenAIConnectionState", args);
@@ -61,6 +80,10 @@ const actions = {
 const mutations = {
   async addGenAIConnection(state, connection) {
     state.genAIConnections.push(connection);
+    storageAPI.setGenAIConnections(state.genAIConnections);
+  },
+  async removeGenAIConnection(state, connection) {
+    state.genAIConnections = state.genAIConnections.filter(c => c.name !== connection.name)
     storageAPI.setGenAIConnections(state.genAIConnections);
   },
   async setGenAIConnectionState(state, args) {

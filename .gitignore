@@ -44,3 +44,7 @@ backend/build
 backend/dist
 
 playwright-report
+
+local_prompt_cache.db
+
+*.cpython-*

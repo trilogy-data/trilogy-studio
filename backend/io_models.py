@@ -34,7 +34,7 @@ class GenAIConnectionInSchema(BaseModel):
     name: str
     provider: Provider
     api_key: str = Field(alias="apiKey")
-    extra: Dict | None = Field(default_factory=dict)
+    extra: Dict = Field(default_factory=dict)
 
 class QueryInSchema(BaseModel):
     connection: str

@@ -39,7 +39,7 @@ from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 from trilogy_public_models import models as public_models
 from trilogy_public_models.inventory import parse_initial_models
-
+from preql.parsing.render import render_query
 from sqlalchemy import create_engine
 from backend.io_models import (
     ListModelResponse,
@@ -194,7 +194,7 @@ def safe_format_query(input: str) -> str:
 def parse_env_from_full_model(input: ModelInSchema) -> Environment:
     env = Environment()
 
-    parsed = dict()
+    parsed:dict[str, Environment] = dict()
     successful = set()
     attempts = 0
     exception = None
@@ -343,11 +343,11 @@ def create_connection(connection: ConnectionInSchema):
 
 
 @router.post("/gen_ai_connection")
-def create_connection(connection: GenAIConnectionInSchema):
+def create_gen_ai_connection(connection: GenAIConnectionInSchema):
     engine = NLPEngine(
         # name=connection.name,
         provider=connection.provider,
-        model=connection.extra.get("model", None),
+        model= connection.extra.get("model", None) if connection.extra else None,
         api_key=connection.api_key,
     )
     try:
@@ -405,19 +405,29 @@ def run_raw_query(query: QueryInSchema):
     return output
 
 
-@router.post("/genai_query")
+@router.post("/gen_ai_query")
 def run_genai_query(query: GenAIQueryInSchema):
-    from preql_nlp.main_v2 import build_query as build_query_v2
+    from preql_nlp.main import parse_query
     start = datetime.now()
     executor = CONNECTIONS.get(query.connection)
-    gen_ai = GENAI_CONNECTIONS.get(query.genai_connection)
-
-    try:
-        processed_query_v2 = build_query_v2(
-            query.text, executor.environment, debug=True, llm=gen_ai.llm
+    if not executor:
+        raise HTTPException(
+            403, "Not a valid live connection. Refresh connection, then retry."
         )
 
-        generated = executor.generator.compile_statement(processed_query_v2)
+    gen_ai = GENAI_CONNECTIONS.get(query.genai_connection)
+    if not gen_ai:
+        raise HTTPException(
+            403, "Not a valid genai connection. Refresh connection, then retry."
+        )
+    assert executor
+    assert gen_ai
+    try:
+        processed_query = parse_query(
+            input_text=query.text, input_environment=executor.environment, debug=True, llm=gen_ai.llm
+        )
+
+        generated = render_query(processed_query)
         return GenAIQueryOutSchema(text = generated)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
