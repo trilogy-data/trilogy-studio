@@ -38,7 +38,7 @@ const getters = {
   },
   activeGenAIConnection: (state) => {
     return state.genAIConnections.find((conn) => conn.active);
-  }
+  },
 };
 
 const actions = {
@@ -75,6 +75,9 @@ const actions = {
   async setGenAIConnectionState({ commit, rootGetters }, args) {
     commit("setGenAIConnectionState", args);
   },
+  async updateGenAIConnection({ commit, rootGetters }, args) {
+    commit("updateGenAIConnection", args);
+  },
 };
 
 const mutations = {
@@ -91,6 +94,12 @@ const mutations = {
       (c) => c.name === args.connection.name
     );
     state.genAIConnections[index].active = args.active;
+  },
+  async updateGenAIConnection(state, args) {
+    state.genAIConnections = state.genAIConnections.filter(c => c.name !== args.old.name)
+    state.genAIConnections.push(args.new);
+    storageAPI.setGenAIConnections(state.genAIConnections);
+
   },
 };
 

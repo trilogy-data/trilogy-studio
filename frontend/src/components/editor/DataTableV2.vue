@@ -140,6 +140,8 @@ export default {
         if (!this.tabulator ) {
             this.tabulator = new Tabulator(this.$refs.tabulator, {
             // data: this.tableData, //link data to table  
+            pagination:true, //enable pagination
+            paginationMode:"remote", //enable remote pagination
             reactiveData: true,
             renderHorizontal: 'virtual',
             // columns: this.tableColumns, //define table columns

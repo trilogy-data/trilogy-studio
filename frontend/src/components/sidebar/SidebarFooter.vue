@@ -27,7 +27,7 @@ export default {
         ...mapGetters(['activeEditor', 'getConnectionByName']),
         connection() {
             // @ts-ignore
-            let conn = this.activeEditor.connection
+            let conn = this.activeEditor?.connection
             if (!conn) return null;
             // @ts-ignore
             let connection: Connection = this.getConnectionByName(conn) as Connection
