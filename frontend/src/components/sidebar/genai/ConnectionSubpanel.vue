@@ -9,6 +9,7 @@
         </v-text-field>
     </v-container>
 </template>
+
 <style scoped>
 .connection-detail {
     size: 0.8rem;
@@ -18,6 +19,8 @@
     border-radius: 0 !important;
 }
 </style>
+
+
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
 import { getConnectionExtras } from './utility.ts';

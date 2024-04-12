@@ -30,7 +30,10 @@ const storageAPI = {
     });
     store.set("editors", parsed);
     let active = value.filter((editor) => editor.visible);
-    store.set("activeEditors", active.map((editor) => editor.name));
+    store.set(
+      "activeEditors",
+      active.map((editor) => editor.name)
+    );
     // store.set(key, buffer.toString(encoding));
   },
 
@@ -50,8 +53,7 @@ const storageAPI = {
 
   getActiveEditors(): Array<string> {
     return store.get("activeEditors", []) as Array<string>;
-  }
-
+  },
 };
 
 function getInitialEditors() {
@@ -65,7 +67,7 @@ function getInitialEditors() {
   return editors;
 }
 const initialEditors: Array<Editor | RawEditor> = getInitialEditors();
-const activeEditors = storageAPI.getActiveEditors();
+
 
 const state = {
   editors: initialEditors,

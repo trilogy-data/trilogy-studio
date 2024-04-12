@@ -93,10 +93,10 @@ export default {
                     name: 'Find and Replace',
                     keys: ['H']
                 },
-                {
-                    name: 'Format',
-                    keys: ['B']
-                }
+                // {
+                //     name: 'Format',
+                //     keys: ['B']
+                // }
             ]
 
         }

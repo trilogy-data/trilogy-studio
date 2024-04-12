@@ -31,7 +31,7 @@ const state = {
 };
 
 const getters = {
-  hasGenAIConnection: (state) => state.genAIConnections.length>0,
+  hasGenAIConnection: (state) => state.genAIConnections.length > 0,
   genAIConnections: (state) => state.genAIConnections,
   getGenAIConnectionByName: (state) => (name) => {
     return state.genAIConnections.find((conn) => conn.name === name);
@@ -42,22 +42,22 @@ const getters = {
 };
 
 const actions = {
-
   async connectGenAIConnection({ commit, rootGetters }, name) {
     const connection = rootGetters.getGenAIConnectionByName(name);
     if (connection) {
-      instance.post("/gen_ai_connection", {
-        provider: connection.type,
-        name: connection.name,
-        extra: connection.extra,
-        apiKey: connection.apiKey,
-      
-      }).then(() => {
-        commit("setGenAIConnectionState", { connection, active: true });
-      });
+      instance
+        .post("/gen_ai_connection", {
+          provider: connection.type,
+          name: connection.name,
+          extra: connection.extra,
+          apiKey: connection.apiKey,
+        })
+        .then(() => {
+          commit("setGenAIConnectionState", { connection, active: true });
+        });
     }
   },
-  async addGenAIConnection({ commit, rootGetters }, data) {
+  async addGenAIConnection({ commit }, data) {
     instance.post("/gen_ai_connection", data).then(() => {
       const connection = GenAIConnection.fromJSON({
         type: data.provider,
@@ -69,13 +69,13 @@ const actions = {
       commit("addGenAIConnection", connection);
     });
   },
-  async removeGenAIConnection({ commit, rootGetters }, data) {
+  async removeGenAIConnection({ commit }, data) {
     commit("removeGenAIConnection", data);
   },
-  async setGenAIConnectionState({ commit, rootGetters }, args) {
+  async setGenAIConnectionState({ commit }, args) {
     commit("setGenAIConnectionState", args);
   },
-  async updateGenAIConnection({ commit, rootGetters }, args) {
+  async updateGenAIConnection({ commit }, args) {
     commit("updateGenAIConnection", args);
   },
 };
@@ -86,7 +86,9 @@ const mutations = {
     storageAPI.setGenAIConnections(state.genAIConnections);
   },
   async removeGenAIConnection(state, connection) {
-    state.genAIConnections = state.genAIConnections.filter(c => c.name !== connection.name)
+    state.genAIConnections = state.genAIConnections.filter(
+      (c) => c.name !== connection.name
+    );
     storageAPI.setGenAIConnections(state.genAIConnections);
   },
   async setGenAIConnectionState(state, args) {
@@ -96,10 +98,11 @@ const mutations = {
     state.genAIConnections[index].active = args.active;
   },
   async updateGenAIConnection(state, args) {
-    state.genAIConnections = state.genAIConnections.filter(c => c.name !== args.old.name)
+    state.genAIConnections = state.genAIConnections.filter(
+      (c) => c.name !== args.old.name
+    );
     state.genAIConnections.push(args.new);
     storageAPI.setGenAIConnections(state.genAIConnections);
-
   },
 };
 
