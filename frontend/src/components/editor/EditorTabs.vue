@@ -16,12 +16,12 @@
                     <NewEditorPopup></NewEditorPopup>
                 </v-tab>
             </v-tabs>
-            <template v-if="openEditors.length === 0">
-                <div>Open an editor to get started</div>>
-            </template>
-            <template v-else v-for="editor in openEditors">
-                <EditorEditor class="editor-entry" key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
+            <template v-if="openEditors" v-for="editor in openEditors">
+                <EditorEditor class="editor-entry" :key="editor.name" v-if="editor.name == localEditor" :editorData="editor">
                 </EditorEditor>
+            </template>
+            <template v-else>
+                <div> {{ localEditor }} Open an editor to get started! {{ activeEditor }} end</div>
             </template>
         </div>
         <div class="editor-results editor-color" ref="results">
@@ -51,12 +51,14 @@
     background-color: var(--main-bg-color);
     filter: brightness(85%);
 }
+
 .editor-wrapper {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     /* flex: 1 1 100%; */
     height: 100%;
+    background-color: var(--main-bg-color);
 }
 
 .editor-entry {
@@ -97,15 +99,18 @@
 .editor-tab.v-btn {
     height: 24px;
     text-transform: none;
-    color: var(--text-lighter);
     background-color: var(--main-bg-color);
-
 }
 
 .editor-tab {
     height: 10px;
     font-size: .7rem;
+    background-color: var(--main-bg-color);
     color: var(--text-lighter);
+}
+
+.v-btn__underlay {
+    background-color: var(--main-bg-color);
 }
 </style>
 <script lang="ts">
@@ -123,9 +128,10 @@ export default {
         const results = ref(null);
         const localEditor = ref("");
         const store = useStore()
-        localEditor.value = store.getters['activeEditor'];
+        localEditor.value = store.getters['activeEditor'].name;
         const editors = computed(() => store.getters['editors'])
         const openEditors = computed(() => store.getters['openEditors'])
+        const activeEditor = computed(() => store.getters['activeEditor'])
         const setActiveEditor = () => store.dispatch('setActiveEditor', localEditor.value)
         const closeEditor = (editor) => store.dispatch('closeEditor', editor)
         store.watch(
@@ -164,6 +170,7 @@ export default {
             setActiveEditor,
             closeEditor,
             localEditor,
+            activeEditor,
             // functions
             // refs
             editor,

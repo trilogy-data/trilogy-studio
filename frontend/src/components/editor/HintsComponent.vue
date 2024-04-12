@@ -68,7 +68,7 @@
 export default {
     data() {
         return {
-            shortcuts: [
+            staticShortcuts: [
                 {
                     name: 'Run',
                     keys: ['Enter']
@@ -92,7 +92,11 @@ export default {
                 {
                     name: 'Find and Replace',
                     keys: ['H']
-                }
+                },
+                // {
+                //     name: 'Format',
+                //     keys: ['B']
+                // }
             ]
 
         }
@@ -103,13 +107,29 @@ export default {
             required: false,
         },
     },
+    mounted() {
+        console.log(this.$store.getters.genAIConnections)
+    },
     computed: {
+
+        shortcuts():Array<any> {
+            if (this.$store.getters.genAIConnections.length > 0) {
+                return this.staticShortcuts.concat([
+                    {
+                        name: 'Generate PreQL From Selected Text',
+                        keys: ['G']
+                    }
+                ])
+            }
+            return this.staticShortcuts
+        },
+
         icon() {
             if (this.sysType == 'mac') {
                 return '⌘'
             }
             return 'Ctrl'
-        }
+        },
     }
 }
 </script>

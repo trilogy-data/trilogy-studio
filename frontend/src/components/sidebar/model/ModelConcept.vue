@@ -61,7 +61,8 @@ export default defineComponent({
 
 <template>
   <v-list-item v-if="density === 'compact'" class="ma-0 pa-0" :density="density" :key="key" :title="key"
-    @click="propogateModelClick">
+    @click="propogateModelClick"
+    @contextmenu.prevent="console.log(key)">
     <template v-slot:prepend>
       <v-icon class="mr-0 concept-icon"> <v-tooltip > {{ concept.purpose }}</v-tooltip> {{ icon }} </v-icon>
     </template></v-list-item>

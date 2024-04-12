@@ -4,7 +4,7 @@
             <div class="sidebar-selector-nav-item py-2 px-0">
                 <v-tooltip bottom>
                     <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" size="x-small" variant="outlined" @click.prevent="click(link.address)" :icon="link.icon">
+                        <v-btn v-bind="props" size="small" variant="outlined" @click.prevent="click(link.address)" :icon="link.icon">
                         </v-btn>
                     </template>
                     <span>{{ link.name }}</span>
@@ -38,8 +38,8 @@ export default {
             links: [{ 'name': 'Connections', 'address': 'connections', 'icon': 'mdi-database' },
             { 'name': 'History', 'address': 'history', 'icon': 'mdi-history' },
             { 'name': "Models", 'address': 'models', 'icon': 'mdi-table' },
-            { 'name': 'Other', 'address': 'other', 'icon': 'mdi-dots-horizontal' },
-            { 'name': 'Natural Language', 'address': 'nlp', 'icon': 'mdi-dots-horizontal' },
+            // { 'name': 'Other', 'address': 'other', 'icon': 'mdi-dots-horizontal' },
+            { 'name': 'GenAI', 'address': 'genai', 'icon': 'mdi-brain' },
 
             ],
             selectedItem: 'connections'

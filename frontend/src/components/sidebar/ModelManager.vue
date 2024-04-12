@@ -1,20 +1,23 @@
 <template>
     <div class="connection-manager py-0">
-        <div v-if="activeModelFromConnection" class="header">
-            {{ activeModelFromConnection.name }}
+        <div class="sidebar-header">
+            Model Management
         </div>
-        <div v-else class="header">
+        <div class="sidebar-subheader" v-if="activeModelFromConnection" >{{ activeModelFromConnection.name }}</div>
+        <div class="sidebar-subheader" v-else >
             No active model
         </div>
+       <div></div>
         <v-select theme="dark" variant="solo" density="compact" class="minimal-select" v-model="selectedModel"
-            label="Change Connection Model" :items="models" item-title="name" @update:modelValue="changeConnectionModel">
+            label="Change Connection Model" :items="models" item-title="name"
+            @update:modelValue="changeConnectionModel">
         </v-select>
 
         <div class="connection-list py-0">
             <v-expansion-panels theme="dark" variant="accordion">
                 <v-expansion-panel class="py-0">
                     <v-expansion-panel-title>
-                        <div class="pl-4">Editor Sources</div>
+                        <div class="pl-4">Editor Sources ({{ editors.length }})</div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text class="px-0">
                         <template v-if="activeModelFromConnection">
@@ -25,14 +28,8 @@
                         </template>
                         <div class="connection-list-item" v-else>No active model</div>
                         <div class="d-flex flex-column align-center  pa-0">
-                            <v-toolbar height="24" extension-height="24" class="sidebar-button-list">
+                            <v-toolbar height="24" extension-height="24" class="sidebar-button-list align-center">
                                 <AddEditorToModelPopup :model="activeModelFromConnection" />
-                                <!-- <v-btn icon="mdi-format-align-left"></v-btn>
-                                <v-btn density="compact" icon="mdi-format-align-center"></v-btn> -->
-                                <!-- <v-btn @click="removeConnection(connection)"  density="compact" icon="mdi-cancel"></v-btn>
-                                <EditConnectionPopup :connection="connection" />
-                                <RemoveConnectionPopup :connection="connection" />
-                                <NewEditorPopup :defaultConnection="connection.name" /> -->
                             </v-toolbar>
                         </div>
                     </v-expansion-panel-text>
@@ -65,13 +62,12 @@
     </div>
 </template>
 <style local>
-.header {
-    color: var(--text-lighter);
-    font-size: 1.0rem;
-    height: 30px;
-    min-height: 30px;
-    line-height: 30px;
+
+.sidebar-subheader {
+  color: var(--text-lighter);
+  font-size: .75rem;
 }
+
 
 /* .minimal-select {
     font-size: 1.0rem;
@@ -91,7 +87,6 @@
     color: var(--text-lighter);
 
 }
-
 
 
 .editor-list {

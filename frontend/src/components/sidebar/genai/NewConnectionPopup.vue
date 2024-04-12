@@ -1,20 +1,27 @@
 <template>
     <v-dialog v-model="dialog" max-width="500" min-width=400>
         <template v-slot:activator="{ props }">
-            <v-btn class="sidebar-action-button pa-0 ba-0" v-bind="props" density="compact" icon="mdi-plus"
-                v-shortkey.once="['ctrl', 'n']" @shortkey="showPopup()">
-                +
+            <v-btn class="tab-btn pa-0 ba-0 " v-bind="props" density="compact" block>
+                Add Connection
             </v-btn>
         </template>
-        <v-card theme="dark" class="mx-auto" min-width="344" title="Add Editor to Model">
+        <v-card theme="dark" class="mx-auto" min-width="344" title="Add Connection">
             <v-form v-model="form" @submit.prevent="submit">
                 <v-container>
-                    <v-text-field variant="solo" density="compact" :readonly="loading" v-model="name" label="Import As">
+                    <v-text-field variant="solo" density="compact" :readonly="loading" :rules="[required]"
+                        v-model="name" label="Name">
                     </v-text-field>
                     <v-divider />
-                    <v-select variant="solo" density="compact" :readonly="loading" v-model="editor" label="Editor"
-                        :items="editors" item-title="name">
+                    <v-select variant="solo" density="compact" :readonly="loading" :rules="[required]"
+                        v-model="selectedType" label="Type" :items="connectionTypes">
                     </v-select>
+                    <v-text-field variant="solo" density="compact" :readonly="loading" :rules="[required]"
+                        v-model="apiKey" label="Api Key">
+                    </v-text-field>
+                    <v-divider />
+                    <v-text-field v-for="field in extra" variant="solo" density="compact" :readonly="loading"
+                        v-model="extraValues[field]" :label="field">
+                    </v-text-field>
                 </v-container>
                 <v-divider></v-divider>
                 <v-alert class="mx-auto square-corners" color="warning" v-if="error">{{ error }}</v-alert>
@@ -44,61 +51,53 @@
 </style>
 <script lang="ts">
 import { mapActions, mapGetters } from 'vuex';
-import { Model, LocalModel } from '/src/models/Model';
+import { getConnectionExtras } from './utility.ts';
+import { GenAIType } from "/src/models/GenAIConnection";
 export default {
-    name: "AddEditorToModelPopup",
+    name: "AddGenAIConnection",
     data() {
         return {
             form: false,
             loading: false,
             error: '',
-            editor: null,
             dialog: false,
-            // model: null,
             name: '',
+            selectedType: GenAIType.OPENAI,
+            connectionTypes: [GenAIType.OPENAI],
+            apiKey: '',
             extraValues: {},
         };
     },
     props: {
-        model: [Model, LocalModel],
     },
     computed: {
-        ...mapGetters(['editors', 'activeEditor', 'getConnectionByName',]),
+        ...mapGetters(['models',]),
+        extra() {
+            return getConnectionExtras(this.selectedType)
+        },
+    },
+    mounted: () => {
+        // console.log(this.connections)
     },
     methods: {
-        ...mapActions(['addEditorToModel', 'newEditor']),
+        ...mapActions(['addGenAIConnection']),
         showPopup() {
             this.dialog = true;
         },
         submit() {
-            this.localAddEditorToModel();
+            this.localAddConnection();
         },
-        localAddEditorToModel() {
-            // create it with alias name if not exist
-            let local = this;
-            if (!this.editor) {
-                const fullConnection = local.getConnectionByName(local.activeEditor.connection)
-
-                local.newEditor({
-                    name: local.name,
-                    connection: fullConnection,
-                    syntax: 'preql',
-                }).then(() => {
-                    local.editor = local.name
-                    return local.addEditorToModel()
-                })
-
-            }
-            //otherwise add
-            this.addEditorToModel({
-                alias: this.name,
-                editor: this.editor,
-                model: this.model.name,
+        localAddConnection() {
+            this.addGenAIConnection({
+                name: this.name,
+                provider: this.selectedType,
+                extra: this.extraValues,
+                apiKey: this.apiKey
             }).then(() => {
                 this.dialog = false;
                 this.error = false;
                 this.name = '';
-                this.editor = null;
+                this.apiKey = '';
             }).catch((e) => {
                 this.error = e.message;
             });

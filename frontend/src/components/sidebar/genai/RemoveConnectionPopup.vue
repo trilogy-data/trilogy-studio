@@ -6,7 +6,7 @@
         </template>
         <v-card>
             <v-card-text>
-                Are you sure you want to remove this connection? This will remove any associated editors.
+                Are you sure you want to remove this connection?
             </v-card-text>
             <v-card-actions>
                 <v-btn @click="localRemoveConnection()" color="primary" block>Submit</v-btn>
@@ -33,9 +33,9 @@ export default {
 
     },
     methods: {
-        ...mapActions(['removeConnection']),
+        ...mapActions(['removeGenAIConnection']),
         localRemoveConnection() {
-            this.removeConnection(this.connection)
+            this.removeGenAIConnection(this.connection)
             this.dialog = false;
         }
     }

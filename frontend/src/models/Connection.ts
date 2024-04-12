@@ -21,9 +21,8 @@ export class Connection implements ConnectionInterface {
         this.model = model
         this.extra = extra
     }
-    
-    // @ts-ignore
-    static fromJSON({ name, type, active, model, extra }) {
+
+    public static fromJSON({ name, type, active, model, extra }) {
         return new Connection(name, type, false, model, extra)
     }
 }

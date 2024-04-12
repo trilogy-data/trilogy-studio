@@ -1,16 +1,26 @@
 <template>
-    <div v-if="loading" class="results-loading"><v-progress-linear height="10" indeterminate
-            color="primary"></v-progress-linear>
+    <div class="results-loading">
+        <div v-if="loading" class="results-loading"><v-progress-linear height="10" indeterminate
+                color="primary"></v-progress-linear>
+        </div>
+
+        <ErrorComponent v-else-if="error" :error="error"></ErrorComponent>
+        <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
+        <QueryResult v-else :editor="editorData" :headers="editorData.results.headers"
+            :results="editorData.results.data">
+        </QueryResult>
     </div>
-    <ErrorComponent v-else-if="error" :error="error"></ErrorComponent>
-    <HintsComponent v-else-if="!editorData.executed"></HintsComponent>
-    <QueryResult v-else :editor="editorData" :headers="editorData.results.headers" :results="editorData.results.data">
-    </QueryResult>
-    <EditorFooter :loading="loading" :executed="editorData.executed" :length="editorData.results.data.length"
-        :duration="editorData.duration" />
+    <EditorFooter class='footer' :loading="loading" :executed="editorData.executed"
+        :length="editorData.results.data.length" :duration="editorData.duration" />
 </template>
 
 <style scoped>
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
 .results-loading {
     height: 100%;
 }
@@ -36,11 +46,6 @@ export default defineComponent({
     },
     data() {
         return {
-            last_passed_query_text: null,
-            form: null,
-            prompt: '',
-            generatingPrompt: false,
-            info: 'Query processing...',
         }
     },
     components: {
@@ -49,8 +54,6 @@ export default defineComponent({
         QueryResult,
         ErrorComponent,
         EditorFooter
-    },
-    mounted() {
     },
     computed: {
         ...mapGetters(['models', 'activeConnection']),
@@ -84,9 +87,6 @@ export default defineComponent({
             }
             return 20;
         },
-        generateOverlayVisible() {
-            return this.prompt.length > 1 || this.generatingPrompt
-        }
 
     },
     methods: {
@@ -94,4 +94,3 @@ export default defineComponent({
     }
 })
 </script>
-  

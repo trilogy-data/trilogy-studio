@@ -29,6 +29,7 @@ release
 *.pyc
 .ruff_cache
 .mypy_cache
+__pycache__
 
 # python
 *.pyc
@@ -43,3 +44,7 @@ backend/build
 backend/dist
 
 playwright-report
+
+local_prompt_cache.db
+
+*.cpython-*

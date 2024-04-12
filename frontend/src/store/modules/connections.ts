@@ -10,6 +10,9 @@ import instance from '/src/api/instance'
 
 // import editorMap from '/src/store/modules/monaco'
 
+
+const unconnectedLabel = 'Unconnected';
+
 const store = new Store<Record<string, Object>>({
     name: 'connections',
     watch: true,
@@ -44,11 +47,17 @@ const state = {
     new Connection('bigquery_demo', 'bigquery', false, 'bigquery_demo')],
 };
 
+function addDefault(connections) {
+    return connections.concat([new Connection(unconnectedLabel, '', false, null)])
+}
+
 const getters = {
-    connections: state => state.connections,
+    connections: state => addDefault(state.connections),
     getConnectionByName: (state) => (name) => {
         return state.connections.find(conn => conn.name === name)
     },
+    unconnectedLabel: () => unconnectedLabel
+
 };
 
 function getConnectionArgument(rootGetters, data) {
@@ -80,7 +89,7 @@ function getConnectionArgument(rootGetters, data) {
 const actions = {
     async connectConnection({ commit, rootGetters }, data) {
         const apiArgs = getConnectionArgument(rootGetters, data)
-        instance.post('/connection', apiArgs).then(() => {
+        return instance.post('/connection', apiArgs).then(() => {
             commit('setConnectionActive', data)
         })
     },
@@ -128,7 +137,11 @@ const mutations = {
         state.connections[index].active = true
     },
     async setConnectionInactive(state, connection) {
-        const index = state.connections.findIndex(c => c.name === connection.name)
+        let arg = connection
+        if (connection.name) {
+            arg = connection.name
+        }
+        const index = state.connections.findIndex(c => c.name === arg)
         if (!index) {
             return
         }
