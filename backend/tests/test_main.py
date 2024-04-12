@@ -1,5 +1,11 @@
 from fastapi.testclient import TestClient
-from ..main import ConnectionInSchema, parse_env_from_full_model, ModelInSchema, ModelSourceInSchema
+from ..main import (
+    ConnectionInSchema,
+    parse_env_from_full_model,
+    ModelInSchema,
+
+)
+from ..io_models import ModelSourceInSchema
 from typing import List, Mapping
 from trilogy_public_models import models as public_models
 
@@ -83,30 +89,32 @@ def test_read_models(test_client: TestClient):
 
 
 def test_parse_full():
-    input = ModelInSchema(name='test', sources=[
-        ModelSourceInSchema(alias='', contents='select test.constant;'),
-        ModelSourceInSchema(alias='test', contents='const constant <-1;')
-
-    ])
-    parsed = parse_env_from_full_model(input)
+    input = ModelInSchema(
+        name="test",
+        sources=[
+            ModelSourceInSchema(alias="", contents="select test.constant;"),
+            ModelSourceInSchema(alias="test", contents="const constant <-1;"),
+        ],
+    )
+    parse_env_from_full_model(input)
 
     test = {
-    "name": "bigquery.google_analytics",
-    "sources": [
-        {
-            "alias": "fundiverse",
-            "contents": "\nkey user_pseudo_id int;\n\ndatasource fundiverse(\n    event_date: generic.event_date,\n    user_pseudo_id: user_pseudo_id,\n    event_time: generic.event_time,\n)\ngrain (generic.event_time)\naddress `preqldata.analytics_411641820.events_*`\n;"
-        },
-        {
-            "alias": "pypreql",
-            "contents": "\nkey user_pseudo_id int;\n\ndatasource pypreql(\n    event_date: generic.event_date,\n    user_pseudo_id: user_pseudo_id,\n    event_time: generic.event_time,\n)\ngrain (generic.event_time)\naddress `preqldata.analytics_417320071.events_*`\n;"
-        },
-        {
-            "alias": "generic",
-            "contents": "\n\nkey event_time int;\nkey event_date string;\n\n"
-        }
-    ]
-}
+        "name": "bigquery.google_analytics",
+        "sources": [
+            {
+                "alias": "fundiverse",
+                "contents": "\nkey user_pseudo_id int;\n\ndatasource fundiverse(\n    event_date: generic.event_date,\n    user_pseudo_id: user_pseudo_id,\n    event_time: generic.event_time,\n)\ngrain (generic.event_time)\naddress `preqldata.analytics_411641820.events_*`\n;",
+            },
+            {
+                "alias": "pypreql",
+                "contents": "\nkey user_pseudo_id int;\n\ndatasource pypreql(\n    event_date: generic.event_date,\n    user_pseudo_id: user_pseudo_id,\n    event_time: generic.event_time,\n)\ngrain (generic.event_time)\naddress `preqldata.analytics_417320071.events_*`\n;",
+            },
+            {
+                "alias": "generic",
+                "contents": "\n\nkey event_time int;\nkey event_date string;\n\n",
+            },
+        ],
+    }
     input = ModelInSchema.model_validate(test)
 
-    parsed = parse_env_from_full_model(input)
+    parse_env_from_full_model(input)

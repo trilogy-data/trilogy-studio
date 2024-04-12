@@ -92,6 +92,10 @@ export default {
                 {
                     name: 'Find and Replace',
                     keys: ['H']
+                },
+                {
+                    name: 'Format',
+                    keys: ['B']
                 }
             ]
 
@@ -112,7 +116,7 @@ export default {
             if (this.$store.getters.genAIConnections.length > 0) {
                 return this.staticShortcuts.concat([
                     {
-                        name: 'Run GenAI',
+                        name: 'Generate PreQL From Selected Text',
                         keys: ['G']
                     }
                 ])

@@ -14,7 +14,7 @@ import multiprocessing
 import traceback
 from copy import deepcopy
 from datetime import datetime
-from typing import Optional, Dict, List, Tuple
+from typing import Dict, List
 from dataclasses import dataclass
 import uvicorn
 from uvicorn.config import LOGGING_CONFIG
@@ -32,14 +32,16 @@ from preql.core.models import (
     ProcessedQuery,
     ProcessedQueryPersist,
     ProcessedShowStatement,
+    ShowStatement,
+    Select,
+    Persist,
 )
 from preql import Environment, Executor, Dialects
 from preql.parser import parse_text
-from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 from trilogy_public_models import models as public_models
 from trilogy_public_models.inventory import parse_initial_models
-from preql.parsing.render import render_query
+from preql.parsing.render import render_query, Renderer
 from sqlalchemy import create_engine
 from backend.io_models import (
     ListModelResponse,
@@ -49,6 +51,13 @@ from backend.io_models import (
     QueryInSchema,
     GenAIQueryInSchema,
     GenAIQueryOutSchema,
+    FormatQueryOutSchema,
+    ModelInSchema,
+    QueryOut,
+    QueryOutColumn,
+    ConnectionInSchema,
+    ConnectionListItem,
+    ConnectionListOutput,
 )
 from backend.models.helpers import flatten_lineage
 from duckdb_engine import *  # this is for pyinstaller
@@ -125,63 +134,8 @@ GENAI_CONNECTIONS: Dict[str, NLPEngine] = {}
 ## BEGIN REQUESTS
 
 
-class InputRequest(BaseModel):
-    text: str
-    connection: str
-    # conversation:str
-
-
 ## Begin Endpoints
 router = APIRouter()
-
-
-class ModelSourceInSchema(BaseModel):
-    alias: str
-    contents: str
-
-
-class ModelInSchema(BaseModel):
-    name: str
-    sources: List[ModelSourceInSchema]
-
-
-class ConnectionInSchema(BaseModel):
-    name: str
-    dialect: Dialects
-    extra: Dict | None = Field(default_factory=dict)
-    model: str | None = None
-    full_model: ModelInSchema | None = None
-
-
-class ConnectionListItem(BaseModel):
-    name: str
-    dialect: Dialects
-    model: str
-
-
-class ConnectionListOutput(BaseModel):
-    connections: List[ConnectionListItem]
-
-
-
-
-
-class QueryOutColumn(BaseModel):
-    name: str
-    datatype: DataType
-    purpose: Purpose
-
-
-class QueryOut(BaseModel):
-    connection: str
-    query: str
-    generated_sql: str
-    headers: list[str]
-    results: list[dict]
-    created_at: datetime = Field(default_factory=datetime.now)
-    refreshed_at: datetime = Field(default_factory=datetime.now)
-    duration: Optional[int]
-    columns: List[Tuple[str, QueryOutColumn]] | None
 
 
 def safe_format_query(input: str) -> str:
@@ -194,7 +148,7 @@ def safe_format_query(input: str) -> str:
 def parse_env_from_full_model(input: ModelInSchema) -> Environment:
     env = Environment()
 
-    parsed:dict[str, Environment] = dict()
+    parsed: dict[str, Environment] = dict()
     successful = set()
     attempts = 0
     exception = None
@@ -225,7 +179,9 @@ def parse_env_from_full_model(input: ModelInSchema) -> Environment:
     success = len(successful) == len(input.sources)
     if not success:
         raise ValueError(
-            f"unable to parse input models after {attempts} attempts; successfully parsed {parsed.keys()}; error was {str(exception)}, have {[c.address for c in env.concepts.values()]}"
+            f"unable to parse input models after {attempts} attempts; "
+            f"successfully parsed {parsed.keys()}; error was {str(exception)},"
+            "have {[c.address for c in env.concepts.values()]}"
         )
 
     return env
@@ -347,7 +303,7 @@ def create_gen_ai_connection(connection: GenAIConnectionInSchema):
     engine = NLPEngine(
         # name=connection.name,
         provider=connection.provider,
-        model= connection.extra.get("model", None) if connection.extra else None,
+        model=connection.extra.get("model", None) if connection.extra else None,
         api_key=connection.api_key,
     )
     try:
@@ -408,7 +364,8 @@ def run_raw_query(query: QueryInSchema):
 @router.post("/gen_ai_query")
 def run_genai_query(query: GenAIQueryInSchema):
     from preql_nlp.main import parse_query
-    start = datetime.now()
+
+    datetime.now()
     executor = CONNECTIONS.get(query.connection)
     if not executor:
         raise HTTPException(
@@ -424,13 +381,17 @@ def run_genai_query(query: GenAIQueryInSchema):
     assert gen_ai
     try:
         processed_query = parse_query(
-            input_text=query.text, input_environment=executor.environment, debug=True, llm=gen_ai.llm
+            input_text=query.text,
+            input_environment=executor.environment,
+            debug=True,
+            llm=gen_ai.llm,
         )
 
         generated = render_query(processed_query)
-        return GenAIQueryOutSchema(text = generated)
+        return GenAIQueryOutSchema(text=generated)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/query")
 def run_query(query: QueryInSchema):
@@ -445,7 +406,10 @@ def run_query(query: QueryInSchema):
     # parsing errors or generation
     # should be 422
     try:
-        _, parsed = parse_text(safe_format_query(query.query), executor.environment)
+        _, pre_parsed = parse_text(safe_format_query(query.query), executor.environment)
+        parsed: List[Select | Persist | ShowStatement] = [
+            x for x in pre_parsed if isinstance(x, (Select, Persist, ShowStatement))
+        ]
         sql = executor.generator.generate_queries(executor.environment, parsed)
     except Exception as e:
         print(e)
@@ -482,9 +446,8 @@ def run_query(query: QueryInSchema):
                     for col in statement.output_columns
                 ]
             elif isinstance(statement, (ProcessedShowStatement)):
-                compiled_sql = executor.generator.compile_statement(
-                    statement.output_values[0]
-                )
+                select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore
+                compiled_sql = executor.generator.compile_statement(select)
                 outputs = [
                     (
                         col.name,
@@ -530,6 +493,24 @@ def run_query(query: QueryInSchema):
         results=query_output,
         duration=int(delta.total_seconds() * 1000),
         columns=outputs,
+    )
+    return output
+
+
+@router.post("/format_query")
+def format_query(query: QueryInSchema):
+    executor = CONNECTIONS.get(query.connection)
+    if not executor:
+        raise HTTPException(
+            403, "Not a valid live connection. Refresh connection, then retry."
+        )
+    try:
+        _, parsed = parse_text(safe_format_query(query.query), executor.environment)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail="Parsing error: " + str(e))
+    renderer = Renderer()
+    output = FormatQueryOutSchema(
+        text="\n\n".join([renderer.to_string(x) for x in parsed])
     )
     return output
 
