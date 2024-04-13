@@ -48,3 +48,5 @@ playwright-report
 local_prompt_cache.db
 
 *.cpython-*
+
+trilogy-studio-engine
