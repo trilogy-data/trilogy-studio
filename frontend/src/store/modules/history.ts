@@ -3,8 +3,6 @@ import { ConnectionHistory, HistoryEvent } from '/src/models/History';
 
 
 import Store from 'electron-store'
-import instance from '/src/api/instance'
-
 
 const storageName = 'history';
 
@@ -21,7 +19,7 @@ const storageAPI = {
     },
 
 
-    getHistory(): Array<Connection> {
+    getHistory(): Array<ConnectionHistory> {
         const data = store.get(storageName, []) as Array<any>
         const parsed = data.map(dict => {
             return ConnectionHistory.fromJSON(dict)
@@ -43,7 +41,7 @@ const getters = {
 
 
 const actions = {
-    async addHistory({ commit, rootGetters }, data) {
+    async addHistory({ commit, }, data) {
         commit('addHistory', data)
     },
 

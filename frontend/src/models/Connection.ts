@@ -23,6 +23,6 @@ export class Connection implements ConnectionInterface {
     }
 
     public static fromJSON({ name, type, active, model, extra }) {
-        return new Connection(name, type, false, model, extra)
+        return new Connection(name, type, active, model, extra)
     }
 }
