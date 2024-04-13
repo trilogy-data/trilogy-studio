@@ -1,8 +1,8 @@
 {
   "name": "trilogy-studio",
   "private": true,
-  "version": "0.0.4",
-  "description": "A desktop IDE for running PreQL and SQL queries and building PreQL models.",
+  "version": "0.0.5",
+  "description": "A desktop IDE for querying, creating, and debugging PreQL models.",
   "author": {
     "name": "Trilogy/PreQL Team",
     "email": "ethan.dickinson@gmail.com"
