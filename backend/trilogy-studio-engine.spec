@@ -2,6 +2,7 @@
 from PyInstaller.utils.hooks import collect_all
 import trilogy_public_models
 import sys
+import preql_nlp
 from pathlib import Path
 
 def get_trilogy_data_files():
@@ -22,8 +23,22 @@ def get_trilogy_data_files():
                 inclusion_files.append(( str(f), str(subroot)))
     return inclusion_files
 
+def get_preql_nlp_template_files():
+    root = sys.modules.get(f'preql_nlp')
+    root = Path(root.__file__).parent
 
-datas = get_trilogy_data_files()
+    inclusion_files = []
+    for f in (root / 'prompts').iterdir():
+        if f.suffix == '.jinja2':
+            subroot = Path('preql_nlp')  / 'prompts' / f
+            inclusion_files.append(( str(f), str(subroot)))
+    return inclusion_files
+
+
+
+datas = get_trilogy_data_files() + get_preql_nlp_template_files()
+
+
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('uvicorn')
@@ -34,8 +49,10 @@ tmp_ret = collect_all('duckdb-engine')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('sqlalchemy-bigquery')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-
-
+tmp_ret = collect_all('preql_nlp')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+tmp_ret = collect_all('langchain_community')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 block_cipher = None
 
 

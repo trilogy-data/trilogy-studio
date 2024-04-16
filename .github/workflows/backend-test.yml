@@ -15,7 +15,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11"]
-
+    env: 
+      IN_CI: "true"
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -45,3 +46,7 @@ jobs:
           pip install pytest
           pip install pytest-cov
           pytest tests --ignore=docs_src/ --cov=./tests
+      - name: Build and test executable
+        working-directory: ./backend
+        run: |
+          python build_test.py

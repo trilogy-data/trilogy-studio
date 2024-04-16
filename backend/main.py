@@ -64,7 +64,8 @@ from duckdb_engine import *  # this is for pyinstaller
 from sqlalchemy_bigquery import *  # this is for pyinstaller
 from preql.executor import generate_result_set
 from preql_nlp.core import NLPEngine
-
+from preql_nlp.prompts import prompt_executor
+from jinja2.loaders import FileSystemLoader
 PORT = 5678
 
 STATEMENT_LIMIT = 100
@@ -584,6 +585,9 @@ def run():
             log_level="info",
             log_config=LOGGING_CONFIG,
         )
+    elif os.environ.get("IN_CI"):
+        print("Running in a unit test, exiting")
+        exit(0)
     else:
         print("Running in a normal Python process, assuming dev")
 
