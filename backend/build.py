@@ -103,6 +103,6 @@ if __name__ == "__main__":
         shutil.copy(pyinstaller_output_file, destination_folder)
         print(f"file {pyinstaller_output_file} copied")
 
-    subprocess.check_call(pyinstaller_output_file, env={"IN_CI": "True"})
+    subprocess.check_call([pyinstaller_output_file], env={"IN_CI": "True"}, shell=True)
 
     print(f"Verified package ran and exited 0")
