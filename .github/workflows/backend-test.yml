@@ -49,4 +49,4 @@ jobs:
       - name: Build and test executable
         working-directory: ./backend
         run: |
-          python build_test.py
+          python build.py
