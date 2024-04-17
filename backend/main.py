@@ -64,8 +64,7 @@ from duckdb_engine import *  # this is for pyinstaller
 from sqlalchemy_bigquery import *  # this is for pyinstaller
 from preql.executor import generate_result_set
 from preql_nlp.core import NLPEngine
-from preql_nlp.prompts import prompt_executor
-from jinja2.loaders import FileSystemLoader
+
 PORT = 5678
 
 STATEMENT_LIMIT = 100
@@ -447,7 +446,7 @@ def run_query(query: QueryInSchema):
                     for col in statement.output_columns
                 ]
             elif isinstance(statement, (ProcessedShowStatement)):
-                select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore
+                select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore # noqa: E501
                 compiled_sql = executor.generator.compile_statement(select)
                 outputs = [
                     (
