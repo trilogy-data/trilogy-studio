@@ -4,6 +4,9 @@ import trilogy_public_models
 import sys
 import preql_nlp
 from pathlib import Path
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 def get_trilogy_data_files():
     root = sys.modules.get(f'trilogy_public_models')
@@ -30,7 +33,7 @@ def get_preql_nlp_template_files():
     inclusion_files = []
     for f in (root / 'prompts').iterdir():
         if f.suffix == '.jinja2':
-            subroot = Path('preql_nlp')  / 'prompts' / f.name
+            subroot = Path('preql_nlp')  / 'prompts'
             inclusion_files.append(( str(f), str(subroot)))
     return inclusion_files
 
@@ -38,7 +41,9 @@ def get_preql_nlp_template_files():
 
 datas = get_trilogy_data_files() + get_preql_nlp_template_files()
 
-
+logger.info('Processing manual data files listed below')
+for data in datas:
+    logger.info(data)
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('uvicorn')
