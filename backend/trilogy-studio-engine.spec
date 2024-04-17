@@ -30,7 +30,7 @@ def get_preql_nlp_template_files():
     inclusion_files = []
     for f in (root / 'prompts').iterdir():
         if f.suffix == '.jinja2':
-            subroot = Path('preql_nlp')  / 'prompts' / f
+            subroot = Path('preql_nlp')  / 'prompts' / f.name
             inclusion_files.append(( str(f), str(subroot)))
     return inclusion_files
 
