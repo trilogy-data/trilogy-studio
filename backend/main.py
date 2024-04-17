@@ -575,7 +575,7 @@ def run():
     LOGGING_CONFIG["disable_existing_loggers"] = True
     import sys
 
-    logger.info(os.environ)
+    raise ValueError(os.environ.get("in-ci"))
     if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         print("running in a PyInstaller bundle")
 
