@@ -310,7 +310,7 @@ def create_gen_ai_connection(connection: GenAIConnectionInSchema):
         engine.test_connection()
     except Exception as e:
         raise HTTPException(
-            status_code=400,
+            status_code=403,
             detail=f"Error validating connection: {str(e)}",
         )
     GENAI_CONNECTIONS[connection.name] = engine

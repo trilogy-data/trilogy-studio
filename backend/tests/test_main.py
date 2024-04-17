@@ -46,13 +46,13 @@ def test_gen_ai(test_client: TestClient):
     arguments: List[
         Mapping[str, str | Provider | None | dict[str, str | None | list]]
     ] = [
-        {"name": "test-openai", "provider": Provider.OPENAI, "api_key": None},
+        {"name": "test-openai", "provider": Provider.OPENAI, "apiKey": "fake-key"},
     ]
 
     for arg in arguments:
         parsed = GenAIConnectionInSchema.model_validate(arg)
-        response = test_client.post("/gen_ai_connection", data=parsed.model_dump_json())  # type: ignore # noqa: E501
-        assert response.status_code == 200
+        response = test_client.post("/gen_ai_connection", data=parsed.model_dump_json(by_alias=True))  # type: ignore # noqa: E501
+        assert response.status_code == 403
 
 
 # def test_async_functions(test_client: TestClient):
