@@ -64,6 +64,9 @@ from duckdb_engine import *  # this is for pyinstaller
 from sqlalchemy_bigquery import *  # this is for pyinstaller
 from preql.executor import generate_result_set
 from preql_nlp.core import NLPEngine
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 PORT = 5678
 
@@ -310,7 +313,7 @@ def create_gen_ai_connection(connection: GenAIConnectionInSchema):
         engine.test_connection()
     except Exception as e:
         raise HTTPException(
-            status_code=400,
+            status_code=403,
             detail=f"Error validating connection: {str(e)}",
         )
     GENAI_CONNECTIONS[connection.name] = engine
@@ -446,7 +449,7 @@ def run_query(query: QueryInSchema):
                     for col in statement.output_columns
                 ]
             elif isinstance(statement, (ProcessedShowStatement)):
-                select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore
+                select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore # noqa: E501
                 compiled_sql = executor.generator.compile_statement(select)
                 outputs = [
                     (
@@ -571,8 +574,10 @@ app.include_router(router)
 def run():
     LOGGING_CONFIG["disable_existing_loggers"] = True
     import sys
-
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    if os.environ.get("in-ci"):
+        print("Running in a unit test, exiting")
+        exit(0)
+    elif getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         print("running in a PyInstaller bundle")
 
         f = open(os.devnull, "w")

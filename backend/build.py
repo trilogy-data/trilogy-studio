@@ -93,10 +93,21 @@ if __name__ == "__main__":
 
     # Move the executable to the root directory
     # Create the destination folder if it doesn't exist
-    destination_folder = base / "frontend" / "public"
-    os.makedirs(destination_folder, exist_ok=True)
+
     pyinstaller_output_file = root / "dist" / final_file
     # Copy the PyInstaller output file to the destination folder
-    print(f"copying to final location {destination_folder}")
-    shutil.copy(pyinstaller_output_file, destination_folder)
-    print(f"file {pyinstaller_output_file} copied")
+
+    if not os.environ.get("in-ci"):
+        print('copying to target')
+        destination_folder = base / "frontend" / "public"
+        os.makedirs(destination_folder, exist_ok=True)
+        print(f"copying to final location {destination_folder}")
+        shutil.copy(pyinstaller_output_file, destination_folder)
+        print(f"file {pyinstaller_output_file} copied")
+
+    print("checking file runs")
+    my_env = os.environ.copy()
+    my_env["in-ci"] = "true"
+    subprocess.check_call([pyinstaller_output_file], env=my_env)
+
+    print("Verified package ran and exited 0")
