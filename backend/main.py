@@ -574,7 +574,10 @@ app.include_router(router)
 def run():
     LOGGING_CONFIG["disable_existing_loggers"] = True
     import sys
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    if os.environ.get("in-ci"):
+        print("Running in a unit test, exiting")
+        exit(0)
+    elif getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
         print("running in a PyInstaller bundle")
 
         f = open(os.devnull, "w")
@@ -586,9 +589,6 @@ def run():
             log_level="info",
             log_config=LOGGING_CONFIG,
         )
-    elif os.environ.get("in-ci"):
-        print("Running in a unit test, exiting")
-        exit(0)
     else:
         print("Running in a normal Python process, assuming dev")
 
