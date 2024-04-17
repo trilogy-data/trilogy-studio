@@ -37,6 +37,8 @@ jobs:
       - name: Build the electron package and webservice
         working-directory: ./frontend
         run: npm run build
+        env: 
+          in-ci: "true"
       - name: Run tests
         working-directory: ./frontend
         run: npm test

@@ -16,7 +16,7 @@ jobs:
       matrix:
         python-version: ["3.11"]
     env: 
-      IN_CI: "true"
+      in-ci: "true"
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -48,5 +48,7 @@ jobs:
           pytest tests --ignore=docs_src/ --cov=./tests
       - name: Build and test executable
         working-directory: ./backend
+        env: 
+          in-ci: "true"
         run: |
           python build.py

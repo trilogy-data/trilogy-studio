@@ -584,7 +584,7 @@ def run():
             log_level="info",
             log_config=LOGGING_CONFIG,
         )
-    elif os.environ.get("IN_CI"):
+    elif os.environ.get("in-ci"):
         print("Running in a unit test, exiting")
         exit(0)
     else:

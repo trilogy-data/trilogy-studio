@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     pyinstaller_output_file = root / "dist" / final_file
     # Copy the PyInstaller output file to the destination folder
-    if not os.environ.get("IN_CI"):
+    if not os.environ.get("in-ci"):
         destination_folder = base / "frontend" / "public"
         os.makedirs(destination_folder, exist_ok=True)
         print(f"copying to final location {destination_folder}")
