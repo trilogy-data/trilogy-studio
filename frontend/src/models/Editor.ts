@@ -146,6 +146,7 @@ export class Editor implements EditorInterface {
         local.error = axiosHelpers.getErrorMessage(error);
         local.duration = null;
         local.executed = false;
+        throw Error("NLP query failed to generate valid SQL: " + local.error)
       }
     } finally {
       local.loading = false;

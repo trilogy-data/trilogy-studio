@@ -74,10 +74,7 @@ export default defineComponent({
             'setConnectionInactive', 'addHistory','setEditorError']),
         async submitGenAI(selection:String) {
             this.info = 'Generating PreQL query from prompt...'
-            console.log('submitting query')
-            console.log(this.activeGenAIConnection)
             let response = await this.editorData.runGenAIQuery(this.$store,this.activeGenAIConnection.name, selection);
-            console.log(response)
             return response
         },
         async submit() {
