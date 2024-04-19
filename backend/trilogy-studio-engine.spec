@@ -41,18 +41,18 @@ def get_preql_nlp_template_files():
 
 datas = get_trilogy_data_files() + get_preql_nlp_template_files()
 
-logger.info('Processing manual data files listed below')
-for data in datas:
-    logger.info(data)
+#logger.info('Processing manual data files listed below')
+#for data in datas:
+#    logger.info(data)
 binaries = []
-hiddenimports = []
+hiddenimports = ['sqlalchemy_bigquery']
 tmp_ret = collect_all('uvicorn')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('duckdb')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('duckdb-engine')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('sqlalchemy-bigquery')
+tmp_ret = collect_all('sqlalchemy')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('preql_nlp')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
@@ -60,7 +60,10 @@ tmp_ret = collect_all('langchain_community')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 block_cipher = None
 
-
+logger.info('have these hidden imports')
+for data in hiddenimports:
+    if 'bigquery' in data:
+        logger.info(data)
 a = Analysis(
     ['main.py'],
     pathex=[],
