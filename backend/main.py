@@ -60,11 +60,21 @@ from backend.io_models import (
     ConnectionListOutput,
 )
 from backend.models.helpers import flatten_lineage
-from duckdb_engine import *  # this is for pyinstaller
 from sqlalchemy_bigquery import *  # this is for pyinstaller
+
+from sqlalchemy_bigquery.base import BigQueryDialect
+from duckdb_engine import Dialect as DuckDBDialect
 from preql.executor import generate_result_set
 from preql_nlp.core import NLPEngine
 from logging import getLogger
+import click
+from click_default_group import DefaultGroup
+from sqlalchemy.dialects import registry
+
+# force registry here
+# to avoid issues with dynamic imports in pyinstaller
+registry.impls["bigquery"] = BigQueryDialect
+registry.impls["duckdb"] = DuckDBDialect
 
 logger = getLogger(__name__)
 
@@ -562,6 +572,14 @@ async def http_exception_handler(request, exc: HTTPException):
         return PlainTextResponse(
             "Server is shutting down", status_code=exc.status_code, background=task
         )
+    # this is a local application, so we don't sanitize 500 responses to
+    # support debugging
+    # TODO: reevaluate as needed
+    elif exc.status_code == 500:
+        return JSONResponse(
+            status_code=412,
+            content=jsonable_encoder({"detail": exc.detail}),
+        )
     return JSONResponse(
         status_code=exc.status_code,
         content=jsonable_encoder({"detail": exc.detail}),
@@ -571,9 +589,16 @@ async def http_exception_handler(request, exc: HTTPException):
 app.include_router(router)
 
 
+@click.group(cls=DefaultGroup, default="run", default_if_no_args=True)
+def cli():
+    pass
+
+
+@cli.command()
 def run():
     LOGGING_CONFIG["disable_existing_loggers"] = True
     import sys
+
     if os.environ.get("in-ci"):
         print("Running in a unit test, exiting")
         exit(0)
@@ -609,10 +634,16 @@ def run():
         exit(1)
 
 
+@cli.command()
+def test():
+    # assert that we have multiple values
+    assert len(public_models.values()) > 2
+
+
 if __name__ == "__main__":
     multiprocessing.freeze_support()
     try:
-        run()
+        cli()
         sys.exit(0)
     except:  # noqa: E722
         sys.exit(0)
