@@ -14,7 +14,6 @@ import { defineComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 import editorMap from '/src/store/modules/monaco';
 import axiosHelpers from '/src/api/helpers.ts';
-import instance from '/src/api/instance';
 import { Editor, RawEditor } from '/src/models/Editor'
 import * as monaco from 'monaco-editor';
 
@@ -70,59 +69,50 @@ export default defineComponent({
 
     },
     methods: {
-        ...mapActions(['saveEditors', 'saveEditorText', 'connectConnection', 'addMonacoEditor',
-            'setConnectionInactive', 'addHistory','setEditorError']),
-        async submitGenAI(selection:String) {
+        ...mapActions(['saveEditors', 'saveEditorText', 'formatEditorText', 'connectConnection', 'addMonacoEditor',
+            'setConnectionInactive', 'addHistory', 'setEditorError']),
+        async submitGenAI(selection: String) {
             this.info = 'Generating PreQL query from prompt...'
-            let response = await this.editorData.runGenAIQuery(this.$store,this.activeGenAIConnection.name, selection);
+            let response = await this.editorData.runGenAIQuery(this.$store, this.activeGenAIConnection.name, selection);
             return response
         },
         async submit() {
             // this.loading = true;
             this.info = 'Executing query...'
             const start = new Date()
+            // todo: set this in a action
+            this.editorData.loading = true;
             // this.error = null;
             let current_query = this.editorData.contents;
             if (!this.connection) {
                 this.setEditorError({ name: this.editorData.name, error: 'No connection selected for this editor.' })
                 return
-                // throw new Error('No connection selected for this editor')
             }
+            // invalidation of logic
             if (!this.connection.active) {
-                await this.connectConnection(this.connection)
+                try {
+                    await this.connectConnection(this.connection)
+                }
+                catch (error) {
+                    this.setEditorError({ name: this.editorData.name, error: 'Error with connection.' })
+
+                }
+
             }
+
             await this.editorData.runQuery(this.$store);
-            
-            this.addHistory({ 
+
+            this.addHistory({
                 connection: this.editorData.connection,
-                text: this.editorData.contents, 
-                editor: this.editorData.name, 
-                timestamp: start, 
-                duration: this.editorData.duration, 
-                executed: this.editorData.executed, 
+                text: this.editorData.contents,
+                editor: this.editorData.name,
+                timestamp: start,
+                duration: this.editorData.duration,
+                executed: this.editorData.executed,
                 error: this.editorData.error
             })
 
             this.last_passed_query_text = current_query;
-        },
-        async format() {
-            this.loading = true;
-            this.info = 'Formatting query...'
-            this.error = null;
-            var self = this;
-            await instance.post('format_query', { model: this.query.model, query: this.editorData.contents, id: this.query.id }).then(function (resp) {
-                self.query.query = resp.data.new_text;
-                self.loading = false;
-            }).catch((error) => {
-                self.error = axiosHelpers.getErrorMessage(error);
-                self.loading = false;
-            })
-        },
-        querySaveComplete() {
-            this.$emit('querySaveComplete')
-        },
-        clearPrompt() {
-            this.prompt = '';
         },
         createEditor() {
             let editorElement = document.getElementById('editor')
@@ -187,25 +177,40 @@ export default defineComponent({
                     }
                     // run our async call
                     Promise.all([this.submitGenAI(editor.getModel()?.getValueInRange(range))]).then(() => {
-                        var op = {range: range, text: this.editorData.generated_sql, forceMoveMarkers: true};
+                        var op = { range: range, text: this.editorData.generated_sql, forceMoveMarkers: true };
                         editor.executeEdits("gen-ai-prompt-shortcut", [op]);
+                        this.saveEditors()
                         this.editorData.runQuery(this.$store);
                     }).catch((error) => {
-                        this.setEditorError({name:this.editorData.name, error: axiosHelpers.getErrorMessage(error)});
+                        this.setEditorError({ name: this.editorData.name, error: axiosHelpers.getErrorMessage(error) });
                     }
                     )
                 }
             });
+            let editorData = this.editorData;
+            editor.addAction({
+                id: 'format-preql',
+                label: 'Format PreQL',
+                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyI],
+                run: function () {
+                    console.log('FORMAT SOMETHING')
+                    editorData.formatText(editor.getValue()).then((response) => {
+                        editor.setValue(response)
+                    })
+                }
+            });
 
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-                this.saveEditorText({ contents: editor.getValue(), name: this.editorData.name,
-                connection:this.editorData.connection }).then( ()=> {
+                this.saveEditorText({
+                    contents: editor.getValue(), name: this.editorData.name,
+                    connection: this.editorData.connection
+                }).then(() => {
                     this.saveEditors()
                 }).catch((error) => {
-                    this.setEditorError({name:this.editorData.name, error: axiosHelpers.getErrorMessage(error)});
+                    this.setEditorError({ name: this.editorData.name, error: axiosHelpers.getErrorMessage(error) });
 
                 })
-                
+
             });
 
             // loader.init().then((monaco) => {
@@ -239,4 +244,3 @@ export default defineComponent({
     }
 })
 </script>
-  

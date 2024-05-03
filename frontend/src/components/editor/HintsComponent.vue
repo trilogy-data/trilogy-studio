@@ -93,6 +93,10 @@ export default {
                     name: 'Find and Replace',
                     keys: ['H']
                 },
+                {
+                    name: 'Format',
+                    keys: ['Shift', 'I']
+                },
                 // {
                 //     name: 'Format',
                 //     keys: ['B']
@@ -108,7 +112,6 @@ export default {
         },
     },
     mounted() {
-        console.log(this.$store.getters.genAIConnections)
     },
     computed: {
 

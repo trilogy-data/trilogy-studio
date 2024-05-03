@@ -108,13 +108,12 @@ const actions = {
         });
       });
   },
-  async setActiveEditor({ commit, rootGetters }, data) {
+  async setActiveEditor({ commit, rootGetters }, data) {  
     if (data) {
       commit("setActiveEditor", data);
     } else {
       if (rootGetters.openEditors.length > 0) {
         const editor = rootGetters.openEditors[0];
-        console.log("setting active editor", editor.name);
         commit("setActiveEditor", editor.name);
       }
     }
@@ -144,10 +143,9 @@ const actions = {
     commit("saveEditors", data);
   },
   // unique from remove in case we want to prompt for save here
-  async closeEditor({ commit, dispatch }, data) {
+  async closeEditor({ commit }, data) {
     commit("hideEditor", data);
     // commit('removeEditor', data)
-    dispatch("setActiveEditor", null);
     commit("saveEditors", data);
   },
   async setActiveConnection({ commit }, data) {

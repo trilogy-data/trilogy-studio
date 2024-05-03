@@ -26,6 +26,7 @@ class UIConcept(BaseModel):
 class Model(BaseModel):
     name: str
     concepts: List[UIConcept]
+    rendered: str | None = None
 
 
 class ListModelResponse(BaseModel):
