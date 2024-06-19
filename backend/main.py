@@ -39,7 +39,6 @@ from preql.core.models import (
     DataType,
 )
 from preql import Environment, Executor, Dialects
-from preql.core.enums import Modifier
 from preql.parser import parse_text
 from starlette.background import BackgroundTask
 from trilogy_public_models import models as public_models
