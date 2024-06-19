@@ -33,8 +33,9 @@ from preql.core.models import (
     ProcessedQueryPersist,
     ProcessedShowStatement,
     ShowStatement,
-    Select,
-    Persist,
+    MultiSelectStatement,
+    SelectStatement,
+    PersistStatement,
     DataType,
 )
 from preql import Environment, Executor, Dialects
@@ -403,8 +404,8 @@ def run_query(query: QueryInSchema):
     # should be 422
     try:
         _, pre_parsed = parse_text(safe_format_query(query.query), executor.environment)
-        parsed: List[Select | Persist | ShowStatement] = [
-            x for x in pre_parsed if isinstance(x, (Select, Persist, ShowStatement))
+        parsed: List[SelectStatement | PersistStatement | MultiSelectStatement| ShowStatement] = [
+            x for x in pre_parsed if isinstance(x, (SelectStatement, PersistStatement, MultiSelectStatement, ShowStatement))
         ]
         sql = executor.generator.generate_queries(executor.environment, parsed)
     except Exception as e:
