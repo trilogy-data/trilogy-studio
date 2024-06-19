@@ -65,7 +65,7 @@ export default {
             model: null,
             name: '',
             selectedType: 'duck_db',
-            connectionTypes: ['duck_db', 'bigquery', 'sql_server'],
+            connectionTypes: ['duck_db', 'bigquery', 'sql_server', 'snowflake'],
             extraValues: {},
         };
     },

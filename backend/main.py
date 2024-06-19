@@ -39,6 +39,7 @@ from preql.core.models import (
     DataType,
 )
 from preql import Environment, Executor, Dialects
+from preql.core.enums import Modifier
 from preql.parser import parse_text
 from starlette.background import BackgroundTask
 from trilogy_public_models import models as public_models
@@ -284,6 +285,22 @@ def create_connection(connection: ConnectionInSchema):
         executor = Executor(
             dialect=connection.dialect, engine=engine, environment=environment
         )
+    elif connection.dialect == Dialects.SNOWFLAKE:
+        if not connection.extra or not all([x in connection.extra for x in ["username", "password", "account"]]):
+            raise HTTPException(
+                status_code=400,
+                detail="Snowflake requires a username, password, and account to be set",
+            )
+        assert connection.extra
+        username = connection.extra["username"]
+        password = connection.extra["password"]
+        account = connection.extra["account"]
+        engine = create_engine(
+            f"snowflake://{username}:{password}@{account}",
+        )
+        executor = Executor(
+            dialect=connection.dialect, engine=engine, environment=environment
+        )
     elif connection.dialect == Dialects.DUCK_DB:
         executor = Executor(
             dialect=connection.dialect,
@@ -440,6 +457,8 @@ def run_query(query: QueryInSchema):
                         ),
                     )
                     for col in statement.output_columns
+                    if col not in statement.hidden_columns
+
                 ]
             elif isinstance(statement, (ProcessedShowStatement)):
                 select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore # noqa: E501
