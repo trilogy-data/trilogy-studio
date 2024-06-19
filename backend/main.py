@@ -174,7 +174,7 @@ def parse_env_from_full_model(input: ModelInSchema) -> Environment:
                 continue
             try:
                 if source.alias:
-                    new = Environment(namespace=source.alias)
+                    new = Environment()
                     for k, v in parsed.items():
                         new.add_import(k, v)
                     new.parse(source.contents)
