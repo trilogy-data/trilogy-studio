@@ -286,7 +286,9 @@ def create_connection(connection: ConnectionInSchema):
             dialect=connection.dialect, engine=engine, environment=environment
         )
     elif connection.dialect == Dialects.SNOWFLAKE:
-        if not connection.extra or not all([x in connection.extra for x in ["username", "password", "account"]]):
+        if not connection.extra or not all(
+            [x in connection.extra for x in ["username", "password", "account"]]
+        ):
             raise HTTPException(
                 status_code=400,
                 detail="Snowflake requires a username, password, and account to be set",
@@ -421,8 +423,20 @@ def run_query(query: QueryInSchema):
     # should be 422
     try:
         _, pre_parsed = parse_text(safe_format_query(query.query), executor.environment)
-        parsed: List[SelectStatement | PersistStatement | MultiSelectStatement| ShowStatement] = [
-            x for x in pre_parsed if isinstance(x, (SelectStatement, PersistStatement, MultiSelectStatement, ShowStatement))
+        parsed: List[
+            SelectStatement | PersistStatement | MultiSelectStatement | ShowStatement
+        ] = [
+            x
+            for x in pre_parsed
+            if isinstance(
+                x,
+                (
+                    SelectStatement,
+                    PersistStatement,
+                    MultiSelectStatement,
+                    ShowStatement,
+                ),
+            )
         ]
         sql = executor.generator.generate_queries(executor.environment, parsed)
     except Exception as e:
@@ -458,7 +472,6 @@ def run_query(query: QueryInSchema):
                     )
                     for col in statement.output_columns
                     if col not in statement.hidden_columns
-
                 ]
             elif isinstance(statement, (ProcessedShowStatement)):
                 select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore # noqa: E501

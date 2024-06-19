@@ -10,6 +10,10 @@ from preql.core.models import (
     WindowItem,
     Environment,
     DataType,
+    RowsetItem,
+    SelectStatement,
+    MultiSelectStatement,
+    MergeStatement,
 )
 
 from backend.io_models import LineageItem, Model, UIConcept
@@ -40,6 +44,10 @@ def flatten_lineage(
         Conditional,
         Comparison,
         AggregateWrapper,
+        RowsetItem,
+        MultiSelectStatement,
+        MergeStatement,
+        SelectStatement,
     ],
     depth: int = 0,
 ) -> List[LineageItem]:
@@ -74,14 +82,41 @@ def flatten_lineage(
         chain += [LineageItem(token=")", depth=depth)]
     elif isinstance(input, AggregateWrapper):
         return flatten_lineage(input.function, depth)
+    elif isinstance(input, RowsetItem):
+        chain = []
+        chain += [LineageItem(token="(", depth=depth)]
+        chain += [LineageItem(token=input.rowset.name, depth=depth)]
+        chain += [LineageItem(token=")", depth=depth)]
+    elif isinstance(input, SelectStatement):
+        chain = []
+        chain += [LineageItem(token="(", depth=depth)]
+        chain += [LineageItem(token="CTE", depth=depth)]
+        chain += flatten_array(input.output_components, depth + 1)
+        chain += [LineageItem(token=")", depth=depth)]
+    elif isinstance(input, MergeStatement):
+        chain = []
+        chain += [LineageItem(token="(", depth=depth)]
+        chain += [LineageItem(token="MERGE", depth=depth)]
+        chain += flatten_array(input.concepts, depth + 1)
+        chain += [LineageItem(token=")", depth=depth)]
+    elif isinstance(input, MultiSelectStatement):
+        chain = []
+        chain += [LineageItem(token="(", depth=depth)]
+        chain += [LineageItem(token="MERGE", depth=depth)]
+        for select in input.selects:
+            chain += flatten_lineage(select, depth + 1)
+        chain += [LineageItem(token=")", depth=depth)]
     elif not isinstance(input, Concept):
         return [LineageItem(token=str(input), depth=depth)]
     else:
         chain = [LineageItem(token=input.address, depth=depth)]
+
+    # enrich block
     if isinstance(input, Concept) and input.lineage:
         if not depth == 0:
             chain += [LineageItem(token="<-", depth=depth)]
         chain += flatten_lineage(input.lineage, depth + 1)
+
     return chain
 
 
@@ -106,7 +141,7 @@ def model_to_response(
                 description=(
                     sconcept.metadata.description if sconcept.metadata else None
                 ),
-                namespace=sconcept.namespace,
+                namespace=sconcept.namespace or "",
                 key=skey,
                 lineage=flatten_lineage(sconcept, depth=0),
             )

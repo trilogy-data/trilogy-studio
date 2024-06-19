@@ -23,7 +23,6 @@ if __name__ == "__main__":
     print(response.status_code)
     print(response.text)
 
-
     response = requests.post(
         "http://0.0.0.0:5678/query",
         data=QueryInSchema(
