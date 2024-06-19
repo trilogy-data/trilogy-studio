@@ -175,7 +175,7 @@ export class Editor implements EditorInterface {
     }
   }
 
-  formatText(text: string, retry: boolean) {
+  formatText(text: string) {
     this.error = null;
     let local = this;
     try {
