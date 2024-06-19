@@ -27,14 +27,16 @@ from google.auth import default
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from preql.constants import DEFAULT_NAMESPACE
-from preql.core.enums import DataType, Purpose
+from preql.core.enums import Purpose
 from preql.core.models import (
     ProcessedQuery,
     ProcessedQueryPersist,
     ProcessedShowStatement,
     ShowStatement,
-    Select,
-    Persist,
+    MultiSelectStatement,
+    SelectStatement,
+    PersistStatement,
+    DataType,
 )
 from preql import Environment, Executor, Dialects
 from preql.parser import parse_text
@@ -46,7 +48,6 @@ from sqlalchemy import create_engine
 from backend.io_models import (
     ListModelResponse,
     Model,
-    UIConcept,
     GenAIConnectionInSchema,
     QueryInSchema,
     GenAIQueryInSchema,
@@ -59,7 +60,7 @@ from backend.io_models import (
     ConnectionListItem,
     ConnectionListOutput,
 )
-from backend.models.helpers import flatten_lineage
+from backend.models.helpers import model_to_response
 from sqlalchemy_bigquery import *  # this is for pyinstaller
 
 from sqlalchemy_bigquery.base import BigQueryDialect
@@ -82,7 +83,7 @@ PORT = 5678
 
 STATEMENT_LIMIT = 100
 
-PARSE_DEPENDENCY_RESOLUTION_ATTEMPTS = 50
+PARSE_DEPENDENCY_RESOLUTION_ATTEMPTS = 10
 
 app = FastAPI()
 
@@ -144,10 +145,6 @@ CONNECTIONS: Dict[str, Executor] = {}
 
 GENAI_CONNECTIONS: Dict[str, NLPEngine] = {}
 
-## BEGIN REQUESTS
-
-
-## Begin Endpoints
 router = APIRouter()
 
 
@@ -177,7 +174,7 @@ def parse_env_from_full_model(input: ModelInSchema) -> Environment:
                 continue
             try:
                 if source.alias:
-                    new = Environment(namespace=source.alias)
+                    new = Environment()
                     for k, v in parsed.items():
                         new.add_import(k, v)
                     new.parse(source.contents)
@@ -194,42 +191,29 @@ def parse_env_from_full_model(input: ModelInSchema) -> Environment:
         raise ValueError(
             f"unable to parse input models after {attempts} attempts; "
             f"successfully parsed {parsed.keys()}; error was {str(exception)},"
-            "have {[c.address for c in env.concepts.values()]}"
+            f"have {[c.address for c in env.concepts.values()]}"
         )
 
     return env
 
 
+## Begin Endpoints
 @router.get("/models", response_model=ListModelResponse)
 async def get_models() -> ListModelResponse:
     models = []
     for key, value in public_models.items():
-        value = public_models[key]
-        final_concepts = []
-        for skey, sconcept in value.concepts.items():
-            # don't show private concepts
-            if sconcept.name.startswith("_"):
-                continue
-            final_concepts.append(
-                UIConcept(
-                    name=(
-                        sconcept.name.split(".")[-1]
-                        if sconcept.namespace == DEFAULT_NAMESPACE
-                        else sconcept.name
-                    ),
-                    datatype=sconcept.datatype,
-                    purpose=sconcept.purpose,
-                    description=(
-                        sconcept.metadata.description if sconcept.metadata else None
-                    ),
-                    namespace=sconcept.namespace,
-                    key=skey,
-                    lineage=flatten_lineage(sconcept, depth=0),
-                )
-            )
-        final_concepts.sort(key=lambda x: x.namespace + x.key)
-        models.append(Model(name=key, concepts=final_concepts))
+        models.append(model_to_response(name=key, env=value))
     return ListModelResponse(models=models)
+
+
+@router.get("/model/{model}", response_model=Model)
+async def get_model(model: str) -> Model:
+    if model in CONNECTIONS:
+        connection = CONNECTIONS[model]
+        return model_to_response(model, connection.environment, True)
+    if model not in public_models:
+        raise HTTPException(404, f"model {model} not found")
+    return model_to_response(model, public_models[model], True)
 
 
 @router.get("/connections")
@@ -296,6 +280,24 @@ def create_connection(connection: ConnectionInSchema):
         engine = create_engine(
             f"bigquery://{project}/test_tables?user_supplied_client=True",
             connect_args={"client": client},
+        )
+        executor = Executor(
+            dialect=connection.dialect, engine=engine, environment=environment
+        )
+    elif connection.dialect == Dialects.SNOWFLAKE:
+        if not connection.extra or not all(
+            [x in connection.extra for x in ["username", "password", "account"]]
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Snowflake requires a username, password, and account to be set",
+            )
+        assert connection.extra
+        username = connection.extra["username"]
+        password = connection.extra["password"]
+        account = connection.extra["account"]
+        engine = create_engine(
+            f"snowflake://{username}:{password}@{account}",
         )
         executor = Executor(
             dialect=connection.dialect, engine=engine, environment=environment
@@ -420,12 +422,23 @@ def run_query(query: QueryInSchema):
     # should be 422
     try:
         _, pre_parsed = parse_text(safe_format_query(query.query), executor.environment)
-        parsed: List[Select | Persist | ShowStatement] = [
-            x for x in pre_parsed if isinstance(x, (Select, Persist, ShowStatement))
+        parsed: List[
+            SelectStatement | PersistStatement | MultiSelectStatement | ShowStatement
+        ] = [
+            x
+            for x in pre_parsed
+            if isinstance(
+                x,
+                (
+                    SelectStatement,
+                    PersistStatement,
+                    MultiSelectStatement,
+                    ShowStatement,
+                ),
+            )
         ]
         sql = executor.generator.generate_queries(executor.environment, parsed)
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=422, detail="Parsing error: " + str(e))
     # execution errors should be 500
     try:
@@ -453,10 +466,11 @@ def run_query(query: QueryInSchema):
                                 else col.address.replace(".", "_")
                             ),
                             purpose=col.purpose,
-                            datatype=col.datatype,
+                            datatype=col.datatype.data_type,
                         ),
                     )
                     for col in statement.output_columns
+                    if col not in statement.hidden_columns
                 ]
             elif isinstance(statement, (ProcessedShowStatement)):
                 select: ProcessedQuery | ProcessedQueryPersist = statement.output_values[0]  # type: ignore # noqa: E501
@@ -471,7 +485,7 @@ def run_query(query: QueryInSchema):
                                 else col.address.replace(".", "_")
                             ),
                             purpose=col.purpose,
-                            datatype=col.datatype,
+                            datatype=col.datatype.data_type,
                         ),
                     )
                     for col in statement.output_columns

@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Tuple
 
-from preql.core.models import DataType, Purpose
+from preql.core.models import DataType, Purpose, ListType, MapType, StructType
 from pydantic import BaseModel, Field
 from preql_nlp.enums import Provider
 from preql import Dialects
@@ -17,7 +17,7 @@ class UIConcept(BaseModel):
     key: str
     name: str
     namespace: str
-    datatype: DataType
+    datatype: DataType | ListType | MapType | StructType
     purpose: Purpose
     description: Optional[str] = None
     lineage: List[LineageItem] = Field(default_factory=list)
@@ -26,6 +26,7 @@ class UIConcept(BaseModel):
 class Model(BaseModel):
     name: str
     concepts: List[UIConcept]
+    rendered: str | None = None
 
 
 class ListModelResponse(BaseModel):

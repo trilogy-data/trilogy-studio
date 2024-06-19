@@ -21,7 +21,7 @@
                     </v-expansion-panel-title>
                     <v-expansion-panel-text class="px-0">
                         <template v-if="activeModelFromConnection">
-                            <v-list-item @click="setActiveEditor(editor.name)" v-for="editor in editors"
+                            <v-list-item @click="() =>setActiveEditor(editor.editor)" v-for="editor in editors"
                                 class="editor-list">
                                 {{ editor.editor }} ({{ editor.alias }})
                             </v-list-item>
@@ -160,7 +160,6 @@ export default {
 
         },
         editors() {
-            console.log(this.activeModelFromConnection)
             if (!this.activeModelFromConnection) {
                 return []
             }

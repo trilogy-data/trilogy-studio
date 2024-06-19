@@ -54,7 +54,7 @@ export default {
             dialog: false,
             model: this.connection.model,
             selectedType: this.connection.type,
-            connectionTypes: ['duck_db', 'bigquery', 'sql_server'],
+            connectionTypes: ['duck_db', 'bigquery', 'sql_server', 'snowflake'],
             extraValues: this.connection.extra ? { ...this.connection.extra } : {},
 
         };

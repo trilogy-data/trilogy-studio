@@ -23,5 +23,5 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
 npm run dev
 
 ## WSL
-
+export DISPLAY=$(hostname).local:0
 start xlaunch or equivalent

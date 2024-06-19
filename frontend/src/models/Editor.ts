@@ -93,20 +93,34 @@ export class Editor implements EditorInterface {
             name: this.connection,
           });
           // immediately force reconnection
-          await store.dispatch("connectConnection", store.getters.getConnectionByName(this.connection));
+          await store.dispatch(
+            "connectConnection",
+            store.getters.getConnectionByName(this.connection)
+          );
           await this.runQuery(store, true);
-          return 
+          return;
         }
-        local.status_code = resultCode;
-        local.error = axiosHelpers.getErrorMessage(error);
-        local.duration = null;
-        local.executed = false;
+        await this.setError(error);
       }
     } finally {
       local.loading = false;
     }
   }
-  async runGenAIQuery(store, genAIConnection: string, text: string, retry: boolean) {
+
+  async setError(error: Error) {
+    const resultCode = axiosHelpers.getResultCode(error);
+    this.status_code = resultCode;
+    this.error = axiosHelpers.getErrorMessage(error);
+    this.duration = null;
+    this.executed = false;
+    this.loading = false;
+  }
+  async runGenAIQuery(
+    store,
+    genAIConnection: string,
+    text: string,
+    retry: boolean
+  ) {
     this.loading = true;
     this.error = null;
     this.executed = true;
@@ -137,19 +151,48 @@ export class Editor implements EditorInterface {
         const resultCode = axiosHelpers.getResultCode(error);
         if (resultCode === 403 && !retry) {
           //connection both to be safe
-          await store.dispatch("connectConnection", store.getters.getConnectionByName(this.connection));
+          await store.dispatch(
+            "connectConnection",
+            store.getters.getConnectionByName(this.connection)
+          );
           await store.dispatch("connectGenAIConnection", genAIConnection);
-          let results = await this.runGenAIQuery(store, genAIConnection, text, true);
-          return results
+          let results = await this.runGenAIQuery(
+            store,
+            genAIConnection,
+            text,
+            true
+          );
+          return results;
         }
         local.status_code = resultCode;
         local.error = axiosHelpers.getErrorMessage(error);
         local.duration = null;
         local.executed = false;
-        throw Error("NLP query failed to generate valid SQL: " + local.error)
+        throw Error("NLP query failed to generate valid SQL: " + local.error);
       }
     } finally {
       local.loading = false;
+    }
+  }
+
+  formatText(text: string) {
+    this.error = null;
+    let local = this;
+    try {
+      let info = {
+        connection: local.connection,
+        query: text,
+      };
+      return instance.post("format_query", info).then((response) => {
+        return response.data.text;
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        const resultCode = axiosHelpers.getResultCode(error);
+        local.status_code = resultCode;
+        local.error = axiosHelpers.getErrorMessage(error);
+        throw error;
+      }
     }
   }
   static fromJSON({
@@ -221,15 +264,19 @@ export class RawEditor implements EditorInterface {
       // this.last_passed_query_text = current_query;
     } catch (error) {
       if (error instanceof Error) {
-        const resultCode = axiosHelpers.getResultCode(error);
-        local.status_code = resultCode;
-        local.error = axiosHelpers.getErrorMessage(error);
-        local.duration = null;
-        local.executed = false;
+        await local.setError(error);
       }
     } finally {
       local.loading = false;
     }
+  }
+
+  async setError(error: Error) {
+    const resultCode = axiosHelpers.getResultCode(error);
+    this.status_code = resultCode;
+    this.error = axiosHelpers.getErrorMessage(error);
+    this.duration = null;
+    this.executed = false;
   }
 
   static fromJSON({
