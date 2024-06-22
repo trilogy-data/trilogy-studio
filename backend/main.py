@@ -621,7 +621,8 @@ def run():
 
         f = open(os.devnull, "w")
         sys.stdout = f
-        run = uvicorn.run(
+        def run():
+            uvicorn.run(
             app,
             host="0.0.0.0",
             port=PORT,
