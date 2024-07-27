@@ -72,7 +72,7 @@ export default defineComponent({
         ...mapActions(['saveEditors', 'saveEditorText', 'formatEditorText', 'connectConnection', 'addMonacoEditor',
             'setConnectionInactive', 'addHistory', 'setEditorError']),
         async submitGenAI(selection: String) {
-            this.info = 'Generating PreQL query from prompt...'
+            this.info = 'Generating Trilogy query from prompt...'
             let response = await this.editorData.runGenAIQuery(this.$store, this.activeGenAIConnection.name, selection);
             return response
         },
@@ -128,7 +128,7 @@ export default defineComponent({
             editorMap.set(this.editorData.name, editor)
             // this.addMonacoEditor({ editor: editor, name: this.editorData.name })
             // editor.layout({ height: 400, width:400 });
-            monaco.editor.defineTheme('preqlStudio', {
+            monaco.editor.defineTheme('trilogyStudio', {
                 base: 'vs-dark', // can also be vs-dark or hc-black
                 inherit: true, // can also be false to completely replace the builtin rules
                 rules: [
@@ -146,7 +146,7 @@ export default defineComponent({
                     // 'editor.inactiveSelectionBackground': '#88000015'
                 }
             });
-            monaco.editor.setTheme('preqlStudio');
+            monaco.editor.setTheme('trilogyStudio');
             editor.onDidChangeModelContent(() => {
                 this.editorData.contents = editor.getValue();
             });
@@ -190,10 +190,9 @@ export default defineComponent({
             let editorData = this.editorData;
             editor.addAction({
                 id: 'format-preql',
-                label: 'Format PreQL',
+                label: 'Format Trilogy',
                 keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyI],
                 run: function () {
-                    console.log('FORMAT SOMETHING')
                     editorData.formatText(editor.getValue()).then((response) => {
                         editor.setValue(response)
                     })

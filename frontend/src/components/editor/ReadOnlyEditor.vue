@@ -46,7 +46,7 @@ export default defineComponent({
                 automaticLayout: true,
             })
             this.editor = editor;
-            monaco.editor.defineTheme('preqlStudio', {
+            monaco.editor.defineTheme('trilogyStudio', {
                 base: 'vs-dark', // can also be vs-dark or hc-black
                 inherit: true, // can also be false to completely replace the builtin rules
                 rules: [
@@ -64,7 +64,7 @@ export default defineComponent({
                     // 'editor.inactiveSelectionBackground': '#88000015'
                 }
             });
-            monaco.editor.setTheme('preqlStudio');
+            monaco.editor.setTheme('trilogyStudio');
             // editor.onDidChangeModelContent(() => {
             //     this.content = editor.getValue();
             // });
