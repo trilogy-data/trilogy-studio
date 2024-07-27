@@ -44,6 +44,8 @@ backend/build
 backend/dist
 
 playwright-report
+frontend/playwright-report
+frontend/test-results
 
 local_prompt_cache.db
 
@@ -52,3 +54,4 @@ local_prompt_cache.db
 trilogy-studio-engine
 
 
+frontend/playwright-report/index.html
