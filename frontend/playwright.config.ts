@@ -4,6 +4,7 @@ export default defineConfig({
   // Look for test files in the "tests" directory, relative to this configuration file.
   testDir: "tests",
 
+  
   // Run all tests in parallel.
   fullyParallel: true,
 
@@ -17,7 +18,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
 
   // Reporter to use
-  reporter: "html",
+  reporter: [ ['html', { open: 'never' }] ],
 
   use: {
     // Base URL to use in actions like `await page.goto('/')`.
@@ -25,13 +26,13 @@ export default defineConfig({
 
     // Collect trace when retrying the failed test.
     trace: "on-first-retry",
+    headless: true,
   },
   // Configure projects for major browsers.
   projects: [
     {
       name: "chromium",
       use: {
-        ...devices["Desktop Chrome"],
         contextOptions: {
           screen: {
             width: 1280,

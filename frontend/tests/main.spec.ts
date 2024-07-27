@@ -6,7 +6,8 @@ test.describe("All Tests", async () => {
   let firstWindow: Page;
 
   test.beforeAll(async () => {
-    const electronApp = await electron.launch({ args: ["."] });
+    const electronApp = await electron.launch({ args: ["."],
+     });
     const firstWindow = await electronApp.firstWindow();
     firstWindow.setViewportSize({ width: 1280, height: 720 });
   });
