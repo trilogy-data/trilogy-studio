@@ -2,7 +2,7 @@
 from PyInstaller.utils.hooks import collect_all
 import trilogy_public_models
 import sys
-import preql_nlp
+import trilogy_nlp
 from pathlib import Path
 from logging import getLogger
 
@@ -26,24 +26,35 @@ def get_trilogy_data_files():
                 inclusion_files.append(( str(f), str(subroot)))
     return inclusion_files
 
-def get_preql_nlp_template_files():
-    root = sys.modules.get(f'preql_nlp')
+def get_trilogy_nlp_template_files():
+    root = sys.modules.get(f'trilogy_nlp')
     root = Path(root.__file__).parent
 
     inclusion_files = []
     for f in (root / 'prompts').iterdir():
         if f.suffix == '.jinja2':
-            subroot = Path('preql_nlp')  / 'prompts'
+            subroot = Path('trilogy_nlp')  / 'prompts'
             inclusion_files.append(( str(f), str(subroot)))
     return inclusion_files
 
 
+def get_trilogy_lark_file():
+    root = sys.modules.get(f'trilogy')
+    root = Path(root.__file__).parent
 
-datas = get_trilogy_data_files() + get_preql_nlp_template_files()
+    inclusion_files = []
+    for f in (root / 'parsing').iterdir():
+        if f.suffix == '.lark':
+            subroot = Path('trilogy')  / 'parsing'
+            inclusion_files.append(( str(f), str(subroot)))
+    return inclusion_files
 
-#logger.info('Processing manual data files listed below')
-#for data in datas:
-#    logger.info(data)
+
+datas = get_trilogy_data_files() + get_trilogy_nlp_template_files() +  get_trilogy_lark_file()
+
+logger.info('Processing manual data files listed below')
+for data in datas:
+    logger.info(data)
 binaries = []
 hiddenimports = ['sqlalchemy_bigquery']
 tmp_ret = collect_all('uvicorn')
@@ -54,7 +65,7 @@ tmp_ret = collect_all('duckdb-engine')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('sqlalchemy')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('preql_nlp')
+tmp_ret = collect_all('trilogy_nlp')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 tmp_ret = collect_all('langchain_community')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]

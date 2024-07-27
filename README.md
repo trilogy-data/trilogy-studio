@@ -1,8 +1,8 @@
 
 
-## Trilogy/PreQL Studio
+## Trilog Studio
 
-The Trilogy desktop editor. Develop and query in PreQL or SQL languages in a modern, expressive editor.
+The Trilogy desktop editor. Develop and query in Trilogy or SQL languages in a modern, expressive editor.
 
 ![UI Preview](https://github.com/preqldata/preql-studio/blob/main/media/ui-example.png)
 

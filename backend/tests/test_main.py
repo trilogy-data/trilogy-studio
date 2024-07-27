@@ -7,7 +7,7 @@ from ..main import (
 from ..io_models import ModelSourceInSchema, GenAIConnectionInSchema
 from typing import List, Mapping
 from trilogy_public_models import models as public_models
-from preql_nlp import Provider
+from trilogy_nlp import Provider
 
 
 def test_read_main(test_client: TestClient):

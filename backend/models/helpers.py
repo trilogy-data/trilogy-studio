@@ -1,6 +1,6 @@
 from typing import Any, List, Union
 
-from preql.core.models import (
+from trilogy.core.models import (
     AggregateWrapper,
     Comparison,
     Concept,
@@ -17,8 +17,8 @@ from preql.core.models import (
 )
 
 from backend.io_models import LineageItem, Model, UIConcept
-from preql.constants import DEFAULT_NAMESPACE
-from preql.parsing.render import Renderer
+from trilogy.constants import DEFAULT_NAMESPACE
+from trilogy.parsing.render import Renderer
 
 
 def flatten_array(input: Any, depth: int = 0) -> List[LineageItem]:

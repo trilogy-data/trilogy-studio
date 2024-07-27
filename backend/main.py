@@ -26,9 +26,9 @@ from fastapi.responses import PlainTextResponse, JSONResponse
 from google.auth import default
 from google.cloud import bigquery
 from google.oauth2 import service_account
-from preql.constants import DEFAULT_NAMESPACE
-from preql.core.enums import Purpose
-from preql.core.models import (
+from trilogy.constants import DEFAULT_NAMESPACE
+from trilogy.core.enums import Purpose
+from trilogy.core.models import (
     ProcessedQuery,
     ProcessedQueryPersist,
     ProcessedShowStatement,
@@ -38,12 +38,11 @@ from preql.core.models import (
     PersistStatement,
     DataType,
 )
-from preql import Environment, Executor, Dialects
-from preql.parser import parse_text
+from trilogy import Environment, Executor, Dialects
+from trilogy.parser import parse_text
 from starlette.background import BackgroundTask
 from trilogy_public_models import models as public_models
-from trilogy_public_models.inventory import parse_initial_models
-from preql.parsing.render import render_query, Renderer
+from trilogy.parsing.render import render_query, Renderer
 from sqlalchemy import create_engine
 from backend.io_models import (
     ListModelResponse,
@@ -65,8 +64,9 @@ from sqlalchemy_bigquery import *  # this is for pyinstaller
 
 from sqlalchemy_bigquery.base import BigQueryDialect
 from duckdb_engine import Dialect as DuckDBDialect
-from preql.executor import generate_result_set
-from preql_nlp.core import NLPEngine
+from trilogy.executor import generate_result_set
+from trilogy_nlp.core import NLPEngine
+from trilogy.core.models import LazyEnvironment
 from logging import getLogger
 import click
 from click_default_group import DefaultGroup
@@ -102,11 +102,15 @@ def load_pyinstaller_trilogy_files() -> None:
 
     test = Path(search_path)
 
-    for item in test.glob("**/*preql"):
-        if item.name == "entrypoint.preql":
+    for item in test.glob("**/*trilogy"):
+        if item.name == "entrypoint.trilogy":
             relative = item.parent.relative_to(test)
-            model = parse_initial_models(str(item))
-            public_models[str(relative).replace("/", ".")] = model
+            label = str(relative).replace("/", ".")
+            if label in public_models:
+                continue
+            public_models[label] = LazyEnvironment(
+                    load_path=Path(item), working_path=Path(test.parent)
+                )
 
 
 load_pyinstaller_trilogy_files()
@@ -378,7 +382,7 @@ def run_raw_query(query: QueryInSchema):
 
 @router.post("/gen_ai_query")
 def run_genai_query(query: GenAIQueryInSchema):
-    from preql_nlp.main import parse_query
+    from trilogy_nlp.main import parse_query
 
     datetime.now()
     executor = CONNECTIONS.get(query.connection)

@@ -44,7 +44,7 @@
           queue: 'download'
         }),
         installNotification: new Noty({
-          text: "Update downloaded. Restart Preql Studio to install",
+          text: "Update downloaded. Restart Trilogy Studio to install",
           layout: 'bottomRight',
           timeout: false,
           // @ts-ignore
@@ -84,7 +84,7 @@
         // this.manualNotification.show()
       },
       linkToDownload() {
-        ipcRenderer.send(AppEvent.openExternally, ["https://github/preql"])
+        ipcRenderer.send(AppEvent.openExternally, ["https://github/trilogydata/trilogy-studio/releases"])
       },
       triggerInstall() {
         ipcRenderer.send('install-update')
