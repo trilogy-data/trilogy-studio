@@ -52,9 +52,9 @@ def get_trilogy_lark_file():
 
 datas = get_trilogy_data_files() + get_trilogy_nlp_template_files() +  get_trilogy_lark_file()
 
-#logger.info('Processing manual data files listed below')
-#for data in datas:
-#    logger.info(data)
+logger.info('Processing manual data files listed below')
+for data in datas:
+    logger.info(data)
 binaries = []
 hiddenimports = ['sqlalchemy_bigquery']
 tmp_ret = collect_all('uvicorn')
