@@ -26,13 +26,13 @@ export default defineConfig({
 
     // Collect trace when retrying the failed test.
     trace: "on-first-retry",
-    headless: true,
   },
   // Configure projects for major browsers.
   projects: [
     {
       name: "chromium",
       use: {
+        ...devices["Desktop Chrome"],
         contextOptions: {
           screen: {
             width: 1280,
