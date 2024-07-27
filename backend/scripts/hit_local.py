@@ -10,7 +10,7 @@ sys.path.append(str(current_directory))
 
 import requests
 from backend.io_models import ConnectionInSchema, QueryInSchema
-from preql import Dialects
+from trilogy import Dialects
 
 if __name__ == "__main__":
     response = requests.post(

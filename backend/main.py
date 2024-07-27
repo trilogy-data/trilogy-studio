@@ -42,7 +42,6 @@ from trilogy import Environment, Executor, Dialects
 from trilogy.parser import parse_text
 from starlette.background import BackgroundTask
 from trilogy_public_models import models as public_models
-from trilogy_public_models.inventory import parse_initial_models
 from trilogy.parsing.render import render_query, Renderer
 from sqlalchemy import create_engine
 from backend.io_models import (
@@ -67,6 +66,7 @@ from sqlalchemy_bigquery.base import BigQueryDialect
 from duckdb_engine import Dialect as DuckDBDialect
 from trilogy.executor import generate_result_set
 from trilogy_nlp.core import NLPEngine
+from trilogy.core.models import LazyEnvironment
 from logging import getLogger
 import click
 from click_default_group import DefaultGroup
@@ -105,8 +105,12 @@ def load_pyinstaller_trilogy_files() -> None:
     for item in test.glob("**/*trilogy"):
         if item.name == "entrypoint.trilogy":
             relative = item.parent.relative_to(test)
-            model = parse_initial_models(str(item))
-            public_models[str(relative).replace("/", ".")] = model
+            label = str(relative).replace("/", ".")
+            if label in public_models:
+                continue
+            public_models[label] = LazyEnvironment(
+                    load_path=Path(item), working_path=Path(test.parent)
+                )
 
 
 load_pyinstaller_trilogy_files()

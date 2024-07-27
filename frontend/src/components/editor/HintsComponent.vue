@@ -119,7 +119,7 @@ export default {
             if (this.$store.getters.genAIConnections.length > 0) {
                 return this.staticShortcuts.concat([
                     {
-                        name: 'Generate PreQL From Selected Text',
+                        name: 'Generate Trilogy From Selected Text',
                         keys: ['G']
                     }
                 ])
