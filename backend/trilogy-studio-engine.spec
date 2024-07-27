@@ -38,8 +38,19 @@ def get_trilogy_nlp_template_files():
     return inclusion_files
 
 
+def get_trilogy_lark_file():
+    root = sys.modules.get(f'trilogy')
+    root = Path(root.__file__).parent
 
-datas = get_trilogy_data_files() + get_trilogy_nlp_template_files()
+    inclusion_files = []
+    for f in (root / 'parsing').iterdir():
+        if f.suffix == '.lark':
+            subroot = Path('trilogy')  / 'parsing'
+            inclusion_files.append(( str(f), str(subroot)))
+    return inclusion_files
+
+
+datas = get_trilogy_data_files() + get_trilogy_nlp_template_files() +  get_trilogy_lark_file()
 
 #logger.info('Processing manual data files listed below')
 #for data in datas:
