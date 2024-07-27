@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/trilogydata/trilogy-studio.git"
+    "url": "https://github.com/trilogy-data/trilogy-studio.git"
   },
   "scripts": {
     "dev": "vite",
