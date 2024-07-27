@@ -1,9 +1,9 @@
 from typing import List, Optional, Dict, Tuple
 
-from preql.core.models import DataType, Purpose, ListType, MapType, StructType
+from trilogy.core.models import DataType, Purpose, ListType, MapType, StructType
 from pydantic import BaseModel, Field
-from preql_nlp.enums import Provider
-from preql import Dialects
+from trilogy_nlp.enums import Provider
+from trilogy import Dialects
 from datetime import datetime
 
 
