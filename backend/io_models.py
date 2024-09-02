@@ -1,6 +1,13 @@
 from typing import List, Optional, Dict, Tuple
 
-from trilogy.core.models import DataType, Purpose, ListType, MapType, StructType
+from trilogy.core.models import (
+    DataType,
+    Purpose,
+    ListType,
+    MapType,
+    StructType,
+    NumericType,
+)
 from pydantic import BaseModel, Field
 from trilogy_nlp.enums import Provider
 from trilogy import Dialects
@@ -17,7 +24,7 @@ class UIConcept(BaseModel):
     key: str
     name: str
     namespace: str
-    datatype: DataType | ListType | MapType | StructType
+    datatype: DataType | ListType | MapType | StructType | NumericType
     purpose: Purpose
     description: Optional[str] = None
     lineage: List[LineageItem] = Field(default_factory=list)

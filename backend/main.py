@@ -109,8 +109,8 @@ def load_pyinstaller_trilogy_files() -> None:
             if label in public_models:
                 continue
             public_models[label] = LazyEnvironment(
-                    load_path=Path(item), working_path=Path(test.parent)
-                )
+                load_path=Path(item), working_path=Path(test.parent)
+            )
 
 
 load_pyinstaller_trilogy_files()
@@ -625,14 +625,16 @@ def run():
 
         f = open(os.devnull, "w")
         sys.stdout = f
+
         def run():
             uvicorn.run(
-            app,
-            host="0.0.0.0",
-            port=PORT,
-            log_level="info",
-            log_config=LOGGING_CONFIG,
-        )
+                app,
+                host="0.0.0.0",
+                port=PORT,
+                log_level="info",
+                log_config=LOGGING_CONFIG,
+            )
+
     else:
         print("Running in a normal Python process, assuming dev")
 
