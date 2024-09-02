@@ -14,6 +14,7 @@
   "scripts": {
     "dev": "vite",
     "build_debug": "vue-tsc && vite build",
+    "build_debug_two": "node build-backend.js",
     "build": "node build-backend.js  && vue-tsc &&  vite build",
     "type-check": "vue-tsc --noEmit",
     "preview": "vite preview",
