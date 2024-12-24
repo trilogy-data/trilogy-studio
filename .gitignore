@@ -36,7 +36,7 @@ __pycache__
 *.parquet
 config.xlaunch
 .venv
-__pycache__
+__pycache__/*
 demo_data
 .pytest_cache
 
@@ -53,5 +53,5 @@ local_prompt_cache.db
 
 trilogy-studio-engine
 
-
+playwright-report/*
 frontend/playwright-report/index.html
