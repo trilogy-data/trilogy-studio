@@ -242,7 +242,7 @@ export class RawEditor implements EditorInterface {
     this.visible = true;
   }
 
-  async runQuery() {
+  async runQuery(store, retry: boolean = false) {
     this.loading = true;
     this.error = null;
     this.executed = true;
@@ -264,7 +264,20 @@ export class RawEditor implements EditorInterface {
       // this.last_passed_query_text = current_query;
     } catch (error) {
       if (error instanceof Error) {
-        await local.setError(error);
+        const resultCode = axiosHelpers.getResultCode(error);
+        if (resultCode === 403 && !retry) {
+          await store.dispatch("setConnectionInactive", {
+            name: this.connection,
+          });
+          // immediately force reconnection
+          await store.dispatch(
+            "connectConnection",
+            store.getters.getConnectionByName(this.connection)
+          );
+          await this.runQuery(store, true);
+          return;
+        }
+        await this.setError(error);
       }
     } finally {
       local.loading = false;

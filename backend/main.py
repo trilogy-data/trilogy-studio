@@ -41,7 +41,7 @@ from trilogy.core.models import (
 from trilogy import Environment, Executor, Dialects
 from trilogy.parser import parse_text
 from starlette.background import BackgroundTask
-from trilogy_public_models import models as public_models
+from trilogy_public_models import data_models
 from trilogy.parsing.render import render_query, Renderer
 from sqlalchemy import create_engine
 from backend.io_models import (
@@ -106,11 +106,11 @@ def load_pyinstaller_trilogy_files() -> None:
         if item.name == "entrypoint.trilogy":
             relative = item.parent.relative_to(test)
             label = str(relative).replace("/", ".")
-            if label in public_models:
+            if label in data_models:
                 continue
-            public_models[label] = LazyEnvironment(
-                    load_path=Path(item), working_path=Path(test.parent)
-                )
+            data_models[label] = LazyEnvironment(
+                load_path=Path(item), working_path=Path(test.parent)
+            )
 
 
 load_pyinstaller_trilogy_files()
@@ -205,8 +205,8 @@ def parse_env_from_full_model(input: ModelInSchema) -> Environment:
 @router.get("/models", response_model=ListModelResponse)
 async def get_models() -> ListModelResponse:
     models = []
-    for key, value in public_models.items():
-        models.append(model_to_response(name=key, env=value))
+    for key, value in data_models.items():
+        models.append(model_to_response(name=key, env=value.environment))
     return ListModelResponse(models=models)
 
 
@@ -215,9 +215,9 @@ async def get_model(model: str) -> Model:
     if model in CONNECTIONS:
         connection = CONNECTIONS[model]
         return model_to_response(model, connection.environment, True)
-    if model not in public_models:
+    if model not in data_models:
         raise HTTPException(404, f"model {model} not found")
-    return model_to_response(model, public_models[model], True)
+    return model_to_response(model, data_models[model], True)
 
 
 @router.get("/connections")
@@ -246,7 +246,7 @@ def create_connection(connection: ConnectionInSchema):
             raise HTTPException(status_code=500, detail=str(e))
     elif connection.model:
         try:
-            environment = deepcopy(public_models[connection.model])
+            environment = deepcopy(data_models[connection.model])
         except KeyError:
             environment = Environment()
     else:
@@ -338,10 +338,9 @@ def create_gen_ai_connection(connection: GenAIConnectionInSchema):
 @router.post("/raw_query")
 def run_raw_query(query: QueryInSchema):
     start = datetime.now()
-    # we need to use a deepcopy here to avoid mutation the model default
     executor = CONNECTIONS.get(query.connection)
     if not executor:
-        raise HTTPException(401, "Not a valid connection")
+        raise HTTPException(403, "Not a valid connection")
     try:
         rs = executor.engine.execute(query.query)
         outputs = [
@@ -459,7 +458,7 @@ def run_query(query: QueryInSchema):
 
             if isinstance(statement, (ProcessedQuery, ProcessedQueryPersist)):
                 compiled_sql = executor.generator.compile_statement(statement)
-                rs = executor.engine.execute(compiled_sql)
+                rs = executor.execute_raw_sql(compiled_sql, local_concepts=statement.local_concepts)
                 outputs = [
                     (
                         col.name,
@@ -625,14 +624,17 @@ def run():
 
         f = open(os.devnull, "w")
         sys.stdout = f
+
         def run():
             uvicorn.run(
-            app,
-            host="0.0.0.0",
-            port=PORT,
-            log_level="info",
-            log_config=LOGGING_CONFIG,
-        )
+                app,
+                host="0.0.0.0",
+                port=PORT,
+                log_level="info",
+                log_config=LOGGING_CONFIG,
+                workers = 1
+            )
+
     else:
         print("Running in a normal Python process, assuming dev")
 
@@ -656,7 +658,7 @@ def run():
 @cli.command()
 def test():
     # assert that we have multiple values
-    assert len(public_models.values()) > 2
+    assert len(data_models.values()) > 2
 
 
 if __name__ == "__main__":

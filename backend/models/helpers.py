@@ -13,7 +13,7 @@ from trilogy.core.models import (
     RowsetItem,
     SelectStatement,
     MultiSelectStatement,
-    MergeStatement,
+    MergeStatementV2,
 )
 
 from backend.io_models import LineageItem, Model, UIConcept
@@ -46,7 +46,7 @@ def flatten_lineage(
         AggregateWrapper,
         RowsetItem,
         MultiSelectStatement,
-        MergeStatement,
+        MergeStatementV2,
         SelectStatement,
     ],
     depth: int = 0,
@@ -93,16 +93,16 @@ def flatten_lineage(
         chain += [LineageItem(token="CTE", depth=depth)]
         chain += flatten_array(input.output_components, depth + 1)
         chain += [LineageItem(token=")", depth=depth)]
-    elif isinstance(input, MergeStatement):
+    elif isinstance(input, MergeStatementV2):
         chain = []
         chain += [LineageItem(token="(", depth=depth)]
         chain += [LineageItem(token="MERGE", depth=depth)]
-        chain += flatten_array(input.concepts, depth + 1)
+        chain += flatten_array(input.target, depth + 1)
         chain += [LineageItem(token=")", depth=depth)]
     elif isinstance(input, MultiSelectStatement):
         chain = []
         chain += [LineageItem(token="(", depth=depth)]
-        chain += [LineageItem(token="MERGE", depth=depth)]
+        chain += [LineageItem(token="MULTISELECT", depth=depth)]
         for select in input.selects:
             chain += flatten_lineage(select, depth + 1)
         chain += [LineageItem(token=")", depth=depth)]
